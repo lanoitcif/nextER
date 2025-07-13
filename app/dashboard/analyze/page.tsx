@@ -7,12 +7,19 @@ import { supabase } from '@/lib/supabase/client'
 import { Upload, FileText, Send, ArrowLeft, Settings, Key } from 'lucide-react'
 import Link from 'next/link'
 
-interface Prompt {
+interface Company {
+  id: string
+  ticker: string
+  name: string
+  primary_company_type_id: string
+  additional_company_types: string[]
+}
+
+interface CompanyType {
   id: string
   name: string
-  display_name: string
   description: string
-  category: string
+  system_prompt_template: string
 }
 
 interface UserApiKey {
@@ -25,8 +32,11 @@ export default function AnalyzePage() {
   const { user, profile, loading } = useAuth()
   const router = useRouter()
   const [transcript, setTranscript] = useState('')
-  const [prompts, setPrompts] = useState<Prompt[]>([])
-  const [selectedPrompt, setSelectedPrompt] = useState('')
+  const [ticker, setTicker] = useState('')
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
+  const [availableCompanyTypes, setAvailableCompanyTypes] = useState<CompanyType[]>([])
+  const [selectedCompanyType, setSelectedCompanyType] = useState<CompanyType | null>(null)
+  const [companies, setCompanies] = useState<Company[]>([])
   const [userApiKeys, setUserApiKeys] = useState<UserApiKey[]>([])
   const [keySource, setKeySource] = useState<'owner' | 'user_saved' | 'user_temporary'>('owner')
   const [selectedApiKey, setSelectedApiKey] = useState('')
@@ -44,30 +54,75 @@ export default function AnalyzePage() {
 
   useEffect(() => {
     if (user) {
-      fetchPrompts()
+      fetchCompanies()
       fetchUserApiKeys()
     }
   }, [user])
 
-  const fetchPrompts = async () => {
+  const fetchCompanies = async () => {
     try {
       const { data, error } = await supabase
-        .from('prompts')
+        .from('companies')
         .select('*')
         .eq('is_active', true)
-        .order('display_name')
+        .order('ticker')
 
       if (error) {
-        console.error('Error fetching prompts:', error)
+        console.error('Error fetching companies:', error)
         return
       }
 
-      setPrompts(data || [])
-      if (data && data.length > 0) {
-        setSelectedPrompt(data[0].id)
+      setCompanies(data || [])
+    } catch (error) {
+      console.error('Error fetching companies:', error)
+    }
+  }
+
+  const handleTickerSearch = () => {
+    if (!ticker.trim()) {
+      setError('Please enter a ticker symbol')
+      return
+    }
+
+    const company = companies.find(c => c.ticker.toLowerCase() === ticker.toLowerCase())
+    if (!company) {
+      setError(`Company with ticker "${ticker}" not found. Available tickers: ${companies.map(c => c.ticker).join(', ')}`)
+      setSelectedCompany(null)
+      setAvailableCompanyTypes([])
+      setSelectedCompanyType(null)
+      return
+    }
+
+    setSelectedCompany(company)
+    fetchCompanyTypes(company)
+    setError('')
+  }
+
+  const fetchCompanyTypes = async (company: Company) => {
+    try {
+      // Get all possible company types for this company
+      const allCompanyTypeIds = [company.primary_company_type_id, ...company.additional_company_types]
+      
+      const { data, error } = await supabase
+        .from('company_types')
+        .select('*')
+        .in('id', allCompanyTypeIds)
+        .eq('is_active', true)
+
+      if (error) {
+        console.error('Error fetching company types:', error)
+        return
+      }
+
+      setAvailableCompanyTypes(data || [])
+      
+      // Auto-select primary company type
+      const primaryType = data?.find(ct => ct.id === company.primary_company_type_id)
+      if (primaryType) {
+        setSelectedCompanyType(primaryType)
       }
     } catch (error) {
-      console.error('Error fetching prompts:', error)
+      console.error('Error fetching company types:', error)
     }
   }
 
@@ -92,8 +147,18 @@ export default function AnalyzePage() {
   }
 
   const handleAnalyze = async () => {
-    if (!transcript.trim() || !selectedPrompt) {
-      setError('Please enter a transcript and select a prompt')
+    if (!transcript.trim()) {
+      setError('Please enter a transcript')
+      return
+    }
+
+    if (!selectedCompany) {
+      setError('Please search for and select a company')
+      return
+    }
+
+    if (!selectedCompanyType) {
+      setError('Please select an analysis type')
       return
     }
 
@@ -125,7 +190,8 @@ export default function AnalyzePage() {
 
       const requestBody = {
         transcript,
-        promptId: selectedPrompt,
+        companyId: selectedCompany.id,
+        companyTypeId: selectedCompanyType.id,
         keySource,
         provider,
         ...(keySource === 'user_saved' && { userApiKeyId: selectedApiKey }),
@@ -220,32 +286,90 @@ export default function AnalyzePage() {
 
               <div className="card">
                 <div className="card-header">
-                  <h3 className="card-title">Analysis Settings</h3>
+                  <h3 className="card-title">Company Selection</h3>
+                  <p className="card-description">
+                    Enter the ticker symbol to identify the company
+                  </p>
                 </div>
                 <div className="card-content space-y-4">
-                  {/* Prompt Selection */}
+                  {/* Ticker Input */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Analysis Type
+                      Ticker Symbol
                     </label>
-                    <select
-                      value={selectedPrompt}
-                      onChange={(e) => setSelectedPrompt(e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                      disabled={analyzing}
-                    >
-                      {prompts.map((prompt) => (
-                        <option key={prompt.id} value={prompt.id}>
-                          {prompt.display_name}
-                        </option>
-                      ))}
-                    </select>
-                    {selectedPrompt && (
+                    <div className="flex space-x-2">
+                      <input
+                        type="text"
+                        value={ticker}
+                        onChange={(e) => setTicker(e.target.value.toUpperCase())}
+                        placeholder="e.g., AAPL, TSLA, MSFT"
+                        className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        disabled={analyzing}
+                        onKeyPress={(e) => e.key === 'Enter' && handleTickerSearch()}
+                      />
+                      <button
+                        onClick={handleTickerSearch}
+                        disabled={!ticker.trim() || analyzing}
+                        className="btn-primary px-4"
+                      >
+                        Search
+                      </button>
+                    </div>
+                    {companies.length > 0 && (
                       <p className="text-xs text-gray-600 mt-1">
-                        {prompts.find(p => p.id === selectedPrompt)?.description}
+                        Available companies: {companies.map(c => c.ticker).join(', ')}
                       </p>
                     )}
                   </div>
+
+                  {/* Selected Company Display */}
+                  {selectedCompany && (
+                    <div className="bg-green-50 border border-green-200 rounded-md p-4">
+                      <h4 className="text-sm font-medium text-green-900 mb-1">
+                        Selected Company
+                      </h4>
+                      <p className="text-sm text-green-700">
+                        <strong>{selectedCompany.ticker}</strong> - {selectedCompany.name}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Analysis Type Selection */}
+                  {availableCompanyTypes.length > 0 && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Analysis Type
+                      </label>
+                      <select
+                        value={selectedCompanyType?.id || ''}
+                        onChange={(e) => {
+                          const type = availableCompanyTypes.find(ct => ct.id === e.target.value)
+                          setSelectedCompanyType(type || null)
+                        }}
+                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        disabled={analyzing}
+                      >
+                        {availableCompanyTypes.map((type) => (
+                          <option key={type.id} value={type.id}>
+                            {type.name}
+                          </option>
+                        ))}
+                      </select>
+                      {selectedCompanyType && (
+                        <p className="text-xs text-gray-600 mt-1">
+                          {selectedCompanyType.description}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="card">
+                <div className="card-header">
+                  <h3 className="card-title">API Configuration</h3>
+                </div>
+                <div className="card-content space-y-4">
 
                   {/* API Key Source */}
                   <div>
@@ -370,7 +494,7 @@ export default function AnalyzePage() {
                   {/* Analyze Button */}
                   <button
                     onClick={handleAnalyze}
-                    disabled={analyzing || !transcript.trim() || !selectedPrompt}
+                    disabled={analyzing || !transcript.trim() || !selectedCompany || !selectedCompanyType}
                     className="w-full btn-primary flex items-center justify-center space-x-2"
                   >
                     {analyzing ? (

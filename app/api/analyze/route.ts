@@ -5,7 +5,8 @@ import { decryptFromStorage } from '@/lib/crypto'
 
 interface AnalyzeRequest {
   transcript: string
-  promptId: string
+  companyId: string
+  companyTypeId: string
   keySource: 'owner' | 'user_saved' | 'user_temporary'
   userApiKeyId?: string
   temporaryApiKey?: string
@@ -45,10 +46,10 @@ export async function POST(request: NextRequest) {
 
     // Parse the request body
     const body: AnalyzeRequest = await request.json()
-    const { transcript, promptId, keySource, userApiKeyId, temporaryApiKey, provider, model } = body
+    const { transcript, companyId, companyTypeId, keySource, userApiKeyId, temporaryApiKey, provider, model } = body
 
     // Validate required fields
-    if (!transcript || !promptId || !keySource || !provider) {
+    if (!transcript || !companyId || !companyTypeId || !keySource || !provider) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -76,20 +77,46 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get the prompt
-    const { data: prompt, error: promptError } = await supabaseAdmin
-      .from('prompts')
+    // Get the company type with its system prompt template
+    const { data: companyType, error: companyTypeError } = await supabaseAdmin
+      .from('company_types')
       .select('*')
-      .eq('id', promptId)
+      .eq('id', companyTypeId)
       .eq('is_active', true)
       .single()
 
-    if (promptError || !prompt) {
+    if (companyTypeError || !companyType) {
       return NextResponse.json(
-        { error: 'Prompt not found or inactive' },
+        { error: 'Company type not found or inactive' },
         { status: 404 }
       )
     }
+
+    // Get the company details
+    const { data: company, error: companyError } = await supabaseAdmin
+      .from('companies')
+      .select('*')
+      .eq('id', companyId)
+      .eq('is_active', true)
+      .single()
+
+    if (companyError || !company) {
+      return NextResponse.json(
+        { error: 'Company not found or inactive' },
+        { status: 404 }
+      )
+    }
+
+    // Build the system prompt from the template
+    const systemPrompt = companyType.system_prompt_template
+      .replace('{role}', `You are a financial analyst specializing in ${companyType.name} companies.`)
+      .replace('{classification_rules}', JSON.stringify(companyType.classification_rules || {}))
+      .replace('{temporal_tags}', JSON.stringify(companyType.classification_rules?.temporal_tags || []))
+      .replace('{operating_metrics}', JSON.stringify(companyType.key_metrics?.operating_performance || []))
+      .replace('{segment_metrics}', JSON.stringify(companyType.key_metrics?.segment_performance || []))
+      .replace('{financial_metrics}', JSON.stringify(companyType.key_metrics?.financial_metrics || []))
+      .replace('{validation_rules}', (companyType.validation_rules || []).join(', '))
+      .replace('{special_considerations}', JSON.stringify(companyType.special_considerations || {}))
 
     // Determine which API key to use
     let apiKey: string
@@ -177,7 +204,7 @@ export async function POST(request: NextRequest) {
       const llmClient = createLLMClient(provider, apiKey)
       
       const response = await llmClient.generateResponse({
-        systemPrompt: prompt.system_prompt,
+        systemPrompt: systemPrompt,
         userMessage: transcript,
         model: model || llmClient.getDefaultModel()
       })
@@ -189,7 +216,7 @@ export async function POST(request: NextRequest) {
           user_id: user.id,
           provider: provider,
           model: response.model,
-          prompt_id: promptId,
+          prompt_id: null, // No longer using specific prompt IDs, using company types instead
           token_count: response.usage?.totalTokens || null,
           cost_estimate: calculateCostEstimate(provider, response.model, response.usage?.totalTokens || 0),
           used_owner_key: usedOwnerKey
@@ -197,7 +224,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        result: response.content,
+        analysis: response.content,
         usage: response.usage,
         model: response.model,
         provider: response.provider
