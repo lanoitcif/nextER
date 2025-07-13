@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 // Debug: Log what we're getting from environment
 console.log('Environment check:', {
@@ -10,20 +10,27 @@ console.log('Environment check:', {
   allEnv: Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC_'))
 })
 
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(`Missing Supabase environment variables. URL: ${!!supabaseUrl}, Key: ${!!supabaseAnonKey}`)
+}
+
 // Client-side Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Server-side Supabase client with service role (for API routes)
-export const supabaseAdmin = createClient(
-  supabaseUrl,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
+export const supabaseAdmin = (() => {
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!serviceRoleKey) {
+    // Return a dummy client for client-side usage (service role key not available in browser)
+    return null
+  }
+  return createClient(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false
     }
-  }
-)
+  })
+})()
 
 // Database types
 export interface Database {
