@@ -94,10 +94,9 @@ export async function POST(request: NextRequest) {
         provider,
         encrypted_api_key: encrypted,
         encryption_iv: iv,
-        nickname: nickname || null,
-        preferred_model: preferredModel || null
+        nickname: nickname || null
       })
-      .select('id, provider, nickname, preferred_model, created_at')
+      .select('id, provider, nickname, created_at')
       .single()
 
     if (error) {
@@ -153,9 +152,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's API keys (without the actual encrypted keys)
+    // Note: preferred_model column might not exist in older database schemas
     const { data: apiKeys, error } = await supabaseAdmin
       .from('user_api_keys')
-      .select('id, provider, nickname, preferred_model, created_at')
+      .select('id, provider, nickname, created_at')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
