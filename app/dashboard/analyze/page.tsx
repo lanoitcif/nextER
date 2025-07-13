@@ -154,7 +154,10 @@ export default function AnalyzePage() {
   }, [user])
 
   const loadUserPreferences = () => {
-    const preferences = safeLocalStorage.getItem(`user-preferences-${user?.id}`, null)
+    const preferences = safeLocalStorage.getItem<{
+      defaultProvider?: 'openai' | 'anthropic' | 'google' | 'cohere';
+      defaultModels?: Record<string, string>;
+    }>(`user-preferences-${user?.id}`, null)
     if (preferences) {
       setProvider(preferences.defaultProvider || 'openai')
       const defaultProvider = preferences.defaultProvider || 'openai'
