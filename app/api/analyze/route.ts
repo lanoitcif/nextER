@@ -99,14 +99,16 @@ export async function POST(request: NextRequest) {
         
         // Get owner key from environment variables
         const ownerKeyEnvVar = `OWNER_${provider.toUpperCase()}_API_KEY`
-        apiKey = process.env[ownerKeyEnvVar]
+        const ownerApiKey = process.env[ownerKeyEnvVar]
         
-        if (!apiKey) {
+        if (!ownerApiKey) {
           return NextResponse.json(
             { error: `Owner ${provider} API key not configured` },
             { status: 500 }
           )
         }
+        
+        apiKey = ownerApiKey
         
         usedOwnerKey = true
         break
