@@ -21,23 +21,26 @@ Production: https://your-domain.com/api
 
 ### POST /api/analyze
 
-Analyzes a transcript using the specified LLM provider and prompt.
+Analyzes a transcript using the specified LLM provider and prompt. Can automatically select analysis type based on company ticker.
 
 #### Request
 
 ```typescript
 interface AnalyzeRequest {
   transcript: string;           // The transcript text to analyze
-  promptId: string;            // ID of the analysis prompt to use
+  promptId?: string;           // ID of the analysis prompt to use (optional if ticker provided)
+  ticker?: string;             // Company ticker symbol (e.g., "DAL", "AXP") - auto-selects analysis type
+  companyTypeId?: string;      // Specific company type ID to use
   provider: 'openai' | 'anthropic' | 'google' | 'cohere';
   model?: string;              // Optional specific model (uses default if not provided)
   keySource: 'owner' | 'user' | 'temporary';
   userApiKeyId?: string;       // Required if keySource is 'user'
   temporaryApiKey?: string;    // Required if keySource is 'temporary'
+  analysisRole?: string;       // Role for template substitution (default: "Expert Financial Analyst")
 }
 ```
 
-#### Example Request
+#### Example Request (Traditional)
 
 ```bash
 curl -X POST "http://localhost:3000/api/analyze" \
@@ -52,6 +55,21 @@ curl -X POST "http://localhost:3000/api/analyze" \
   }'
 ```
 
+#### Example Request (Ticker-based)
+
+```bash
+curl -X POST "http://localhost:3000/api/analyze" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_jwt_token>" \
+  -d '{
+    "transcript": "Q3 earnings call transcript for Delta Air Lines...",
+    "ticker": "DAL",
+    "provider": "anthropic",
+    "keySource": "owner",
+    "analysisRole": "Senior Aviation Industry Analyst"
+  }'
+```
+
 #### Response
 
 ```typescript
@@ -62,6 +80,11 @@ interface AnalyzeResponse {
   tokensUsed: number;         // Total tokens consumed
   estimatedCost: number;      // Estimated cost in USD
   processingTime: number;     // Processing time in milliseconds
+  companyInfo?: {            // Only present for ticker-based requests
+    ticker: string;
+    companyName: string;
+    analysisType: string;
+  };
 }
 ```
 
@@ -104,6 +127,80 @@ interface AnalyzeResponse {
   "error": "Provider Error",
   "message": "Rate limit exceeded",
   "provider": "openai"
+}
+```
+
+---
+
+### GET /api/companies
+
+Retrieves available companies and their ticker symbols.
+
+#### Response
+
+```typescript
+interface Company {
+  id: string;
+  ticker: string;
+  name: string;
+  primaryCompanyTypeId: string;
+  additionalCompanyTypes: string[];
+}
+
+interface GetCompaniesResponse {
+  companies: Company[];
+}
+```
+
+#### Example Response
+
+```json
+{
+  "companies": [
+    {
+      "id": "123e4567-e89b-12d3-a456-426614174000",
+      "ticker": "DAL",
+      "name": "Delta Air Lines",
+      "primaryCompanyTypeId": "airline",
+      "additionalCompanyTypes": ["earnings_analyst"]
+    }
+  ]
+}
+```
+
+---
+
+### GET /api/company-types
+
+Retrieves available company analysis types.
+
+#### Response
+
+```typescript
+interface CompanyType {
+  id: string;
+  name: string;
+  description: string;
+  isActive: boolean;
+}
+
+interface GetCompanyTypesResponse {
+  companyTypes: CompanyType[];
+}
+```
+
+#### Example Response
+
+```json
+{
+  "companyTypes": [
+    {
+      "id": "airline",
+      "name": "Airline",
+      "description": "Analysis template for airline companies",
+      "isActive": true
+    }
+  ]
 }
 ```
 
@@ -265,6 +362,33 @@ ORDER BY category, display_name;
 | `interview_analysis` | interview_analysis | Interview Analysis | interview |
 | `sentiment_analysis` | sentiment_analysis | Sentiment Analysis | sentiment |
 | `sales_call_analysis` | sales_call_analysis | Sales Call Analysis | sales |
+
+### Industry-Specific Company Types
+
+| ID | Name | Description |
+|----|------|-------------|
+| `hospitality_reit` | Hospitality REIT | Analysis template for hospitality real estate investment trusts |
+| `airline` | Airline | Analysis template for airline companies |
+| `credit_card` | Credit Card | Analysis template for credit card companies |
+| `luxury_retail` | Luxury Retail | Analysis template for luxury retail companies |
+| `hospitality_ccorp` | Hospitality C-Corporation | Analysis template for hospitality management companies |
+| `earnings_analyst` | Earnings Analyst | Narrative analysis format for earnings calls |
+
+### Supported Companies
+
+| Ticker | Company Name | Primary Type | Additional Types |
+|--------|--------------|--------------|------------------|
+| DAL | Delta Air Lines | airline | earnings_analyst |
+| HST | Host Hotels & Resorts | hospitality_reit | earnings_analyst |
+| AXP | American Express | credit_card | earnings_analyst |
+| PEB | Pebblebrook Hotel Trust | hospitality_reit | earnings_analyst |
+| DRH | DiamondRock Hospitality | hospitality_reit | earnings_analyst |
+| LVMH | LVMH Moët Hennessy Louis Vuitton | luxury_retail | earnings_analyst |
+| HLT | Hilton Worldwide Holdings Inc | hospitality_ccorp | earnings_analyst |
+| MAR | Marriott International Inc | hospitality_ccorp | earnings_analyst |
+| ABNB | Airbnb, Inc. | hospitality_ccorp | - |
+| PK | Park Hotels & Resorts | hospitality_reit | - |
+| RHP | Ryman Hospitality Properties, Inc. | hospitality_reit | - |
 
 ## LLM Providers & Models
 

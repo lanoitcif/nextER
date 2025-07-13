@@ -87,6 +87,10 @@ Visit `http://localhost:3000` to see the application.
 │   ├── api/                 # API routes
 │   │   ├── analyze/         # Main analysis endpoint
 │   │   │   └── route.ts
+│   │   ├── companies/       # Company ticker endpoints
+│   │   │   └── route.ts
+│   │   ├── company-types/   # Company analysis type endpoints
+│   │   │   └── route.ts
 │   │   └── user-api-keys/   # API key management
 │   │       ├── route.ts
 │   │       └── [id]/
@@ -424,6 +428,12 @@ ADD COLUMN new_field TEXT DEFAULT NULL;
 DROP POLICY IF EXISTS "Users can view own profile" ON user_profiles;
 CREATE POLICY "Users can view own profile" ON user_profiles
 FOR SELECT USING (auth.uid() = user_id);
+
+-- Industry-specific tables (new feature)
+-- See supabase_schema.sql for complete schema including:
+-- - company_types: Industry analysis templates with JSONB metadata
+-- - companies: Ticker symbol to analysis type mappings  
+-- - company_prompt_assignments: Links companies to analysis types
 ```
 
 ### Type Generation
@@ -447,6 +457,33 @@ async function getUserProfile(userId: string) {
   if (error) {
     console.error('Database error:', error);
     throw new Error('Failed to fetch user profile');
+  }
+
+  return data;
+}
+
+// Example: Company ticker lookup with analysis type
+async function getCompanyAnalysisType(ticker: string) {
+  const supabase = createClient();
+  
+  const { data, error } = await supabase
+    .from('companies')
+    .select(`
+      *,
+      company_types!primary_company_type_id (
+        id,
+        name,
+        system_prompt_template,
+        classification_rules,
+        key_metrics,
+        output_format
+      )
+    `)
+    .eq('ticker', ticker.toUpperCase())
+    .single();
+
+  if (error) {
+    throw new Error(`Company not found: ${ticker}`);
   }
 
   return data;

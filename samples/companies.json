@@ -1,0 +1,81 @@
+[
+    {
+        "ticker": "DAL",
+        "name": "Delta Air Lines",
+        "company_type_id": "airline",
+        "additional_types": [
+            "earnings_analyst"
+        ]
+    },
+    {
+        "ticker": "HST",
+        "name": "Host Hotels & Resorts",
+        "company_type_id": "hospitality_reit",
+        "additional_types": [
+            "earnings_analyst"
+        ]
+    },
+    {
+        "ticker": "AXP",
+        "name": "American Express",
+        "company_type_id": "credit_card",
+        "additional_types": [
+            "earnings_analyst"
+        ]
+    },
+    {
+        "ticker": "PEB",
+        "name": "Pebblebrook Hotel Trust",
+        "company_type_id": "hospitality_reit",
+        "additional_types": [
+            "earnings_analyst"
+        ]
+    },
+    {
+        "ticker": "DRH",
+        "name": "DiamondRock Hospitality",
+        "company_type_id": "hospitality_reit",
+        "additional_types": [
+            "earnings_analyst"
+        ]
+    },
+    {
+        "ticker": "LVMH",
+        "name": "LVMH Mo\u00ebt Hennessy Louis Vuitton",
+        "company_type_id": "luxury_retail",
+        "additional_types": [
+            "earnings_analyst"
+        ]
+    },
+    {
+        "ticker": "HLT",
+        "name": "Hilton Worldwide Holdings Inc",
+        "company_type_id": "hospitality_ccorp",
+        "additional_types": [
+            "earnings_analyst"
+        ]
+    },
+    {
+        "ticker": "MAR",
+        "name": "Marriott International Inc",
+        "company_type_id": "hospitality_ccorp",
+        "additional_types": [
+            "earnings_analyst"
+        ]
+    },
+    {
+        "ticker": "ABNB",
+        "name": "Airbnb, Inc.",
+        "company_type_id": "hospitality_ccorp"
+    },
+    {
+        "ticker": "PK",
+        "name": "Park Hotels & Resorts",
+        "company_type_id": "hospitality_reit"
+    },
+    {
+        "ticker": "RHP",
+        "name": "Ryman Hospitality Properties, Inc.",
+        "company_type_id": "hospitality_reit"
+    }
+]

@@ -1,10 +1,16 @@
 # LLM Transcript Analyzer
 
-A powerful SaaS web application for analyzing transcripts using multiple AI providers with secure API key management and pre-built analysis templates.
+A powerful SaaS web application for analyzing transcripts using multiple AI providers with secure API key management and industry-specific analysis templates.
+
+## 🚧 Development Status
+**This project is currently in active development. Features and documentation may change.**
 
 ## 🚀 Features
 
 - **Multiple LLM Providers**: OpenAI, Anthropic, Google, and Cohere integration
+- **Industry-Specific Analysis**: Specialized templates for hospitality REITs, airlines, credit cards, luxury retail, and more
+- **Company Ticker Integration**: Automatic analysis type selection based on ticker symbols (e.g., DAL → airline analysis)
+- **Structured Output Formats**: Industry-specific tables and metrics for consistent analysis
 - **Pre-built Analysis Types**: Meeting summaries, interview analysis, sentiment analysis, sales call insights
 - **Secure API Key Management**: AES-256-GCM encryption for user API keys
 - **Flexible Key Sources**: System-provided keys or user's own API keys
@@ -112,6 +118,12 @@ Visit `http://localhost:3000`
 - **`prompts`**: Pre-built analysis templates
 - **`usage_logs`**: API usage tracking and cost analytics
 
+### Industry-Specific Tables (New)
+
+- **`company_types`**: Industry analysis templates with structured metadata (hospitality REIT, airline, credit card, etc.)
+- **`companies`**: Company ticker symbol to analysis type mappings
+- **`company_prompt_assignments`**: Links companies to their primary and additional analysis types
+
 ## 🔧 API Endpoints
 
 ### `POST /api/analyze`
@@ -172,6 +184,26 @@ VALUES (
   'System prompt text...',
   'custom'
 );
+```
+
+### Add Company Types
+```sql
+INSERT INTO public.company_types (id, name, description, system_prompt_template, classification_rules, key_metrics, output_format) 
+VALUES (
+  'industry_id',
+  'Industry Name',
+  'Description of industry analysis',
+  'Role: {role}...',
+  '{"primary_topics": ["Topic1", "Topic2"]}',
+  '{"operating_performance": ["Metric1", "Metric2"]}',
+  '{"quarterly_highlights": ["Metric1", "Metric2"]}'
+);
+```
+
+### Add Companies
+```sql
+INSERT INTO public.companies (ticker, name, primary_company_type_id, additional_company_types) 
+VALUES ('TICK', 'Company Name', 'industry_id', ARRAY['additional_type']);
 ```
 
 ### Add LLM Provider
@@ -241,5 +273,5 @@ MIT License - see LICENSE file for details.
 
 ---
 
-**Status**: Production Ready  
+**Status**: In Development  
 **Last Updated**: 2025-07-13

@@ -1,0 +1,446 @@
+[
+    {
+        "id": "hospitality_reit",
+        "name": "Hospitality REIT",
+        "system_prompt_template": "Role: {role}\n\nCRITICAL INSTRUCTION: You MUST structure your response EXACTLY as shown below, using markdown tables.\nEach section and table is REQUIRED - if data is not available, write \"No data available\" but maintain the structure.\n\nMANDATORY FORMAT:\n\n# Quarterly Results Highlights\n- RevPAR: [Value] ([YoY change])\n- ADR: [Value] ([YoY change])\n- Occupancy: [Value] ([YoY change])\n- EBITDA: [Value] ([YoY change])\n- FFO per share: [Value] ([YoY change])\n- [Add any additional metrics with specific values]\n\n# Q&A Analysis\n| Topic | Q&A Count |\n|-------|-----------|\n| Macro outlook | [Count] |\n| Supply | [Count] |\n| Group & BT | [Count] |\n| Leisure | [Count] |\n| Transactions | [Count] |\n| Capital allocation | [Count] |\n| Outlook/guidance | [Count] |\n\n# Question and Answer Details\n| Analyst | Firm | Question Topic | Key Points | Quantitative Data | Management Response |\n|---------|------|----------------|------------|-------------------|-------------------|\n[Create a row for each Q&A interaction from the transcript]\n\n# Topic Summaries\n\n## Macro Outlook\n| Topic | Current Performance | Forward Outlook | YoY Change |\n|-------|-------------------|-----------------|------------|\n| Macro outlook | [Current state] | [Future expectations] | [YoY metrics] |\n\n## Supply\n| Topic | Current Performance | Forward Outlook | YoY Change |\n|-------|-------------------|-----------------|------------|\n| Supply | [Current state] | [Future expectations] | [YoY metrics] |\n\n[Repeat for each primary topic]\n\n# Market Performance\n| Market Type | RevPAR | ADR | Occupancy | Commentary |\n|------------|--------|-----|-----------|------------|\n| Urban | [Value] | [Value] | [Value]% | [Key points] |\n| Resort | [Value] | [Value] | [Value]% | [Key points] |\n| Overall | [Value] | [Value] | [Value]% | [Key points] |\n\n# Capital Structure\n| Metric | Current | Change | Commentary |\n|--------|---------|--------|------------|\n| Total Debt | $[Value] | [+/-]% | [Details] |\n| Cash Balance | $[Value] | [+/-]% | [Details] |\n| Debt/EBITDA | [Value]x | [+/-] | [Details] |\n| Interest Coverage | [Value]x | [+/-] | [Details] |\n\nClassification Rules:\n{classification_rules}\n\nTemporal Tags:\n{temporal_tags}\n\nOperating Performance Metrics:\n{operating_metrics}\n\nSegment Performance Metrics:\n{segment_metrics}\n\nFinancial Metrics:\n{financial_metrics}\n\nValidation Rules:\n{validation_rules}\n\nSpecial Considerations:\n{special_considerations}",
+        "classification_rules": {
+            "primary_topics": [
+                "Macro outlook",
+                "Supply",
+                "Group & BT",
+                "Leisure",
+                "Transactions",
+                "Capital allocation",
+                "Outlook/guidance"
+            ],
+            "temporal_tags": [
+                "previous quarter",
+                "next quarter",
+                "full year",
+                "year-to-date"
+            ]
+        },
+        "key_metrics": {
+            "operating_performance": [
+                "RevPAR",
+                "ADR",
+                "Occupancy"
+            ],
+            "segment_performance": [],
+            "financial_metrics": [
+                "EBITDA",
+                "FFO per share"
+            ]
+        },
+        "output_format": {
+            "quarterly_highlights": [
+                "RevPAR",
+                "ADR",
+                "Occupancy",
+                "EBITDA",
+                "FFO per share"
+            ],
+            "qa_analysis_topics": [
+                "Macro outlook",
+                "Supply",
+                "Group & BT",
+                "Leisure",
+                "Transactions",
+                "Capital allocation",
+                "Outlook/guidance"
+            ],
+            "market_performance_metrics": [
+                "RevPAR",
+                "ADR",
+                "Occupancy"
+            ],
+            "capital_structure_metrics": [
+                "Total Debt",
+                "Cash Balance",
+                "Debt/EBITDA",
+                "Interest Coverage"
+            ]
+        },
+        "validation_rules": [
+            "Ensure all tables are present.",
+            "Verify quantitative data accuracy.",
+            "Check for consistency in YoY changes."
+        ],
+        "special_considerations": {
+            "mixed_topics": [],
+            "forward_looking": [],
+            "analyst_tracking": []
+        }
+    },
+    {
+        "id": "airline",
+        "name": "Airline",
+        "system_prompt_template": "Role: {role}\n\nCRITICAL INSTRUCTION: You MUST structure your response EXACTLY as shown below, using markdown tables.\nEach section and table is REQUIRED - if data is not available, write \"No data available\" but maintain the structure.\n\nMANDATORY FORMAT:\n\n# Quarterly Results Highlights\n- Revenue Passenger Miles (RPM): [Value] ([YoY change])\n- Available Seat Miles (ASM): [Value] ([YoY change])\n- Passenger Load Factor (PLF): [Value] ([YoY change])\n- Total Revenue: [Value] ([YoY change])\n- Net Income: [Value] ([YoY change])\n- [Add any additional metrics with specific values]\n\n# Q&A Analysis\n| Topic | Q&A Count |\n|-------|-----------|\n| Revenue Trends | [Count] |\n| Cost Management | [Count] |\n| Capacity Outlook | [Count] |\n| Fleet Updates | [Count] |\n| Loyalty Program | [Count] |\n| Strategic Partnerships | [Count] |\n| Outlook/Guidance | [Count] |\n\n# Question and Answer Details\n| Analyst | Firm | Question Topic | Key Points | Quantitative Data | Management Response |\n|---------|------|----------------|------------|-------------------|-------------------|\n[Create a row for each Q&A interaction from the transcript]\n\n# Topic Summaries\n\n## Revenue Trends\n| Topic | Current Performance | Forward Outlook | YoY Change |\n|-------|-------------------|-----------------|------------|\n| Revenue Trends | [Current state] | [Future expectations] | [YoY metrics] |\n\n## Cost Management\n| Topic | Current Performance | Forward Outlook | YoY Change |\n|-------|-------------------|-----------------|------------|\n| Cost Management | [Current state] | [Future expectations] | [YoY metrics] |\n\n[Repeat for each primary topic]\n\n# Operational Performance\n| Metric | Value | Change | Commentary |\n|------------|--------|-----|-----------|\n| On-Time Arrival | [Value]% | [+/-]% | [Key points] |\n| Completion Factor | [Value]% | [+/-]% | [Key points] |\n| Customer Satisfaction | [Value] | [+/-] | [Key points] |\n\n# Financial Position\n| Metric | Current | Change | Commentary |\n|--------|---------|--------|------------|\n| Total Debt | $[Value] | [+/-]% | [Details] |\n| Cash Balance | $[Value] | [+/-]% | [Details] |\n| Debt/Equity Ratio | [Value]x | [+/-] | [Details] |\n| Liquidity | $[Value] | [+/-]% | [Details] |\n\nClassification Rules:\n{classification_rules}\n\nTemporal Tags:\n{temporal_tags}\n\nOperational Performance Metrics:\n{operating_metrics}\n\nSegment Performance Metrics:\n{segment_metrics}\n\nFinancial Metrics:\n{financial_metrics}\n\nValidation Rules:\n{validation_rules}\n\nSpecial Considerations:\n{special_considerations}",
+        "classification_rules": {
+            "primary_topics": [
+                "Revenue Trends",
+                "Cost Management",
+                "Capacity Outlook",
+                "Fleet Updates",
+                "Loyalty Program",
+                "Strategic Partnerships",
+                "Outlook/Guidance"
+            ],
+            "temporal_tags": [
+                "previous quarter",
+                "next quarter",
+                "full year",
+                "year-to-date"
+            ]
+        },
+        "key_metrics": {
+            "operating_performance": [
+                "Revenue Passenger Miles (RPM)",
+                "Available Seat Miles (ASM)",
+                "Passenger Load Factor (PLF)"
+            ],
+            "segment_performance": [],
+            "financial_metrics": [
+                "Total Revenue",
+                "Net Income"
+            ]
+        },
+        "output_format": {
+            "quarterly_highlights": [
+                "RPM",
+                "ASM",
+                "PLF",
+                "Total Revenue",
+                "Net Income"
+            ],
+            "qa_analysis_topics": [
+                "Revenue Trends",
+                "Cost Management",
+                "Capacity Outlook",
+                "Fleet Updates",
+                "Loyalty Program",
+                "Strategic Partnerships",
+                "Outlook/Guidance"
+            ],
+            "operational_performance_metrics": [
+                "On-Time Arrival",
+                "Completion Factor",
+                "Customer Satisfaction"
+            ],
+            "financial_position_metrics": [
+                "Total Debt",
+                "Cash Balance",
+                "Debt/Equity Ratio",
+                "Liquidity"
+            ]
+        },
+        "validation_rules": [
+            "Ensure all tables are present.",
+            "Verify quantitative data accuracy.",
+            "Check for consistency in YoY changes."
+        ],
+        "special_considerations": {
+            "mixed_topics": [],
+            "forward_looking": [],
+            "analyst_tracking": []
+        }
+    },
+    {
+        "id": "credit_card",
+        "name": "Credit Card",
+        "system_prompt_template": "Role: {role}\n\nCRITICAL INSTRUCTION: You MUST structure your response EXACTLY as shown below, using markdown tables.\nEach section and table is REQUIRED - if data is not available, write \"No data available\" but maintain the structure.\n\nMANDATORY FORMAT:\n\n# Quarterly Results Highlights\n- Purchase Volume: [Value] ([YoY change])\n- Active Accounts: [Value] ([YoY change])\n- Net Interest Margin: [Value] ([YoY change])\n- Credit Loss Rate: [Value] ([YoY change])\n- Revenue: [Value] ([YoY change])\n- [Add any additional metrics with specific values]\n\n# Q&A Analysis\n| Topic | Q&A Count |\n|-------|-----------|\n| Consumer Spending | [Count] |\n| Credit Quality | [Count] |\n| Travel Spending | [Count] |\n| Digital Payments | [Count] |\n| Co-brand Partners | [Count] |\n| International | [Count] |\n| Outlook/Guidance | [Count] |\n\n# Question and Answer Details\n| Analyst | Firm | Question Topic | Key Points | Quantitative Data | Management Response |\n|---------|------|----------------|------------|-------------------|-------------------|\n[Create a row for each Q&A interaction from the transcript]\n\n# Topic Summaries\n\n## Consumer Spending\n| Topic | Current Performance | Forward Outlook | YoY Change |\n|-------|-------------------|-----------------|------------|\n| Consumer Spending | [Current state] | [Future expectations] | [YoY metrics] |\n\n## Credit Quality\n| Topic | Current Performance | Forward Outlook | YoY Change |\n|-------|-------------------|-----------------|------------|\n| Credit Quality | [Current state] | [Future expectations] | [YoY metrics] |\n\n[Repeat for each primary topic]\n\n# Segment Performance\n| Segment | Volume | Growth | Share | Commentary |\n|---------|---------|--------|-------|------------|\n| Travel & Entertainment | [Value] | [+/-]% | [Value]% | [Key points] |\n| Lodging | [Value] | [+/-]% | [Value]% | [Key points] |\n| Retail | [Value] | [+/-]% | [Value]% | [Key points] |\n\n# Credit Metrics\n| Metric | Current | Change | Commentary |\n|--------|---------|--------|------------|\n| Delinquency Rate | [Value]% | [+/-]% | [Details] |\n| Net Charge-off Rate | [Value]% | [+/-]% | [Details] |\n| Loss Reserves | $[Value] | [+/-]% | [Details] |\n| Average FICO | [Value] | [+/-] | [Details] |",
+        "classification_rules": {
+            "primary_topics": [
+                "Consumer Spending",
+                "Credit Quality",
+                "Travel Spending",
+                "Digital Payments",
+                "Co-brand Partners",
+                "International",
+                "Outlook/Guidance"
+            ],
+            "temporal_tags": [
+                "previous quarter",
+                "next quarter",
+                "full year",
+                "year-to-date"
+            ]
+        },
+        "key_metrics": {
+            "operating_performance": [
+                "Purchase Volume",
+                "Active Accounts",
+                "Net Interest Margin"
+            ],
+            "segment_performance": [
+                "Travel & Entertainment",
+                "Lodging",
+                "Retail"
+            ],
+            "financial_metrics": [
+                "Credit Loss Rate",
+                "Revenue"
+            ]
+        },
+        "output_format": {
+            "quarterly_highlights": [
+                "Purchase Volume",
+                "Active Accounts",
+                "Net Interest Margin",
+                "Credit Loss Rate",
+                "Revenue"
+            ],
+            "qa_analysis_topics": [
+                "Consumer Spending",
+                "Credit Quality",
+                "Travel Spending",
+                "Digital Payments",
+                "Co-brand Partners",
+                "International",
+                "Outlook/Guidance"
+            ],
+            "segment_performance_metrics": [
+                "Travel & Entertainment",
+                "Lodging",
+                "Retail"
+            ],
+            "credit_metrics": [
+                "Delinquency Rate",
+                "Net Charge-off Rate",
+                "Loss Reserves",
+                "Average FICO"
+            ]
+        },
+        "validation_rules": [
+            "Ensure all tables are present.",
+            "Verify quantitative data accuracy.",
+            "Check for consistency in YoY changes."
+        ],
+        "special_considerations": {
+            "mixed_topics": [],
+            "forward_looking": [],
+            "analyst_tracking": []
+        }
+    },
+    {
+        "id": "luxury_retail",
+        "name": "Luxury Retail",
+        "system_prompt_template": "Role: {role}\n\nCRITICAL INSTRUCTION: You MUST structure your response EXACTLY as shown below, using markdown tables.\nEach section and table is REQUIRED - if data is not available, write \"No data available\" but maintain the structure.\n\nMANDATORY FORMAT:\n\n# Quarterly Results Highlights\n- Comparable Sales: [Value] ([YoY change])\n- Average Transaction Value: [Value] ([YoY change])\n- Customer Traffic: [Value] ([YoY change])\n- Operating Margin: [Value] ([YoY change])\n- Revenue: [Value] ([YoY change])\n- [Add any additional metrics with specific values]\n\n# Q&A Analysis\n| Topic | Q&A Count |\n|-------|-----------|\n| Consumer Sentiment | [Count] |\n| Travel Retail | [Count] |\n| Regional Performance | [Count] |\n| Digital/Omnichannel | [Count] |\n| Product Categories | [Count] |\n| Pricing Strategy | [Count] |\n| Outlook/Guidance | [Count] |\n\n# Question and Answer Details\n| Analyst | Firm | Question Topic | Key Points | Quantitative Data | Management Response |\n|---------|------|----------------|------------|-------------------|-------------------|\n[Create a row for each Q&A interaction from the transcript]\n\n# Topic Summaries\n\n## Consumer Sentiment\n| Topic | Current Performance | Forward Outlook | YoY Change |\n|-------|-------------------|-----------------|------------|\n| Consumer Sentiment | [Current state] | [Future expectations] | [YoY metrics] |\n\n## Travel Retail\n| Topic | Current Performance | Forward Outlook | YoY Change |\n|-------|-------------------|-----------------|------------|\n| Travel Retail | [Current state] | [Future expectations] | [YoY metrics] |\n\n[Repeat for each primary topic]\n\n# Regional Performance\n| Region | Sales Growth | Traffic | ATV | Commentary |\n|--------|-------------|---------|-----|------------|\n| North America | [Value]% | [+/-]% | [Value] | [Key points] |\n| Europe | [Value]% | [+/-]% | [Value] | [Key points] |\n| Asia Pacific | [Value]% | [+/-]% | [Value] | [Key points] |\n| Other | [Value]% | [+/-]% | [Value] | [Key points] |\n\n# Channel Performance\n| Channel | Sales | % of Total | YoY Growth | Commentary |\n|---------|-------|------------|------------|------------|\n| Retail Stores | [Value] | [Value]% | [Value]% | [Details] |\n| Travel Retail | [Value] | [Value]% | [Value]% | [Details] |\n| Digital | [Value] | [Value]% | [Value]% | [Details] |\n| Wholesale | [Value] | [Value]% | [Value]% | [Details] |",
+        "classification_rules": {
+            "primary_topics": [
+                "Consumer Sentiment",
+                "Travel Retail",
+                "Regional Performance",
+                "Digital/Omnichannel",
+                "Product Categories",
+                "Pricing Strategy",
+                "Outlook/Guidance"
+            ],
+            "temporal_tags": [
+                "previous quarter",
+                "next quarter",
+                "full year",
+                "year-to-date"
+            ]
+        },
+        "key_metrics": {
+            "operating_performance": [
+                "Comparable Sales",
+                "Average Transaction Value",
+                "Customer Traffic"
+            ],
+            "segment_performance": [
+                "North America",
+                "Europe",
+                "Asia Pacific",
+                "Travel Retail"
+            ],
+            "financial_metrics": [
+                "Operating Margin",
+                "Revenue"
+            ]
+        },
+        "output_format": {
+            "quarterly_highlights": [
+                "Comparable Sales",
+                "Average Transaction Value",
+                "Customer Traffic",
+                "Operating Margin",
+                "Revenue"
+            ],
+            "qa_analysis_topics": [
+                "Consumer Sentiment",
+                "Travel Retail",
+                "Regional Performance",
+                "Digital/Omnichannel",
+                "Product Categories",
+                "Pricing Strategy",
+                "Outlook/Guidance"
+            ],
+            "regional_performance_metrics": [
+                "North America",
+                "Europe",
+                "Asia Pacific",
+                "Other"
+            ],
+            "channel_performance_metrics": [
+                "Retail Stores",
+                "Travel Retail",
+                "Digital",
+                "Wholesale"
+            ]
+        },
+        "validation_rules": [
+            "Ensure all tables are present.",
+            "Verify quantitative data accuracy.",
+            "Check for consistency in YoY changes."
+        ],
+        "special_considerations": {
+            "mixed_topics": [],
+            "forward_looking": [],
+            "analyst_tracking": []
+        }
+    },
+    {
+        "id": "hospitality_ccorp",
+        "name": "Hospitality C-Corporation",
+        "system_prompt_template": "Role: {role}\n\nCRITICAL INSTRUCTION: You MUST structure your response EXACTLY as shown below, using markdown tables.\nEach section and table is REQUIRED - if data is not available, write \"No data available\" but maintain the structure.\n\nMANDATORY FORMAT:\n\n# Quarterly Results Highlights\n- System-wide RevPAR: [Value] ([YoY change])\n- Net Unit Growth: [Value] ([YoY change])\n- Fee Revenue: [Value] ([YoY change])\n- Adjusted EBITDA: [Value] ([YoY change])\n- EPS: [Value] ([YoY change])\n- Pipeline Growth: [Value] ([YoY change])\n- [Add any additional metrics with specific values]\n\n# Q&A Analysis\n| Topic | Q&A Count |\n|-------|-----------|\n| Macro outlook | [Count] |\n| Development pipeline | [Count] |\n| Brand performance | [Count] |\n| Geographic segments | [Count] |\n| Fee business | [Count] |\n| Capital return | [Count] |\n| Outlook/guidance | [Count] |\n\n# Question and Answer Details\n| Analyst | Firm | Question Topic | Key Points | Quantitative Data | Management Response |\n|---------|------|----------------|------------|-------------------|-------------------|\n[Create a row for each Q&A interaction from the transcript]\n\n# Topic Summaries\n\n## Brand Performance\n| Brand Segment | RevPAR Growth | Net Unit Growth | Pipeline | Commentary |\n|--------------|---------------|-----------------|-----------|------------|\n| Luxury | [Value] | [Value] | [Value] | [Key points] |\n| Premium | [Value] | [Value] | [Value] | [Key points] |\n| Select Service | [Value] | [Value] | [Value] | [Key points] |\n\n## Geographic Performance\n| Region | RevPAR Growth | Net Unit Growth | Fee Revenue | Commentary |\n|--------|---------------|-----------------|-------------|------------|\n| Americas | [Value] | [Value] | [Value] | [Key points] |\n| EMEA | [Value] | [Value] | [Value] | [Key points] |\n| Asia Pacific | [Value] | [Value] | [Value] | [Key points] |\n\n## Development Pipeline\n| Stage | Properties | Rooms | YoY Change | Key Markets |\n|-------|------------|-------|------------|-------------|\n| Under Construction | [Value] | [Value] | [Value] | [List] |\n| Approved | [Value] | [Value] | [Value] | [List] |\n| Planning | [Value] | [Value] | [Value] | [List] |\n\n# Revenue Analysis\n| Revenue Stream | Amount | % of Total | YoY Growth | Commentary |\n|----------------|---------|------------|------------|------------|\n| Base Fees | [Value] | [Value]% | [Value]% | [Details] |\n| Incentive Fees | [Value] | [Value]% | [Value]% | [Details] |\n| Other Fees | [Value] | [Value]% | [Value]% | [Details] |\n| Owned/Leased | [Value] | [Value]% | [Value]% | [Details] |\n\n# Balance Sheet Metrics\n| Metric | Current | Change | Commentary |\n|--------|---------|--------|------------|\n| Net Debt | $[Value] | [+/-]% | [Details] |\n| Cash Balance | $[Value] | [+/-]% | [Details] |\n| Net Debt/EBITDA | [Value]x | [+/-] | [Details] |\n| Share Repurchases | $[Value] | [+/-]% | [Details] |",
+        "classification_rules": {
+            "primary_topics": [
+                "Macro outlook",
+                "Development pipeline",
+                "Brand performance",
+                "Geographic segments",
+                "Fee business",
+                "Capital return",
+                "Outlook/guidance"
+            ],
+            "temporal_tags": [
+                "previous quarter",
+                "next quarter",
+                "full year",
+                "year-to-date"
+            ]
+        },
+        "key_metrics": {
+            "operating_performance": [
+                "System-wide RevPAR",
+                "Net Unit Growth",
+                "Pipeline Growth"
+            ],
+            "segment_performance": [
+                "Brand segments",
+                "Geographic regions",
+                "Fee types"
+            ],
+            "financial_metrics": [
+                "Fee Revenue",
+                "Adjusted EBITDA",
+                "EPS"
+            ]
+        },
+        "output_format": {
+            "quarterly_highlights": [
+                "System-wide RevPAR",
+                "Net Unit Growth",
+                "Fee Revenue",
+                "Adjusted EBITDA",
+                "EPS",
+                "Pipeline Growth"
+            ],
+            "qa_analysis_topics": [
+                "Macro outlook",
+                "Development pipeline",
+                "Brand performance",
+                "Geographic segments",
+                "Fee business",
+                "Capital return",
+                "Outlook/guidance"
+            ],
+            "brand_performance_metrics": [
+                "RevPAR Growth",
+                "Net Unit Growth",
+                "Pipeline"
+            ],
+            "revenue_analysis_metrics": [
+                "Base Fees",
+                "Incentive Fees",
+                "Other Fees",
+                "Owned/Leased"
+            ]
+        },
+        "validation_rules": [
+            "Ensure all tables are present.",
+            "Verify quantitative data accuracy.",
+            "Check for consistency in YoY changes.",
+            "Validate segment totals match company-wide figures."
+        ],
+        "special_considerations": {
+            "mixed_topics": [
+                "Brand and geographic performance may overlap",
+                "Pipeline updates may affect multiple segments"
+            ],
+            "forward_looking": [
+                "Pipeline conversion rates",
+                "Development timelines",
+                "Brand expansion plans"
+            ],
+            "analyst_tracking": [
+                "Focus on unit growth trajectories",
+                "Fee revenue mix changes",
+                "Geographic expansion strategies"
+            ]
+        }
+    },
+    {
+        "id": "earnings_analyst",
+        "name": "Earnings Analyst",
+        "system_prompt_template": "Role: {role}\n\nCRITICAL INSTRUCTION: Structure your response as a narrative analysis with the following sections. Use tables sparingly and only for key metrics.\n\n# Key Takeaways\n[2-3 paragraphs summarizing the most important points, surprises, and implications]\n\n# Business Performance\n## Sales and Margins\n[Narrative analysis with key metrics and management commentary]\n\n## Regional Performance\n[Narrative focusing on major regions and trends]\n\n# Strategic Themes\n[Analysis of 3-4 key themes from the call, with management quotes]\n\n# Notable Q&A Exchanges\n| Topic | Analyst & Question | Key Management Quotes | Implications |\n|-------|-------------------|---------------------|---------------|\n\n# Management Outlook\n[Analysis of forward-looking statements and tone]\n\n# Business Implications\n[Analysis of short and long-term business impact]",
+        "classification_rules": {
+            "primary_themes": [
+                "Sales Performance",
+                "Regional Dynamics",
+                "Strategic Initiatives",
+                "Forward Looking Statements"
+            ],
+            "highlight_criteria": [
+                "unexpected results",
+                "strategic changes",
+                "tone shifts",
+                "guidance updates"
+            ]
+        },
+        "content_requirements": {
+            "narrative_elements": {
+                "management_quotes": true,
+                "context": true,
+                "implications": true,
+                "market_expectations": true
+            },
+            "quantitative_elements": {
+                "key_metrics": true,
+                "regional_performance": true,
+                "segment_performance": true,
+                "year_over_year": true
+            }
+        },
+        "validation_rules": [
+            "Ensure narrative flow between sections",
+            "Include relevant management quotes",
+            "Highlight unexpected developments",
+            "Connect metrics to business implications"
+        ],
+        "special_considerations": {
+            "tone_analysis": [
+                "Management confidence level",
+                "Changes in forward guidance",
+                "Response to challenges"
+            ],
+            "context_requirements": [
+                "Market expectations",
+                "Industry trends",
+                "Competitive dynamics"
+            ]
+        }
+    }
+]
