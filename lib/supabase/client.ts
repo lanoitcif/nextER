@@ -4,6 +4,12 @@ import { createBrowserClient } from '@supabase/ssr'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
+// Debug logging (remove after fixing)
+if (typeof window !== 'undefined') {
+  console.log('Supabase URL:', supabaseUrl ? 'SET' : 'MISSING')
+  console.log('Supabase Anon Key:', supabaseAnonKey ? 'SET' : 'MISSING')
+}
+
 // Client-side Supabase client
 export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey)
 
