@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createBrowserClient } from '@supabase/ssr'
+import { useAuth } from '@/lib/auth/AuthContext'
+import { useRouter } from 'next/navigation'
 // Using standard HTML elements with Tailwind classes instead of shadcn/ui components
 import { Users, Activity, TrendingUp, Settings } from 'lucide-react'
 
@@ -28,26 +29,30 @@ interface UsageLog {
 }
 
 export default function AdminDashboard() {
+  const { user, profile, loading: authLoading, session } = useAuth()
+  const router = useRouter()
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [recentUsage, setRecentUsage] = useState<UsageLog[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/auth/login')
+    }
+  }, [user, authLoading, router])
 
   useEffect(() => {
-    loadAdminData()
-  }, [])
+    if (user && session) {
+      loadAdminData()
+    }
+  }, [user, session])
 
   const loadAdminData = async () => {
     try {
       setLoading(true)
       setError(null)
 
-      const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
         setError('Not authenticated')
         return
@@ -83,6 +88,20 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">Loading...</div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user || !profile) {
+    return null
   }
 
   if (loading) {

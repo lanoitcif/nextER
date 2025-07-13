@@ -71,8 +71,14 @@ export default function DashboardPage() {
   }
 
   const handleSignOut = async () => {
-    await signOut()
-    router.push('/auth/login')
+    try {
+      await signOut()
+      router.push('/auth/login')
+    } catch (error) {
+      console.error('Sign out failed:', error)
+      // Still try to redirect even if signout fails
+      router.push('/auth/login')
+    }
   }
 
   if (loading) {
