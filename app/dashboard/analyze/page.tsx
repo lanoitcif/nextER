@@ -153,6 +153,10 @@ export default function AnalyzePage() {
     }
   }, [user])
 
+  useEffect(() => {
+    console.log('availableCompanyTypes changed:', availableCompanyTypes, 'length:', availableCompanyTypes.length)
+  }, [availableCompanyTypes])
+
   const loadUserPreferences = () => {
     const preferences = safeLocalStorage.getItem<{
       defaultProvider?: 'openai' | 'anthropic' | 'google' | 'cohere';
@@ -207,8 +211,10 @@ export default function AnalyzePage() {
   const fetchCompanyTypes = async (company: Company) => {
     try {
       // Get all possible company types for this company
-      const allCompanyTypeIds = [company.primary_company_type_id, ...company.additional_company_types]
+      const additionalTypes = company.additional_company_types || []
+      const allCompanyTypeIds = [company.primary_company_type_id, ...additionalTypes]
       console.log('Fetching company types for:', company.name, 'IDs:', allCompanyTypeIds)
+      console.log('Company data:', company)
       
       const { data, error } = await supabase
         .from('company_types')
@@ -218,10 +224,12 @@ export default function AnalyzePage() {
 
       if (error) {
         console.error('Error fetching company types:', error)
+        setAvailableCompanyTypes([])
         return
       }
 
       console.log('Found company types:', data)
+      console.log('Setting availableCompanyTypes to:', data || [])
       setAvailableCompanyTypes(data || [])
       
       // Auto-select primary company type
@@ -229,9 +237,12 @@ export default function AnalyzePage() {
       if (primaryType) {
         setSelectedCompanyType(primaryType)
         console.log('Auto-selected company type:', primaryType.name)
+      } else {
+        console.log('No primary company type found for ID:', company.primary_company_type_id)
       }
     } catch (error) {
       console.error('Error fetching company types:', error)
+      setAvailableCompanyTypes([])
     }
   }
 
