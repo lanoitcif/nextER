@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { ArrowLeft, Settings, Save, User } from 'lucide-react'
 import Link from 'next/link'
+import { safeLocalStorage } from '@/lib/utils/localStorage'
 
 // Model mappings for each provider - Updated with latest 2025 models
 const PROVIDER_MODELS = {
@@ -68,16 +69,11 @@ export default function SettingsPage() {
   }, [user])
 
   const loadUserPreferences = async () => {
-    try {
-      // For now, we'll use localStorage to store preferences
-      // In production, you might want to store these in the database
-      const stored = localStorage.getItem(`user-preferences-${user?.id}`)
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        setPreferences(parsed)
-      }
-    } catch (error) {
-      console.error('Error loading preferences:', error)
+    // For now, we'll use localStorage to store preferences
+    // In production, you might want to store these in the database
+    const stored = safeLocalStorage.getItem(`user-preferences-${user?.id}`, null)
+    if (stored) {
+      setPreferences(stored)
     }
   }
 
@@ -89,9 +85,13 @@ export default function SettingsPage() {
     try {
       // For now, save to localStorage
       // In production, you might want to save to the database
-      localStorage.setItem(`user-preferences-${user?.id}`, JSON.stringify(preferences))
-      setSaved(true)
-      setTimeout(() => setSaved(false), 3000)
+      const success = safeLocalStorage.setItem(`user-preferences-${user?.id}`, preferences)
+      if (success) {
+        setSaved(true)
+        setTimeout(() => setSaved(false), 3000)
+      } else {
+        throw new Error('Failed to save preferences to storage')
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to save preferences')
     } finally {

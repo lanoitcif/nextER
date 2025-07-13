@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { Upload, FileText, Send, ArrowLeft, Settings, Key, Download, Copy, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
+import { safeLocalStorage } from '@/lib/utils/localStorage'
 
 // Model mappings for each provider - Updated with latest 2025 models
 const PROVIDER_MODELS = {
@@ -153,16 +154,11 @@ export default function AnalyzePage() {
   }, [user])
 
   const loadUserPreferences = () => {
-    try {
-      const stored = localStorage.getItem(`user-preferences-${user?.id}`)
-      if (stored) {
-        const preferences = JSON.parse(stored)
-        setProvider(preferences.defaultProvider || 'openai')
-        const defaultProvider = preferences.defaultProvider || 'openai'
-        setSelectedModel(preferences.defaultModels?.[defaultProvider] || DEFAULT_MODELS[defaultProvider as keyof typeof DEFAULT_MODELS])
-      }
-    } catch (error) {
-      console.error('Error loading user preferences:', error)
+    const preferences = safeLocalStorage.getItem(`user-preferences-${user?.id}`, null)
+    if (preferences) {
+      setProvider(preferences.defaultProvider || 'openai')
+      const defaultProvider = preferences.defaultProvider || 'openai'
+      setSelectedModel(preferences.defaultModels?.[defaultProvider] || DEFAULT_MODELS[defaultProvider as keyof typeof DEFAULT_MODELS])
     }
   }
 

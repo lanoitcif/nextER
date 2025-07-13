@@ -3,12 +3,14 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-// Debug: Log what we're getting from environment
-console.log('Environment check:', {
-  url: supabaseUrl ? `${supabaseUrl.slice(0, 20)}...` : 'MISSING',
-  key: supabaseAnonKey ? `${supabaseAnonKey.slice(0, 20)}...` : 'MISSING',
-  allEnv: Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC_'))
-})
+// Debug: Log environment check only in development
+if (process.env.NODE_ENV === 'development') {
+  console.log('Environment check:', {
+    url: supabaseUrl ? `${supabaseUrl.slice(0, 20)}...` : 'MISSING',
+    key: supabaseAnonKey ? `${supabaseAnonKey.slice(0, 20)}...` : 'MISSING',
+    allEnv: Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC_'))
+  })
+}
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error(`Missing Supabase environment variables. URL: ${!!supabaseUrl}, Key: ${!!supabaseAnonKey}`)
