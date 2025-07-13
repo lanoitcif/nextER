@@ -15,6 +15,14 @@ interface AnalyzeRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if supabaseAdmin is available
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+
     // Get the authorization header
     const authHeader = request.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
