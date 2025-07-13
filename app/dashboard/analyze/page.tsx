@@ -153,9 +153,6 @@ export default function AnalyzePage() {
     }
   }, [user])
 
-  useEffect(() => {
-    console.log('availableCompanyTypes changed:', availableCompanyTypes, 'length:', availableCompanyTypes.length)
-  }, [availableCompanyTypes])
 
   const loadUserPreferences = () => {
     const preferences = safeLocalStorage.getItem<{
@@ -213,8 +210,6 @@ export default function AnalyzePage() {
       // Get all possible company types for this company
       const additionalTypes = company.additional_company_types || []
       const allCompanyTypeIds = [company.primary_company_type_id, ...additionalTypes]
-      console.log('Fetching company types for:', company.name, 'IDs:', allCompanyTypeIds)
-      console.log('Company data:', company)
       
       const { data, error } = await supabase
         .from('company_types')
@@ -228,17 +223,12 @@ export default function AnalyzePage() {
         return
       }
 
-      console.log('Found company types:', data)
-      console.log('Setting availableCompanyTypes to:', data || [])
       setAvailableCompanyTypes(data || [])
       
       // Auto-select primary company type
       const primaryType = data?.find(ct => ct.id === company.primary_company_type_id)
       if (primaryType) {
         setSelectedCompanyType(primaryType)
-        console.log('Auto-selected company type:', primaryType.name)
-      } else {
-        console.log('No primary company type found for ID:', company.primary_company_type_id)
       }
     } catch (error) {
       console.error('Error fetching company types:', error)
