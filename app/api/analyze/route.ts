@@ -15,6 +15,12 @@ interface AnalyzeRequest {
 }
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now()
+  const requestId = crypto.randomUUID()
+  let userId: string | null = null
+  
+  console.log(`[${requestId}] Analysis request started at ${new Date().toISOString()}`)
+  
   try {
     // Check if supabaseAdmin is available
     if (!supabaseAdmin) {
@@ -38,18 +44,34 @@ export async function POST(request: NextRequest) {
     // Verify the user session
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token)
     if (authError || !user) {
+      console.log(`[${requestId}] Authentication failed:`, authError?.message || 'No user')
       return NextResponse.json(
         { error: 'Invalid or expired session' },
         { status: 401 }
       )
     }
+    
+    userId = user.id
+    console.log(`[${requestId}] User authenticated: ${user.email} (${user.id})`)
 
     // Parse the request body
     const body: AnalyzeRequest = await request.json()
     const { transcript, companyId, companyTypeId, keySource, userApiKeyId, temporaryApiKey, provider, model } = body
 
+    console.log(`[${requestId}] Request details:`, {
+      transcriptLength: transcript?.length || 0,
+      companyId,
+      companyTypeId,
+      keySource,
+      provider,
+      model,
+      hasUserApiKeyId: !!userApiKeyId,
+      hasTemporaryApiKey: !!temporaryApiKey
+    })
+
     // Validate required fields
     if (!transcript || !companyId || !companyTypeId || !keySource || !provider) {
+      console.log(`[${requestId}] Validation failed: Missing required fields`)
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -201,12 +223,24 @@ export async function POST(request: NextRequest) {
 
     // Create LLM client and make the request
     try {
+      console.log(`[${requestId}] Creating LLM client for provider: ${provider}`)
       const llmClient = createLLMClient(provider, apiKey)
+      
+      const llmStartTime = Date.now()
+      console.log(`[${requestId}] Starting LLM API call with model: ${model || llmClient.getDefaultModel()}`)
       
       const response = await llmClient.generateResponse({
         systemPrompt: systemPrompt,
         userMessage: transcript,
         model: model || llmClient.getDefaultModel()
+      })
+      
+      const llmEndTime = Date.now()
+      console.log(`[${requestId}] LLM API call completed in ${llmEndTime - llmStartTime}ms`, {
+        model: response.model,
+        totalTokens: response.usage?.totalTokens,
+        promptTokens: response.usage?.promptTokens,
+        completionTokens: response.usage?.completionTokens
       })
 
       // Log the usage
@@ -222,6 +256,13 @@ export async function POST(request: NextRequest) {
           used_owner_key: usedOwnerKey
         })
 
+      const totalTime = Date.now() - startTime
+      console.log(`[${requestId}] Analysis completed successfully in ${totalTime}ms`, {
+        analysisLength: response.content.length,
+        costEstimate: calculateCostEstimate(provider, response.model, response.usage?.totalTokens || 0),
+        usedOwnerKey
+      })
+
       return NextResponse.json({
         success: true,
         analysis: response.content,
@@ -231,7 +272,14 @@ export async function POST(request: NextRequest) {
       })
 
     } catch (llmError: any) {
-      console.error('LLM API error:', llmError)
+      const totalTime = Date.now() - startTime
+      console.error(`[${requestId}] LLM API error after ${totalTime}ms:`, {
+        error: llmError.message,
+        provider,
+        model,
+        userId,
+        keySource
+      })
       return NextResponse.json(
         { error: `LLM API error: ${llmError.message}` },
         { status: 500 }
@@ -239,7 +287,13 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error: any) {
-    console.error('Analysis API error:', error)
+    const totalTime = Date.now() - startTime
+    console.error(`[${requestId}] Analysis API error after ${totalTime}ms:`, {
+      error: error.message,
+      stack: error.stack,
+      userId,
+      requestId
+    })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -247,26 +301,68 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Simple cost estimation (you'd want to update these with current pricing)
+// Updated cost estimation with 2025 pricing
 function calculateCostEstimate(provider: string, model: string, tokens: number): number {
   const costPerKToken: Record<string, Record<string, number>> = {
     openai: {
+      // GPT-4.1 Series (2025) - Estimated pricing
+      'gpt-4.1': 0.006,
+      'gpt-4.1-mini': 0.0001,
+      'gpt-4.1-nano': 0.00005,
+      // Reasoning Models - Higher cost for complex reasoning
+      'o3': 0.020,
+      'o3-pro': 0.030,
+      'o4-mini': 0.010,
+      'o4-mini-high': 0.015,
+      // GPT-4o Series
       'gpt-4o': 0.005,
       'gpt-4o-mini': 0.00015,
+      'gpt-4o-audio': 0.007,
+      // Legacy Models
       'gpt-4-turbo': 0.01,
-      'gpt-3.5-turbo': 0.0015
+      'gpt-4': 0.015,
+      'gpt-3.5-turbo': 0.0015,
+      // Image Generation
+      'gpt-image-1': 0.008
     },
     anthropic: {
+      // Claude 4 Series (2025)
+      'claude-4-opus': 0.020,
+      'claude-4-sonnet': 0.004,
+      // Claude 3.7 Series
+      'claude-3.7-sonnet': 0.0035,
+      // Claude 3.5 Series
       'claude-3-5-sonnet-20241022': 0.003,
-      'claude-3-haiku-20240307': 0.00025,
-      'claude-3-opus-20240229': 0.015
+      'claude-3-5-haiku-20241022': 0.0003,
+      // Claude 3 Series
+      'claude-3-opus-20240229': 0.015,
+      'claude-3-sonnet-20240229': 0.003,
+      'claude-3-haiku-20240307': 0.00025
     },
     google: {
+      // Gemini 2.5 Series
+      'gemini-2.5-flash': 0.0002,
+      'gemini-2.5-pro': 0.004,
+      'gemini-2.5-flash-lite': 0.0001,
+      // Gemini 2.0 Series
+      'gemini-2.0-flash': 0.0003,
+      'gemini-2.0-flash-lite': 0.00015,
+      // Gemini 1.5 Series
       'gemini-1.5-pro': 0.0035,
       'gemini-1.5-flash': 0.00035,
-      'gemini-pro': 0.0005
+      'gemini-1.5-flash-8b': 0.0002,
+      // Gemma Models
+      'gemma-3': 0.0001,
+      'gemma-2': 0.00008
     },
     cohere: {
+      // Latest Command Models (2025)
+      'command-a-03-2025': 0.0025,
+      // Command R Series (2024)
+      'command-r-plus-08-2024': 0.003,
+      'command-r-08-2024': 0.0005,
+      'command-r7b': 0.0003,
+      // Legacy Models
       'command-r-plus': 0.003,
       'command-r': 0.0005,
       'command': 0.0015

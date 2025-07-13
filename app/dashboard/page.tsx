@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
-import { LogOut, FileText, Key, Settings, BarChart3 } from 'lucide-react'
+import { LogOut, FileText, Key, Settings, BarChart3, Shield } from 'lucide-react'
 import Link from 'next/link'
 
 interface DashboardStats {
@@ -102,6 +102,15 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="flex items-center space-x-4">
+              {profile.can_use_owner_key && (
+                <Link
+                  href="/dashboard/admin"
+                  className="btn-ghost flex items-center space-x-2"
+                >
+                  <Shield className="h-4 w-4" />
+                  <span>Admin</span>
+                </Link>
+              )}
               <Link
                 href="/dashboard/settings"
                 className="btn-ghost flex items-center space-x-2"

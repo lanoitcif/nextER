@@ -33,11 +33,31 @@ export class OpenAIClient extends LLMClient {
   private baseURL = 'https://api.openai.com/v1'
   
   getAvailableModels(): string[] {
-    return ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo']
+    return [
+      // GPT-4.1 Series (Latest 2025)
+      'gpt-4.1',
+      'gpt-4.1-mini',
+      'gpt-4.1-nano',
+      // Reasoning Models
+      'o3',
+      'o3-pro',
+      'o4-mini',
+      'o4-mini-high',
+      // GPT-4o Series
+      'gpt-4o',
+      'gpt-4o-mini',
+      'gpt-4o-audio',
+      // Legacy Models
+      'gpt-4-turbo',
+      'gpt-4',
+      'gpt-3.5-turbo',
+      // Image Generation
+      'gpt-image-1'
+    ]
   }
   
   getDefaultModel(): string {
-    return 'gpt-4o-mini'
+    return 'gpt-4.1-mini' // Updated to latest cost-effective model
   }
   
   async generateResponse(request: LLMRequest): Promise<LLMResponse> {
@@ -82,11 +102,24 @@ export class AnthropicClient extends LLMClient {
   private baseURL = 'https://api.anthropic.com/v1'
   
   getAvailableModels(): string[] {
-    return ['claude-3-5-sonnet-20241022', 'claude-3-haiku-20240307', 'claude-3-opus-20240229']
+    return [
+      // Claude 4 Series (Latest 2025)
+      'claude-4-opus',
+      'claude-4-sonnet',
+      // Claude 3.7 Series (February 2025)
+      'claude-3.7-sonnet',
+      // Claude 3.5 Series (2024)
+      'claude-3-5-sonnet-20241022',
+      'claude-3-5-haiku-20241022',
+      // Claude 3 Series (March 2024)
+      'claude-3-opus-20240229',
+      'claude-3-sonnet-20240229',
+      'claude-3-haiku-20240307'
+    ]
   }
   
   getDefaultModel(): string {
-    return 'claude-3-5-sonnet-20241022'
+    return 'claude-4-sonnet' // Updated to latest balanced model
   }
   
   async generateResponse(request: LLMRequest): Promise<LLMResponse> {
@@ -132,11 +165,26 @@ export class GoogleClient extends LLMClient {
   private baseURL = 'https://generativelanguage.googleapis.com/v1beta'
   
   getAvailableModels(): string[] {
-    return ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-pro']
+    return [
+      // Gemini 2.5 Series (Latest - Generally Available)
+      'gemini-2.5-flash',
+      'gemini-2.5-pro',
+      'gemini-2.5-flash-lite',
+      // Gemini 2.0 Series
+      'gemini-2.0-flash',
+      'gemini-2.0-flash-lite',
+      // Gemini 1.5 Series (Limited Availability)
+      'gemini-1.5-pro',
+      'gemini-1.5-flash',
+      'gemini-1.5-flash-8b',
+      // Gemma Open Models
+      'gemma-3',
+      'gemma-2'
+    ]
   }
   
   getDefaultModel(): string {
-    return 'gemini-1.5-flash'
+    return 'gemini-2.5-flash' // Updated to latest cost-effective model
   }
   
   async generateResponse(request: LLMRequest): Promise<LLMResponse> {
@@ -183,11 +231,22 @@ export class CohereClient extends LLMClient {
   private baseURL = 'https://api.cohere.ai/v1'
   
   getAvailableModels(): string[] {
-    return ['command-r-plus', 'command-r', 'command']
+    return [
+      // Latest Command Models (2025)
+      'command-a-03-2025',
+      // Command R Series (August 2024)
+      'command-r-plus-08-2024',
+      'command-r-08-2024',
+      'command-r7b',
+      // Legacy Models
+      'command-r-plus',
+      'command-r',
+      'command'
+    ]
   }
   
   getDefaultModel(): string {
-    return 'command-r'
+    return 'command-a-03-2025' // Updated to latest most performant model
   }
   
   async generateResponse(request: LLMRequest): Promise<LLMResponse> {

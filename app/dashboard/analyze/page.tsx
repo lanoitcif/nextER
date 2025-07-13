@@ -4,8 +4,82 @@ import { useAuth } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
-import { Upload, FileText, Send, ArrowLeft, Settings, Key } from 'lucide-react'
+import { Upload, FileText, Send, ArrowLeft, Settings, Key, Download, Copy, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
+
+// Model mappings for each provider - Updated with latest 2025 models
+const PROVIDER_MODELS = {
+  openai: [
+    // GPT-4.1 Series (Latest 2025)
+    'gpt-4.1',
+    'gpt-4.1-mini',
+    'gpt-4.1-nano',
+    // Reasoning Models
+    'o3',
+    'o3-pro',
+    'o4-mini',
+    'o4-mini-high',
+    // GPT-4o Series
+    'gpt-4o',
+    'gpt-4o-mini',
+    'gpt-4o-audio',
+    // Legacy Models
+    'gpt-4-turbo',
+    'gpt-4',
+    'gpt-3.5-turbo',
+    // Image Generation
+    'gpt-image-1'
+  ],
+  anthropic: [
+    // Claude 4 Series (Latest 2025)
+    'claude-4-opus',
+    'claude-4-sonnet',
+    // Claude 3.7 Series (February 2025)
+    'claude-3.7-sonnet',
+    // Claude 3.5 Series (2024)
+    'claude-3-5-sonnet-20241022',
+    'claude-3-5-haiku-20241022',
+    // Claude 3 Series (March 2024)
+    'claude-3-opus-20240229',
+    'claude-3-sonnet-20240229',
+    'claude-3-haiku-20240307'
+  ],
+  google: [
+    // Gemini 2.5 Series (Latest - Generally Available)
+    'gemini-2.5-flash',
+    'gemini-2.5-pro',
+    'gemini-2.5-flash-lite',
+    // Gemini 2.0 Series
+    'gemini-2.0-flash',
+    'gemini-2.0-flash-lite',
+    // Gemini 1.5 Series (Limited Availability)
+    'gemini-1.5-pro',
+    'gemini-1.5-flash',
+    'gemini-1.5-flash-8b',
+    // Gemma Open Models
+    'gemma-3',
+    'gemma-2'
+  ],
+  cohere: [
+    // Latest Command Models (2025)
+    'command-a-03-2025',
+    // Command R Series (August 2024)
+    'command-r-plus-08-2024',
+    'command-r-08-2024',
+    'command-r7b',
+    // Legacy Models
+    'command-r-plus',
+    'command-r',
+    'command'
+  ]
+}
+
+const DEFAULT_MODELS = {
+  openai: 'gpt-4.1-mini', // Updated to latest cost-effective model
+  anthropic: 'claude-4-sonnet', // Updated to latest balanced model
+  google: 'gemini-2.5-flash', // Updated to latest cost-effective model
+  cohere: 'command-a-03-2025' // Updated to latest most performant model
+}
 
 interface Company {
   id: string
@@ -42,9 +116,16 @@ export default function AnalyzePage() {
   const [selectedApiKey, setSelectedApiKey] = useState('')
   const [temporaryApiKey, setTemporaryApiKey] = useState('')
   const [provider, setProvider] = useState<'openai' | 'anthropic' | 'google' | 'cohere'>('openai')
+  const [selectedModel, setSelectedModel] = useState('')
   const [analyzing, setAnalyzing] = useState(false)
   const [result, setResult] = useState('')
   const [error, setError] = useState('')
+  const [viewMode, setViewMode] = useState<'rendered' | 'markdown'>('rendered')
+  const [analysisMetadata, setAnalysisMetadata] = useState<{
+    model?: string
+    provider?: string
+    usage?: any
+  } | null>(null)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -58,6 +139,32 @@ export default function AnalyzePage() {
       fetchUserApiKeys()
     }
   }, [user])
+
+  // Set default model when provider changes
+  useEffect(() => {
+    setSelectedModel(DEFAULT_MODELS[provider])
+  }, [provider])
+
+  // Load user preferences on mount
+  useEffect(() => {
+    if (user) {
+      loadUserPreferences()
+    }
+  }, [user])
+
+  const loadUserPreferences = () => {
+    try {
+      const stored = localStorage.getItem(`user-preferences-${user?.id}`)
+      if (stored) {
+        const preferences = JSON.parse(stored)
+        setProvider(preferences.defaultProvider || 'openai')
+        const defaultProvider = preferences.defaultProvider || 'openai'
+        setSelectedModel(preferences.defaultModels?.[defaultProvider] || DEFAULT_MODELS[defaultProvider])
+      }
+    } catch (error) {
+      console.error('Error loading user preferences:', error)
+    }
+  }
 
   const fetchCompanies = async () => {
     try {
@@ -102,6 +209,7 @@ export default function AnalyzePage() {
     try {
       // Get all possible company types for this company
       const allCompanyTypeIds = [company.primary_company_type_id, ...company.additional_company_types]
+      console.log('Fetching company types for:', company.name, 'IDs:', allCompanyTypeIds)
       
       const { data, error } = await supabase
         .from('company_types')
@@ -114,12 +222,14 @@ export default function AnalyzePage() {
         return
       }
 
+      console.log('Found company types:', data)
       setAvailableCompanyTypes(data || [])
       
       // Auto-select primary company type
       const primaryType = data?.find(ct => ct.id === company.primary_company_type_id)
       if (primaryType) {
         setSelectedCompanyType(primaryType)
+        console.log('Auto-selected company type:', primaryType.name)
       }
     } catch (error) {
       console.error('Error fetching company types:', error)
@@ -194,6 +304,7 @@ export default function AnalyzePage() {
         companyTypeId: selectedCompanyType.id,
         keySource,
         provider,
+        model: selectedModel || DEFAULT_MODELS[provider],
         ...(keySource === 'user_saved' && { userApiKeyId: selectedApiKey }),
         ...(keySource === 'user_temporary' && { temporaryApiKey })
       }
@@ -215,11 +326,171 @@ export default function AnalyzePage() {
       }
 
       setResult(result.analysis)
+      setAnalysisMetadata({
+        model: result.model,
+        provider: result.provider,
+        usage: result.usage
+      })
     } catch (error: any) {
       setError(error.message || 'An error occurred during analysis')
     } finally {
       setAnalyzing(false)
     }
+  }
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(result)
+      // You could add a toast notification here
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err)
+    }
+  }
+
+  const downloadAsWord = async () => {
+    if (!result) return
+
+    try {
+      // Convert markdown to HTML first
+      const markdownHtml = convertMarkdownToHtml(result)
+      
+      // Create a blob with Word document format
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Transcript Analysis - ${selectedCompany?.ticker}</title>
+          <style>
+            body { 
+              font-family: 'Times New Roman', serif; 
+              line-height: 1.6; 
+              margin: 1in; 
+              color: #333;
+            }
+            h1, h2, h3, h4, h5, h6 { 
+              color: #2c3e50; 
+              margin-top: 1.5em; 
+              margin-bottom: 0.5em;
+            }
+            h1 { font-size: 24px; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+            h2 { font-size: 20px; color: #34495e; }
+            h3 { font-size: 18px; color: #34495e; }
+            p { margin-bottom: 1em; text-align: justify; }
+            ul, ol { margin-bottom: 1em; padding-left: 30px; }
+            li { margin-bottom: 0.5em; }
+            strong { color: #2c3e50; }
+            em { color: #7f8c8d; }
+            blockquote { 
+              border-left: 4px solid #3498db; 
+              padding-left: 20px; 
+              margin: 1em 0; 
+              background-color: #f8f9fa;
+              padding: 15px 20px;
+            }
+            code { 
+              background-color: #f1f2f6; 
+              padding: 2px 6px; 
+              border-radius: 3px; 
+              font-family: 'Courier New', monospace;
+            }
+            .header { 
+              text-align: center; 
+              margin-bottom: 2em; 
+              border-bottom: 1px solid #bdc3c7; 
+              padding-bottom: 1em;
+            }
+            .metadata { 
+              background-color: #ecf0f1; 
+              padding: 15px; 
+              border-radius: 5px; 
+              margin-bottom: 2em;
+              font-size: 14px;
+            }
+            .footer {
+              margin-top: 3em;
+              padding-top: 1em;
+              border-top: 1px solid #bdc3c7;
+              font-size: 12px;
+              color: #7f8c8d;
+              text-align: center;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Transcript Analysis Report</h1>
+            <p><strong>Company:</strong> ${selectedCompany?.ticker} - ${selectedCompany?.name}</p>
+            <p><strong>Analysis Type:</strong> ${selectedCompanyType?.name}</p>
+            <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
+          </div>
+          
+          ${analysisMetadata && `
+            <div class="metadata">
+              <strong>Analysis Details:</strong><br>
+              Provider: ${analysisMetadata.provider}<br>
+              Model: ${analysisMetadata.model}<br>
+              ${analysisMetadata.usage ? `Tokens Used: ${analysisMetadata.usage.totalTokens?.toLocaleString() || 'N/A'}` : ''}
+            </div>
+          `}
+          
+          <div class="content">
+            ${markdownHtml}
+          </div>
+          
+          <div class="footer">
+            Generated by LLM Transcript Analyzer
+          </div>
+        </body>
+        </html>
+      `
+
+      const blob = new Blob([htmlContent], { 
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+      })
+      
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `analysis-${selectedCompany?.ticker}-${new Date().toISOString().split('T')[0]}.doc`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Failed to download Word document:', error)
+    }
+  }
+
+  // Simple markdown to HTML converter
+  const convertMarkdownToHtml = (markdown: string): string => {
+    return markdown
+      // Headers
+      .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+      .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+      .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+      // Bold
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      // Italic
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      // Lists (simple implementation)
+      .replace(/^\* (.*$)/gim, '<li>$1</li>')
+      .replace(/^- (.*$)/gim, '<li>$1</li>')
+      // Wrap consecutive list items in ul tags
+      .replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>')
+      // Line breaks
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>')
+      // Wrap in paragraphs
+      .replace(/^(?!<h|<ul|<li)(.+)$/gm, '<p>$1</p>')
+      // Clean up empty paragraphs
+      .replace(/<p><\/p>/g, '')
+      .replace(/<p><br><\/p>/g, '')
+  }
+
+  // Render markdown for display
+  const renderMarkdown = (markdown: string): string => {
+    return convertMarkdownToHtml(markdown)
   }
 
   if (loading) {
@@ -349,6 +620,7 @@ export default function AnalyzePage() {
                         className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                         disabled={analyzing}
                       >
+                        <option value="">Select analysis type...</option>
                         {availableCompanyTypes.map((type) => (
                           <option key={type.id} value={type.id}>
                             {type.name}
@@ -438,6 +710,28 @@ export default function AnalyzePage() {
                     </select>
                   </div>
 
+                  {/* Model Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Model
+                    </label>
+                    <select
+                      value={selectedModel}
+                      onChange={(e) => setSelectedModel(e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      disabled={analyzing}
+                    >
+                      {PROVIDER_MODELS[provider].map((model) => (
+                        <option key={model} value={model}>
+                          {model}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Default: {DEFAULT_MODELS[provider]}
+                    </p>
+                  </div>
+
                   {/* Saved API Key Selection */}
                   {keySource === 'user_saved' && (
                     <div>
@@ -516,10 +810,66 @@ export default function AnalyzePage() {
             {/* Results Section */}
             <div className="card">
               <div className="card-header">
-                <h3 className="card-title">Analysis Results</h3>
-                <p className="card-description">
-                  AI analysis results will appear here
-                </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="card-title">Analysis Results</h3>
+                    <p className="card-description">
+                      AI analysis results will appear here
+                    </p>
+                  </div>
+                  {result && (
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center border rounded-lg">
+                        <button
+                          onClick={() => setViewMode('rendered')}
+                          className={`px-3 py-1 text-sm rounded-l-lg ${
+                            viewMode === 'rendered' 
+                              ? 'bg-blue-600 text-white' 
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          <Eye className="h-4 w-4 mr-1 inline" />
+                          Formatted
+                        </button>
+                        <button
+                          onClick={() => setViewMode('markdown')}
+                          className={`px-3 py-1 text-sm rounded-r-lg ${
+                            viewMode === 'markdown' 
+                              ? 'bg-blue-600 text-white' 
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          <EyeOff className="h-4 w-4 mr-1 inline" />
+                          Markdown
+                        </button>
+                      </div>
+                      <button
+                        onClick={copyToClipboard}
+                        className="btn-secondary text-sm px-3 py-1"
+                        title="Copy to clipboard"
+                      >
+                        <Copy className="h-4 w-4 mr-1" />
+                        Copy
+                      </button>
+                      <button
+                        onClick={downloadAsWord}
+                        className="btn-primary text-sm px-3 py-1"
+                        title="Download as Word document"
+                      >
+                        <Download className="h-4 w-4 mr-1" />
+                        Word
+                      </button>
+                    </div>
+                  )}
+                </div>
+                {analysisMetadata && (
+                  <div className="mt-2 text-xs text-gray-600 bg-gray-50 px-3 py-2 rounded-md">
+                    <strong>Analysis Details:</strong> {analysisMetadata.provider} • {analysisMetadata.model}
+                    {analysisMetadata.usage?.totalTokens && (
+                      <> • {analysisMetadata.usage.totalTokens.toLocaleString()} tokens</>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="card-content">
                 {error && (
@@ -529,10 +879,17 @@ export default function AnalyzePage() {
                 )}
                 
                 {result ? (
-                  <div className="prose max-w-none">
-                    <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded-md border">
-                      {result}
-                    </pre>
+                  <div className="max-w-none">
+                    {viewMode === 'rendered' ? (
+                      <div 
+                        className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-ul:text-gray-700"
+                        dangerouslySetInnerHTML={{ __html: renderMarkdown(result) }}
+                      />
+                    ) : (
+                      <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded-md border font-mono">
+                        {result}
+                      </pre>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center py-12 text-gray-500">

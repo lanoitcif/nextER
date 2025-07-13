@@ -7,10 +7,38 @@ import { supabase } from '@/lib/supabase/client'
 import { Plus, Trash2, ArrowLeft, Key, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 
+// Model mappings for each provider - Updated with latest 2025 models
+const PROVIDER_MODELS = {
+  openai: [
+    'gpt-4.1', 'gpt-4.1-mini', 'gpt-4.1-nano', 'o3', 'o3-pro', 'o4-mini', 'o4-mini-high',
+    'gpt-4o', 'gpt-4o-mini', 'gpt-4o-audio', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo', 'gpt-image-1'
+  ],
+  anthropic: [
+    'claude-4-opus', 'claude-4-sonnet', 'claude-3.7-sonnet', 'claude-3-5-sonnet-20241022',
+    'claude-3-5-haiku-20241022', 'claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307'
+  ],
+  google: [
+    'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-2.0-flash-lite',
+    'gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemma-3', 'gemma-2'
+  ],
+  cohere: [
+    'command-a-03-2025', 'command-r-plus-08-2024', 'command-r-08-2024', 'command-r7b',
+    'command-r-plus', 'command-r', 'command'
+  ]
+}
+
+const DEFAULT_MODELS = {
+  openai: 'gpt-4.1-mini',
+  anthropic: 'claude-4-sonnet',
+  google: 'gemini-2.5-flash',
+  cohere: 'command-a-03-2025'
+}
+
 interface UserApiKey {
   id: string
   provider: string
   nickname: string
+  preferred_model?: string
   created_at: string
 }
 
@@ -23,7 +51,8 @@ export default function ApiKeysPage() {
   const [newKey, setNewKey] = useState({
     provider: 'openai' as 'openai' | 'anthropic' | 'google' | 'cohere',
     apiKey: '',
-    nickname: ''
+    nickname: '',
+    preferredModel: 'gpt-4.1-mini'
   })
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState('')
@@ -40,6 +69,14 @@ export default function ApiKeysPage() {
       fetchApiKeys()
     }
   }, [user])
+
+  // Update preferred model when provider changes
+  useEffect(() => {
+    setNewKey(prev => ({
+      ...prev,
+      preferredModel: DEFAULT_MODELS[prev.provider]
+    }))
+  }, [newKey.provider])
 
   const fetchApiKeys = async () => {
     try {
@@ -88,7 +125,8 @@ export default function ApiKeysPage() {
         body: JSON.stringify({
           provider: newKey.provider,
           apiKey: newKey.apiKey,
-          nickname: newKey.nickname || null
+          nickname: newKey.nickname || null,
+          preferredModel: newKey.preferredModel
         })
       })
 
@@ -100,7 +138,7 @@ export default function ApiKeysPage() {
       }
 
       // Reset form and refresh list
-      setNewKey({ provider: 'openai', apiKey: '', nickname: '' })
+      setNewKey({ provider: 'openai', apiKey: '', nickname: '', preferredModel: 'gpt-4.1-mini' })
       setShowAddForm(false)
       await fetchApiKeys()
     } catch (error: any) {
@@ -238,6 +276,27 @@ export default function ApiKeysPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Preferred Model
+                  </label>
+                  <select
+                    value={newKey.preferredModel}
+                    onChange={(e) => setNewKey(prev => ({ ...prev, preferredModel: e.target.value }))}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    disabled={adding}
+                  >
+                    {PROVIDER_MODELS[newKey.provider].map((model) => (
+                      <option key={model} value={model}>
+                        {model}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    This will be used as the default model for this API key
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     API Key
                   </label>
                   <div className="relative">
@@ -299,7 +358,7 @@ export default function ApiKeysPage() {
                     onClick={() => {
                       setShowAddForm(false)
                       setError('')
-                      setNewKey({ provider: 'openai', apiKey: '', nickname: '' })
+                      setNewKey({ provider: 'openai', apiKey: '', nickname: '', preferredModel: 'gpt-4.1-mini' })
                     }}
                     className="btn-ghost"
                     disabled={adding}
@@ -338,7 +397,7 @@ export default function ApiKeysPage() {
                             {key.nickname || `${key.provider} API Key`}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {key.provider} • Added {new Date(key.created_at).toLocaleDateString()}
+                            {key.provider} • {key.preferred_model || DEFAULT_MODELS[key.provider as keyof typeof DEFAULT_MODELS]} • Added {new Date(key.created_at).toLocaleDateString()}
                           </p>
                         </div>
                       </div>

@@ -7,6 +7,7 @@ interface AddApiKeyRequest {
   provider: SupportedProvider
   apiKey: string
   nickname?: string
+  preferredModel?: string
 }
 
 export async function POST(request: NextRequest) {
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     // Parse the request body
     const body: AddApiKeyRequest = await request.json()
-    const { provider, apiKey, nickname } = body
+    const { provider, apiKey, nickname, preferredModel } = body
 
     // Validate required fields
     if (!provider || !apiKey) {
@@ -93,9 +94,10 @@ export async function POST(request: NextRequest) {
         provider,
         encrypted_api_key: encrypted,
         encryption_iv: iv,
-        nickname: nickname || null
+        nickname: nickname || null,
+        preferred_model: preferredModel || null
       })
-      .select('id, provider, nickname, created_at')
+      .select('id, provider, nickname, preferred_model, created_at')
       .single()
 
     if (error) {
@@ -153,7 +155,7 @@ export async function GET(request: NextRequest) {
     // Get user's API keys (without the actual encrypted keys)
     const { data: apiKeys, error } = await supabaseAdmin
       .from('user_api_keys')
-      .select('id, provider, nickname, created_at')
+      .select('id, provider, nickname, preferred_model, created_at')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
