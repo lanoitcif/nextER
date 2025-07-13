@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/lib/auth/AuthContext'
+import { useAuth, isAdmin } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -11,14 +11,10 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   
-  const { signIn, user } = useAuth()
+  const { signIn } = useAuth()
   const router = useRouter()
 
-  useEffect(() => {
-    if (user) {
-      router.push('/dashboard')
-    }
-  }, [user, router])
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,8 +22,12 @@ export default function LoginPage() {
     setError('')
 
     try {
-      await signIn(email, password)
-      router.push('/dashboard')
+      const profile = await signIn(email, password)
+      if (isAdmin(profile)) {
+        router.push('/dashboard/admin')
+      } else {
+        router.push('/dashboard')
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to sign in')
     } finally {

@@ -13,7 +13,7 @@ interface AuthContextType {
   session: Session | null
   loading: boolean
   signUp: (email: string, password: string, fullName?: string) => Promise<void>
-  signIn: (email: string, password: string) => Promise<void>
+  signIn: (email: string, password: string) => Promise<UserProfile | null>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
 }
@@ -105,12 +105,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({
       email,
       password
     })
 
     if (error) throw error
+    if (!signInData.user) throw new Error('Sign in failed, no user returned')
+
+    // After successful sign-in, fetch the user's profile
+    try {
+      const { data: profileData, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', signInData.user.id)
+        .single()
+      
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.error('Error fetching user profile after sign in:', profileError)
+        // Still return null instead of throwing, so login can complete
+        return null
+      }
+      
+      setProfile(profileData)
+      return profileData
+
+    } catch (profileError) {
+      console.error('Error fetching user profile after sign in:', profileError)
+      return null
+    }
   }
 
   const signOut = async () => {
