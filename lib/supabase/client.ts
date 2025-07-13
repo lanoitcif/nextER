@@ -4,6 +4,13 @@ import { createBrowserClient } from '@supabase/ssr'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
+// Debug: Log what we're getting from environment
+console.log('Environment check:', {
+  url: supabaseUrl ? `${supabaseUrl.slice(0, 20)}...` : 'MISSING',
+  key: supabaseAnonKey ? `${supabaseAnonKey.slice(0, 20)}...` : 'MISSING',
+  allEnv: Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC_'))
+})
+
 // Client-side Supabase client
 export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey)
 
