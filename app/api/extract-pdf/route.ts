@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
 
 function extractTextFromPDF(buffer: Buffer): Promise<string> {
   return new Promise((resolve, reject) => {
-    const pdfParser = new PDF2JSON(null, 1)
+    const pdfParser = new PDF2JSON(null, true)
     
     pdfParser.on('pdfParser_dataError', (errData: any) => {
       reject(new Error(`PDF parsing error: ${errData.parserError}`))

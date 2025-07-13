@@ -159,7 +159,7 @@ export default function AnalyzePage() {
         const preferences = JSON.parse(stored)
         setProvider(preferences.defaultProvider || 'openai')
         const defaultProvider = preferences.defaultProvider || 'openai'
-        setSelectedModel(preferences.defaultModels?.[defaultProvider] || DEFAULT_MODELS[defaultProvider])
+        setSelectedModel(preferences.defaultModels?.[defaultProvider] || DEFAULT_MODELS[defaultProvider as keyof typeof DEFAULT_MODELS])
       }
     } catch (error) {
       console.error('Error loading user preferences:', error)
