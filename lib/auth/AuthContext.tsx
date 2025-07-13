@@ -7,6 +7,14 @@ import type { Database } from '@/lib/supabase/client'
 
 type UserProfile = Database['public']['Tables']['user_profiles']['Row']
 
+// Helper function to check if a user profile has admin privileges
+export function isAdmin(profile: UserProfile | null): boolean {
+  if (!profile) return false
+  // Add your admin check logic here based on your user_profiles table structure
+  // For example, if you have an is_admin column or check specific email domains
+  return profile.can_use_owner_key || false
+}
+
 interface AuthContextType {
   user: User | null
   profile: UserProfile | null
