@@ -298,7 +298,7 @@ export default function AnalyzePage() {
       setAvailableCompanyTypes(data || [])
       
       // Auto-select primary company type
-      const primaryType = data?.find(ct => ct.id === company.primary_company_type_id)
+      const primaryType = data?.find((ct: CompanyType) => ct.id === company.primary_company_type_id)
       console.log('Found primary type:', primaryType)
       if (primaryType) {
         setSelectedCompanyType(primaryType)
