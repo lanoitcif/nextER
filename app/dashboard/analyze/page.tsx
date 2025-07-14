@@ -230,6 +230,7 @@ export default function AnalyzePage() {
   }
 
   const handleCompanySelect = (company: Company) => {
+    console.log('Selected company:', company)
     setSelectedCompany(company)
     setTicker(company.ticker)
     setShowDropdown(false)
@@ -244,11 +245,15 @@ export default function AnalyzePage() {
       const additionalTypes = company.additional_company_types || []
       const allCompanyTypeIds = [company.primary_company_type_id, ...additionalTypes]
       
+      console.log('Fetching company types for company:', company)
+      console.log('Company type IDs to fetch:', allCompanyTypeIds)
+      
       const { data, error } = await supabase
         .from('company_types')
         .select('*')
         .in('id', allCompanyTypeIds)
-        .eq('is_active', true)
+
+      console.log('Company types query result:', { data, error })
 
       if (error) {
         console.error('Error fetching company types:', error)
