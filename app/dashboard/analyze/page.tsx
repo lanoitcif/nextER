@@ -183,16 +183,20 @@ export default function AnalyzePage() {
 
   const fetchCompanies = async () => {
     try {
+      console.log('Fetching companies...')
       const { data, error } = await supabase
         .from('companies')
         .select('*')
         .order('ticker')
+
+      console.log('Companies fetch result:', { data, error, count: data?.length })
 
       if (error) {
         console.error('Error fetching companies:', error)
         return
       }
 
+      console.log('Setting companies:', data?.length, 'companies loaded')
       setCompanies(data || [])
     } catch (error) {
       console.error('Error fetching companies:', error)
@@ -200,6 +204,9 @@ export default function AnalyzePage() {
   }
 
   const handleTickerSearch = () => {
+    console.log('handleTickerSearch called with ticker:', ticker)
+    console.log('Available companies:', companies.length, companies)
+    
     if (!ticker.trim()) {
       setError('Please enter a ticker symbol')
       setFilteredCompanies([])
@@ -213,6 +220,7 @@ export default function AnalyzePage() {
       c.name.toLowerCase().includes(ticker.toLowerCase())
     )
 
+    console.log('Filtered companies:', filtered.length, filtered)
     setFilteredCompanies(filtered)
     setShowDropdown(filtered.length > 0)
     setError('')
