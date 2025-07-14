@@ -370,7 +370,16 @@ export default function AnalyzePage() {
 
     try {
       console.log('Getting session...')
-      const { data } = await supabase.auth.getSession()
+      
+      // Add timeout to session check
+      const sessionTimeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Session check timeout')), 5000) // 5 second timeout
+      })
+      
+      const sessionPromise = supabase.auth.getSession()
+      
+      console.log('Starting session check with timeout...')
+      const { data } = await Promise.race([sessionPromise, sessionTimeoutPromise]) as any
       console.log('Session data:', { hasSession: !!data.session, hasAccessToken: !!data.session?.access_token })
       
       if (!data.session) {
@@ -433,7 +442,12 @@ export default function AnalyzePage() {
       })
     } catch (error: any) {
       console.error('Analysis error:', error)
-      setError(error.message || 'An error occurred during analysis')
+      if (error.message === 'Session check timeout') {
+        console.error('Session check timed out - possible Supabase connection issue')
+        setError('Connection timeout. Please try again.')
+      } else {
+        setError(error.message || 'An error occurred during analysis')
+      }
     } finally {
       setAnalyzing(false)
     }
