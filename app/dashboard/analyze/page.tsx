@@ -183,16 +183,20 @@ export default function AnalyzePage() {
 
   const fetchCompanies = async () => {
     try {
+      console.log('Fetching companies...')
       const { data, error } = await supabase
         .from('companies')
         .select('*')
         .order('ticker')
+
+      console.log('Companies fetch result:', { data, error, count: data?.length })
 
       if (error) {
         console.error('Error fetching companies:', error)
         return
       }
 
+      console.log('Setting companies:', data?.length, 'companies loaded')
       setCompanies(data || [])
     } catch (error) {
       console.error('Error fetching companies:', error)
