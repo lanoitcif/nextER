@@ -16,6 +16,7 @@ A powerful SaaS web application for analyzing transcripts using multiple AI prov
 - **Flexible Key Sources**: System-provided keys or user's own API keys
 - **Usage Tracking**: Cost estimation and analytics
 - **User-Friendly Interface**: Clean, responsive design for non-technical users
+- **Admin Dashboard**: Manage users and system settings.
 
 ## 🛠️ Tech Stack
 
@@ -24,6 +25,7 @@ A powerful SaaS web application for analyzing transcripts using multiple AI prov
 - **Database**: Supabase (PostgreSQL) with Row Level Security
 - **Authentication**: Supabase Auth
 - **Deployment**: Vercel/Netlify ready
+- **Testing**: Jest, React Testing Library
 
 ## 📋 Prerequisites
 
@@ -105,18 +107,20 @@ Visit `http://localhost:3000`
 ## 🔒 Security Features
 
 - **Encrypted API Keys**: AES-256-GCM encryption at rest
-- **Row Level Security**: Database-level access controls
+- **Row Level Security**: Database-level access controls for users and admins.
 - **Session Management**: Secure JWT authentication
 - **No Key Exposure**: API keys never sent to client
+- **Input Validation**: All API endpoints validate inputs using Zod.
 
 ## 📊 Database Schema
 
 ### Core Tables
 
-- **`user_profiles`**: User accounts and permissions
-- **`user_api_keys`**: Encrypted API key storage with metadata
+- **`user_profiles`**: User accounts and permissions, including roles.
+- **`user_api_keys`**: Encrypted API key storage with metadata.
 - **`prompts`**: Pre-built analysis templates
 - **`usage_logs`**: API usage tracking and cost analytics
+- **`system_settings`**: Admin-configurable system-wide settings.
 
 ### Industry-Specific Tables (New)
 
@@ -136,6 +140,9 @@ Main transcript analysis endpoint
 API key management
 - Add new encrypted keys
 - Retrieve user's saved keys (metadata only)
+
+### `PUT/DELETE /api/user-api-keys/[id]`
+- Update or delete a specific API key.
 
 ## 📱 User Workflow
 
@@ -170,6 +177,14 @@ Grant access via database:
 UPDATE user_profiles 
 SET can_use_owner_key = true 
 WHERE email = 'user@company.com';
+```
+
+### Admins
+Grant access via database:
+```sql
+UPDATE user_profiles
+SET role = 'admin'
+WHERE email = 'admin@example.com';
 ```
 
 ## 🔧 Customization
@@ -222,6 +237,9 @@ npm run lint
 
 # Build
 npm run build
+
+# Testing
+npm test
 ```
 
 ## 🆘 Troubleshooting

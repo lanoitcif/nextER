@@ -94,7 +94,7 @@ Visit `http://localhost:3000` to see the application.
 │   │   └── user-api-keys/   # API key management
 │   │       ├── route.ts
 │   │       └── [id]/
-│   │           └── route.ts
+│   │           └─��� route.ts
 │   ├── auth/               # Authentication pages
 │   │   ├── login/
 │   │   │   └── page.tsx
@@ -140,6 +140,9 @@ npm run type-check      # Run TypeScript type checking
 
 # Database
 npm run db:types        # Generate TypeScript types from Supabase schema
+
+# Testing
+npm test                # Run Jest tests
 ```
 
 ## 🎨 Styling & Design System
@@ -180,32 +183,28 @@ module.exports = {
 // app/api/example/route.ts
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { withAuth } from '@/lib/api/middleware';
+import { z } from 'zod';
 
-export async function POST(request: NextRequest) {
+const schema = z.object({
+  field1: z.string(),
+  field2: z.string(),
+});
+
+export const POST = withAuth(async (request, { user }) => {
   try {
-    // 1. Authentication
-    const supabase = createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // 2. Input validation
+    // 1. Input validation
     const body = await request.json();
-    const { field1, field2 } = body;
-    
-    if (!field1 || !field2) {
-      return NextResponse.json(
-        { error: 'Missing required fields' }, 
-        { status: 400 }
-      );
+    const validation = schema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error.format() }, { status: 400 });
     }
+    const { field1, field2 } = validation.data;
 
-    // 3. Business logic
+    // 2. Business logic
     const result = await processRequest(field1, field2);
 
-    // 4. Response
+    // 3. Response
     return NextResponse.json({ success: true, data: result });
 
   } catch (error) {
@@ -215,7 +214,7 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 ```
 
 ### Component Structure

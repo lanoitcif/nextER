@@ -33,9 +33,9 @@ interface AnalyzeRequest {
   companyTypeId?: string;      // Specific company type ID to use
   provider: 'openai' | 'anthropic' | 'google' | 'cohere';
   model?: string;              // Optional specific model (uses default if not provided)
-  keySource: 'owner' | 'user' | 'temporary';
-  userApiKeyId?: string;       // Required if keySource is 'user'
-  temporaryApiKey?: string;    // Required if keySource is 'temporary'
+  keySource: 'owner' | 'user_saved' | 'user_temporary';
+  userApiKeyId?: string;       // Required if keySource is 'user_saved'
+  temporaryApiKey?: string;    // Required if keySource is 'user_temporary'
   analysisRole?: string;       // Role for template substitution (default: "Expert Financial Analyst")
 }
 ```
@@ -462,7 +462,7 @@ All API calls are logged in the `usage_logs` table with:
 - **Encryption**: All user API keys encrypted with AES-256-GCM
 - **Authentication**: JWT tokens validated on every request
 - **Rate Limiting**: Implement client-side rate limiting to respect provider limits
-- **Input Validation**: All inputs sanitized and validated
+- **Input Validation**: All inputs sanitized and validated with Zod.
 
 ## SDK Usage Examples
 

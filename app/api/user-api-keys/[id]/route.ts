@@ -1,13 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { withAuth } from '@/lib/api/middleware'
 import { updateApiKeyRequestSchema } from '@/lib/api/validation'
 import { handleError } from '@/lib/api/errors'
 
-export const PUT = withAuth(async (request, { user, params }) => {
-  const supabaseAdmin = createClient()
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  // Authentication
+  const supabase = await createClient()
+  const authHeader = request.headers.get('authorization')
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return NextResponse.json(
+      { error: 'Missing or invalid authorization header' },
+      { status: 401 }
+    )
+  }
+
+  const token = authHeader.replace('Bearer ', '')
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+
+  if (authError || !user) {
+    return NextResponse.json(
+      { error: 'Invalid or expired session' },
+      { status: 401 }
+    )
+  }
+  const supabaseAdmin = await createClient()
   try {
-    const apiKeyId = params.id
+    const resolvedParams = await params
+    const apiKeyId = resolvedParams.id
 
     // Parse and validate the request body
     const body = await request.json()
@@ -49,12 +68,32 @@ export const PUT = withAuth(async (request, { user, params }) => {
   } catch (error: any) {
     return handleError(error)
   }
-})
+}
 
-export const DELETE = withAuth(async (request, { user, params }) => {
-  const supabaseAdmin = createClient()
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  // Authentication
+  const supabase = await createClient()
+  const authHeader = request.headers.get('authorization')
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return NextResponse.json(
+      { error: 'Missing or invalid authorization header' },
+      { status: 401 }
+    )
+  }
+
+  const token = authHeader.replace('Bearer ', '')
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+
+  if (authError || !user) {
+    return NextResponse.json(
+      { error: 'Invalid or expired session' },
+      { status: 401 }
+    )
+  }
+  const supabaseAdmin = await createClient()
   try {
-    const apiKeyId = params.id
+    const resolvedParams = await params
+    const apiKeyId = resolvedParams.id
 
     if (!apiKeyId) {
       return NextResponse.json(
@@ -82,4 +121,4 @@ export const DELETE = withAuth(async (request, { user, params }) => {
   } catch (error: any) {
     return handleError(error)
   }
-})
+}

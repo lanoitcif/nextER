@@ -23,8 +23,24 @@
       "Bash(cmd /c:*)",
       "Bash(git fetch:*)",
       "Bash(git pull:*)",
-      "WebFetch(domain:151westmain.com)"
+      "WebFetch(domain:151westmain.com)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(where claude)",
+      "Bash(claude mcp:*)",
+      "Bash(dir \"C:\\Program Files\\Git\\bin\\bash.exe\")",
+      "Bash(setx:*)",
+      "Bash(set \"CLAUDE_CODE_GIT_BASH_PATH=C:\\Program Files\\Git\\bin\\bash.exe\")",
+      "Bash(\"C:\\Program Files\\Git\\bin\\bash.exe\" -c \"claude mcp add fetch python -m mcp_server_fetch --scope user\")",
+      "mcp__supabase__execute_sql",
+      "mcp__supabase__list_tables",
+      "mcp__supabase__get_project_url"
     ],
     "deny": []
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "fetch",
+    "supabase",
+    "openai-gpt-image"
+  ]
 }

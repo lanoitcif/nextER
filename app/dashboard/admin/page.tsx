@@ -1,17 +1,22 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { supabaseAdmin } from '@/lib/supabase/client'
 import { type User } from '@supabase/supabase-js'
 
 export default function AdminPage() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const { data: { users }, error } = await supabase.auth.admin.listUsers()
+      if (!supabaseAdmin) {
+        console.error('Admin client not available')
+        setLoading(false)
+        return
+      }
+      
+      const { data: { users }, error } = await supabaseAdmin.auth.admin.listUsers()
       if (error) {
         console.error('Error fetching users:', error)
       } else {

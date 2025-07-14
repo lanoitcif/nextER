@@ -2,14 +2,32 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createLLMClient, SUPPORTED_PROVIDERS, type SupportedProvider } from '@/lib/llm/clients'
 import { decryptFromStorage } from '@/lib/crypto'
-import { withAuth } from '@/lib/api/middleware'
 import { analyzeRequestSchema } from '@/lib/api/validation'
 import { handleError } from '@/lib/api/errors'
 
-export const POST = withAuth(async (request, { user }) => {
+export async function POST(request: NextRequest) {
+  // Authentication
+  const supabase = await createClient()
+  const authHeader = request.headers.get('authorization')
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return NextResponse.json(
+      { error: 'Missing or invalid authorization header' },
+      { status: 401 }
+    )
+  }
+
+  const token = authHeader.replace('Bearer ', '')
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+
+  if (authError || !user) {
+    return NextResponse.json(
+      { error: 'Invalid or expired session' },
+      { status: 401 }
+    )
+  }
   const startTime = Date.now()
   const requestId = crypto.randomUUID()
-  const supabaseAdmin = createClient()
+  const supabaseAdmin = await createClient()
   
   console.log(`[${requestId}] Analysis request started at ${new Date().toISOString()}`)
   
@@ -242,7 +260,7 @@ export const POST = withAuth(async (request, { user }) => {
   } catch (error: any) {
     return handleError(error)
   }
-})
+}
 
 // Updated cost estimation with 2025 pricing
 function calculateCostEstimate(provider: string, model: string, tokens: number): number {

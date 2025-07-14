@@ -1,12 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { encryptForStorage } from '@/lib/crypto'
-import { withAuth } from '@/lib/api/middleware'
 import { addApiKeyRequestSchema } from '@/lib/api/validation'
 import { handleError } from '@/lib/api/errors'
 
-export const POST = withAuth(async (request, { user }) => {
-  const supabaseAdmin = createClient()
+export async function POST(request: NextRequest) {
+  // Authentication
+  const supabase = await createClient()
+  const authHeader = request.headers.get('authorization')
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return NextResponse.json(
+      { error: 'Missing or invalid authorization header' },
+      { status: 401 }
+    )
+  }
+
+  const token = authHeader.replace('Bearer ', '')
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+
+  if (authError || !user) {
+    return NextResponse.json(
+      { error: 'Invalid or expired session' },
+      { status: 401 }
+    )
+  }
+  const supabaseAdmin = await createClient()
   try {
     // Parse and validate the request body
     const body = await request.json()
@@ -66,10 +84,29 @@ export const POST = withAuth(async (request, { user }) => {
   } catch (error: any) {
     return handleError(error)
   }
-})
+}
 
-export const GET = withAuth(async (request, { user }) => {
-  const supabaseAdmin = createClient()
+export async function GET(request: NextRequest) {
+  // Authentication
+  const supabase = await createClient()
+  const authHeader = request.headers.get('authorization')
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return NextResponse.json(
+      { error: 'Missing or invalid authorization header' },
+      { status: 401 }
+    )
+  }
+
+  const token = authHeader.replace('Bearer ', '')
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+
+  if (authError || !user) {
+    return NextResponse.json(
+      { error: 'Invalid or expired session' },
+      { status: 401 }
+    )
+  }
+  const supabaseAdmin = await createClient()
   try {
     // Get user's API keys (without the actual encrypted keys)
     // Note: preferred_model column might not exist in older database schemas
@@ -91,4 +128,4 @@ export const GET = withAuth(async (request, { user }) => {
   } catch (error: any) {
     return handleError(error)
   }
-})
+}

@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
-type ApiRouteHandler = (
+type AuthenticatedHandler = (
   request: NextRequest,
-  options: { params?: any; user?: any }
+  context: { user: any; params?: any }
 ) => Promise<NextResponse>;
 
-export function withAuth(handler: ApiRouteHandler) {
-  return async (request: NextRequest, options: { params?: any }) => {
-    const supabase = createClient();
+export function withAuth(handler: AuthenticatedHandler) {
+  return async (request: NextRequest, context: { params?: any } = {}) => {
+    const supabase = await createClient();
 
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -28,6 +28,6 @@ export function withAuth(handler: ApiRouteHandler) {
       );
     }
 
-    return handler(request, { ...options, user });
+    return handler(request, { ...context, user });
   };
 }
