@@ -371,15 +371,19 @@ export default function AnalyzePage() {
     try {
       console.log('Getting session...')
       
-      // Add timeout to session check
-      const sessionTimeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Session check timeout')), 5000) // 5 second timeout
-      })
+      // Temporary bypass to test fetch directly
+      let sessionData: any = null
+      try {
+        console.log('Attempting session check...')
+        sessionData = await supabase.auth.getSession()
+        console.log('Session check completed:', { hasSession: !!sessionData.data.session })
+      } catch (sessionError) {
+        console.error('Session check failed:', sessionError)
+        setError('Session check failed. Please refresh and try again.')
+        return
+      }
       
-      const sessionPromise = supabase.auth.getSession()
-      
-      console.log('Starting session check with timeout...')
-      const { data } = await Promise.race([sessionPromise, sessionTimeoutPromise]) as any
+      const { data } = sessionData
       console.log('Session data:', { hasSession: !!data.session, hasAccessToken: !!data.session?.access_token })
       
       if (!data.session) {
