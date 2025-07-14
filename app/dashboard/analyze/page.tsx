@@ -657,46 +657,56 @@ export default function AnalyzePage() {
                   </div>
 
                   {/* Selected Company Display */}
-                  {selectedCompany && (
-                    <div className="bg-green-50 border border-green-200 rounded-md p-4">
-                      <h4 className="text-sm font-medium text-green-900 mb-1">
-                        Selected Company
-                      </h4>
-                      <p className="text-sm text-green-700">
-                        <strong>{selectedCompany.ticker}</strong> - {selectedCompany.name}
-                      </p>
-                    </div>
-                  )}
+                  <div className="bg-green-50 border border-green-200 rounded-md p-4">
+                    <h4 className="text-sm font-medium text-green-900 mb-1">
+                      Selected Company
+                    </h4>
+                    <p className="text-sm text-green-700">
+                      {selectedCompany ? (
+                        <><strong>{selectedCompany.ticker}</strong> - {selectedCompany.name}</>
+                      ) : (
+                        <span className="text-gray-500">No company selected</span>
+                      )}
+                    </p>
+                  </div>
 
                   {/* Analysis Type Selection */}
-                  {availableCompanyTypes.length > 0 && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Analysis Type
-                      </label>
-                      <select
-                        value={selectedCompanyType?.id || ''}
-                        onChange={(e) => {
-                          const type = availableCompanyTypes.find(ct => ct.id === e.target.value)
-                          setSelectedCompanyType(type || null)
-                        }}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
-                        disabled={analyzing}
-                      >
-                        <option value="">Select analysis type...</option>
-                        {availableCompanyTypes.map((type) => (
-                          <option key={type.id} value={type.id}>
-                            {type.name}
-                          </option>
-                        ))}
-                      </select>
-                      {selectedCompanyType && (
-                        <p className="text-xs text-gray-600 mt-1">
-                          {selectedCompanyType.description}
-                        </p>
-                      )}
-                    </div>
-                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Analysis Type
+                    </label>
+                    <select
+                      value={selectedCompanyType?.id || ''}
+                      onChange={(e) => {
+                        const type = availableCompanyTypes.find(ct => ct.id === e.target.value)
+                        setSelectedCompanyType(type || null)
+                      }}
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
+                      disabled={analyzing || availableCompanyTypes.length === 0}
+                    >
+                      <option value="">
+                        {availableCompanyTypes.length === 0 
+                          ? 'Select a company first...' 
+                          : 'Select analysis type...'
+                        }
+                      </option>
+                      {availableCompanyTypes.map((type) => (
+                        <option key={type.id} value={type.id}>
+                          {type.name}
+                        </option>
+                      ))}
+                    </select>
+                    {selectedCompanyType && (
+                      <p className="text-xs text-gray-600 mt-1">
+                        {selectedCompanyType.description}
+                      </p>
+                    )}
+                    {availableCompanyTypes.length === 0 && selectedCompany && (
+                      <p className="text-xs text-red-600 mt-1">
+                        No analysis types available for this company. Check database configuration.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -763,7 +773,7 @@ export default function AnalyzePage() {
                     <select
                       value={provider}
                       onChange={(e) => setProvider(e.target.value as any)}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
                       disabled={analyzing}
                     >
                       <option value="openai">OpenAI</option>
@@ -781,7 +791,7 @@ export default function AnalyzePage() {
                     <select
                       value={selectedModel}
                       onChange={(e) => setSelectedModel(e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
                       disabled={analyzing}
                     >
                       {PROVIDER_MODELS[provider].map((model) => (
