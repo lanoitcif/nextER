@@ -6,10 +6,18 @@ import { analyzeRequestSchema } from '@/lib/api/validation'
 import { handleError } from '@/lib/api/errors'
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now()
+  const requestId = crypto.randomUUID()
+  
+  console.log(`[${requestId}] Analysis request received at ${new Date().toISOString()}`)
+  
   // Authentication
   const supabase = await createClient()
   const authHeader = request.headers.get('authorization')
+  console.log(`[${requestId}] Auth header present:`, !!authHeader)
+  
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log(`[${requestId}] Missing or invalid authorization header`)
     return NextResponse.json(
       { error: 'Missing or invalid authorization header' },
       { status: 401 }
@@ -17,19 +25,21 @@ export async function POST(request: NextRequest) {
   }
 
   const token = authHeader.replace('Bearer ', '')
+  console.log(`[${requestId}] Token length:`, token.length)
+  
   const { data: { user }, error: authError } = await supabase.auth.getUser(token)
 
   if (authError || !user) {
+    console.log(`[${requestId}] Auth failed:`, { authError, hasUser: !!user })
     return NextResponse.json(
       { error: 'Invalid or expired session' },
       { status: 401 }
     )
   }
-  const startTime = Date.now()
-  const requestId = crypto.randomUUID()
+  
   const supabaseAdmin = await createClient()
   
-  console.log(`[${requestId}] Analysis request started at ${new Date().toISOString()}`)
+  console.log(`[${requestId}] Authentication successful for user: ${user.email}`)
   
   try {
     const userId = user.id
@@ -129,7 +139,10 @@ export async function POST(request: NextRequest) {
         const ownerKeyEnvVar = `OWNER_${provider.toUpperCase()}_API_KEY`
         const ownerApiKey = process.env[ownerKeyEnvVar]
         
+        console.log(`[${requestId}] Looking for env var: ${ownerKeyEnvVar}, found: ${!!ownerApiKey}`)
+        
         if (!ownerApiKey) {
+          console.log(`[${requestId}] Owner ${provider} API key not configured`)
           return NextResponse.json(
             { error: `Owner ${provider} API key not configured` },
             { status: 500 }
