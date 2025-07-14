@@ -554,10 +554,10 @@ export default function AnalyzePage() {
               </Link>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Analyze Transcript
+                  Analyze
                 </h1>
                 <p className="text-sm text-gray-600 mt-1">
-                  Upload or paste a transcript for AI analysis
+                  AI-powered transcript analysis
                 </p>
               </div>
             </div>
@@ -572,9 +572,9 @@ export default function AnalyzePage() {
             <div className="space-y-6">
               <div className="card">
                 <div className="card-header">
-                  <h3 className="card-title">Transcript Input</h3>
+                  <h3 className="card-title">Transcript</h3>
                   <p className="card-description">
-                    Paste your transcript text below
+                    Paste transcript text
                   </p>
                 </div>
                 <div className="card-content">
@@ -590,9 +590,9 @@ export default function AnalyzePage() {
 
               <div className="card">
                 <div className="card-header">
-                  <h3 className="card-title">Company Selection</h3>
+                  <h3 className="card-title">Company</h3>
                   <p className="card-description">
-                    Enter the ticker symbol to identify the company
+                    Enter ticker symbol
                   </p>
                 </div>
                 <div className="card-content space-y-4">
@@ -691,7 +691,7 @@ export default function AnalyzePage() {
 
               <div className="card">
                 <div className="card-header">
-                  <h3 className="card-title">API Configuration</h3>
+                  <h3 className="card-title">Configuration</h3>
                 </div>
                 <div className="card-content space-y-4">
 

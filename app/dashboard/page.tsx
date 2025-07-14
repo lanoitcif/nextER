@@ -101,10 +101,10 @@ export default function DashboardPage() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                LLM Transcript Analyzer
+                NextER
               </h1>
               <p className="text-sm text-gray-600 mt-1">
-                Welcome back, {profile.full_name || profile.email}
+                {profile.full_name || profile.email}
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -213,10 +213,10 @@ export default function DashboardPage() {
                   </div>
                   <div className="ml-5">
                     <h3 className="text-lg font-medium text-gray-900">
-                      Analyze Transcript
+                      Analyze
                     </h3>
                     <p className="text-sm text-gray-600">
-                      Upload or paste a transcript and analyze it using AI
+                      AI-powered transcript analysis
                     </p>
                   </div>
                 </div>
@@ -231,10 +231,10 @@ export default function DashboardPage() {
                   </div>
                   <div className="ml-5">
                     <h3 className="text-lg font-medium text-gray-900">
-                      Manage API Keys
+                      API Keys
                     </h3>
                     <p className="text-sm text-gray-600">
-                      Add and manage your LLM provider API keys
+                      Manage LLM provider keys
                     </p>
                   </div>
                 </div>
@@ -246,9 +246,9 @@ export default function DashboardPage() {
           {!loadingStats && stats && stats.recentAnalyses.length > 0 && (
             <div className="card">
               <div className="card-header">
-                <h3 className="card-title">Recent Analyses</h3>
+                <h3 className="card-title">Recent Activity</h3>
                 <p className="card-description">
-                  Your most recent transcript analyses
+                  Latest analyses
                 </p>
               </div>
               <div className="card-content">
@@ -292,10 +292,10 @@ export default function DashboardPage() {
                   </div>
                   <div className="ml-3">
                     <p className="text-sm font-medium text-gray-900">
-                      Owner API Key Access Enabled
+                      System Access Enabled
                     </p>
                     <p className="text-xs text-gray-600">
-                      You can use the system's API keys for your analyses
+                      Free analysis using system keys
                     </p>
                   </div>
                 </div>
