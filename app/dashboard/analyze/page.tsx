@@ -242,7 +242,9 @@ export default function AnalyzePage() {
   const fetchCompanyTypes = async (company: Company) => {
     try {
       // Get all possible company types for this company
-      const additionalTypes = company.additional_company_types || []
+      const additionalTypes = Array.isArray(company.additional_company_types) 
+        ? company.additional_company_types 
+        : []
       const allCompanyTypeIds = [company.primary_company_type_id, ...additionalTypes]
       
       console.log('Fetching company types for company:', company)
