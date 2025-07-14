@@ -11,6 +11,7 @@ CREATE TABLE public.user_profiles (
   email TEXT NOT NULL,
   full_name TEXT,
   can_use_owner_key BOOLEAN DEFAULT FALSE,
+  role TEXT DEFAULT 'user' NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -67,26 +68,60 @@ ALTER TABLE public.prompts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.usage_logs ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for user_profiles
-CREATE POLICY "Users can view own profile" ON public.user_profiles
+CREATE POLICY "Users can view their own profile" ON public.user_profiles
   FOR SELECT USING (auth.uid() = id);
+  
+CREATE POLICY "Admins can view all profiles" ON public.user_profiles
+  FOR SELECT TO authenticated
+  USING (
+    (SELECT role FROM public.user_profiles WHERE id = auth.uid()) = 'admin'
+  );
 
-CREATE POLICY "Users can update own profile" ON public.user_profiles
+CREATE POLICY "Users can update their own profile" ON public.user_profiles
   FOR UPDATE USING (auth.uid() = id);
 
-CREATE POLICY "Users can insert own profile" ON public.user_profiles
+CREATE POLICY "Admins can update any profile" ON public.user_profiles
+  FOR UPDATE TO authenticated
+  USING (
+    (SELECT role FROM public.user_profiles WHERE id = auth.uid()) = 'admin'
+  );
+
+CREATE POLICY "Users can insert their own profile" ON public.user_profiles
   FOR INSERT WITH CHECK (auth.uid() = id);
 
+CREATE POLICY "Users can delete their own profile" ON public.user_profiles
+  FOR DELETE USING (auth.uid() = id);
+
+CREATE POLICY "Admins can delete any profile" ON public.user_profiles
+  FOR DELETE TO authenticated
+  USING (
+    (SELECT role FROM public.user_profiles WHERE id = auth.uid()) = 'admin'
+  );
+
+
 -- RLS Policies for user_api_keys
-CREATE POLICY "Users can manage own API keys" ON public.user_api_keys
+CREATE POLICY "Users can manage their own API keys" ON public.user_api_keys
   FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "Admins can manage all API keys" ON public.user_api_keys
+  FOR ALL TO authenticated
+  USING (
+    (SELECT role FROM public.user_profiles WHERE id = auth.uid()) = 'admin'
+  );
 
 -- RLS Policies for prompts (read-only for users, admin manages via service role)
 CREATE POLICY "Users can view active prompts" ON public.prompts
   FOR SELECT USING (is_active = TRUE);
 
 -- RLS Policies for usage_logs
-CREATE POLICY "Users can view own usage logs" ON public.usage_logs
+CREATE POLICY "Users can view their own usage logs" ON public.usage_logs
   FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Admins can view all usage logs" ON public.usage_logs
+  FOR SELECT TO authenticated
+  USING (
+    (SELECT role FROM public.user_profiles WHERE id = auth.uid()) = 'admin'
+  );
 
 CREATE POLICY "System can insert usage logs" ON public.usage_logs
   FOR INSERT WITH CHECK (true);
@@ -99,7 +134,7 @@ BEGIN
   VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->>'full_name');
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql;
 
 -- Trigger to create user profile on auth.users insert
 CREATE TRIGGER on_auth_user_created
@@ -729,3 +764,24 @@ Provide specific examples from the text to support your analysis. Be sensitive a
 Focus on actionable insights that can improve future sales performance.',
   'sales'
 );
+
+-- Add a new table for system settings
+CREATE TABLE public.system_settings (
+  key TEXT PRIMARY KEY,
+  value JSONB,
+  description TEXT,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable RLS for system_settings
+ALTER TABLE public.system_settings ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for system_settings (admin-only access)
+CREATE POLICY "Admins can manage system settings" ON public.system_settings
+  FOR ALL USING ((SELECT role FROM public.user_profiles WHERE id = auth.uid()) = 'admin');
+
+-- Insert default system settings
+INSERT INTO public.system_settings (key, value, description) VALUES
+('maintenance_mode', '{"enabled": false, "message": "System is currently under maintenance. Please try again later."}', 'Enable or disable maintenance mode for the entire application'),
+('default_provider', '{"provider": "openai", "model": "gpt-4o-mini"}', 'Default LLM provider and model for new users'),
+('usage_limits', '{"monthly_requests": 1000, "monthly_tokens": 500000}', 'Default usage limits for standard users');

@@ -1,63 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
 import { encryptForStorage } from '@/lib/crypto'
-import { SUPPORTED_PROVIDERS, type SupportedProvider } from '@/lib/llm/clients'
+import { withAuth } from '@/lib/api/middleware'
+import { addApiKeyRequestSchema } from '@/lib/api/validation'
+import { handleError } from '@/lib/api/errors'
 
-interface AddApiKeyRequest {
-  provider: SupportedProvider
-  apiKey: string
-  nickname?: string
-  preferredModel?: string
-}
-
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request, { user }) => {
+  const supabaseAdmin = createClient()
   try {
-    // Check if supabaseAdmin is available
-    if (!supabaseAdmin) {
-      return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      )
+    // Parse and validate the request body
+    const body = await request.json()
+    const validation = addApiKeyRequestSchema.safeParse(body)
+
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error.format() }, { status: 400 })
     }
 
-    // Get the authorization header
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Missing or invalid authorization header' },
-        { status: 401 }
-      )
-    }
-
-    const token = authHeader.replace('Bearer ', '')
-    
-    // Verify the user session
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token)
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Invalid or expired session' },
-        { status: 401 }
-      )
-    }
-
-    // Parse the request body
-    const body: AddApiKeyRequest = await request.json()
-    const { provider, apiKey, nickname, preferredModel } = body
-
-    // Validate required fields
-    if (!provider || !apiKey) {
-      return NextResponse.json(
-        { error: 'Provider and API key are required' },
-        { status: 400 }
-      )
-    }
-
-    if (!SUPPORTED_PROVIDERS.includes(provider)) {
-      return NextResponse.json(
-        { error: `Unsupported provider: ${provider}` },
-        { status: 400 }
-      )
-    }
+    const { provider, apiKey, nickname, preferredModel } = validation.data
 
     // Check if user already has a key with this provider/nickname combination
     const { data: existingKey, error: checkError } = await supabaseAdmin
@@ -69,11 +28,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle()
 
     if (checkError && checkError.code !== 'PGRST116') {
-      console.error('Error checking existing key:', checkError)
-      return NextResponse.json(
-        { error: 'Failed to check existing keys' },
-        { status: 500 }
-      )
+      return handleError(checkError)
     }
 
     if (existingKey) {
@@ -100,11 +55,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error saving API key:', error)
-      return NextResponse.json(
-        { error: 'Failed to save API key' },
-        { status: 500 }
-      )
+      return handleError(error)
     }
 
     return NextResponse.json({
@@ -113,44 +64,13 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Add API key error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return handleError(error)
   }
-}
+})
 
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request, { user }) => {
+  const supabaseAdmin = createClient()
   try {
-    // Check if supabaseAdmin is available
-    if (!supabaseAdmin) {
-      return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      )
-    }
-
-    // Get the authorization header
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Missing or invalid authorization header' },
-        { status: 401 }
-      )
-    }
-
-    const token = authHeader.replace('Bearer ', '')
-    
-    // Verify the user session
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token)
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Invalid or expired session' },
-        { status: 401 }
-      )
-    }
-
     // Get user's API keys (without the actual encrypted keys)
     // Note: preferred_model column might not exist in older database schemas
     const { data: apiKeys, error } = await supabaseAdmin
@@ -160,11 +80,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching API keys:', error)
-      return NextResponse.json(
-        { error: 'Failed to fetch API keys' },
-        { status: 500 }
-      )
+      return handleError(error)
     }
 
     return NextResponse.json({
@@ -173,10 +89,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Get API keys error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return handleError(error)
   }
-}
+})

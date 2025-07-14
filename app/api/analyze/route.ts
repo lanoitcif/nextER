@@ -1,62 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
 import { createLLMClient, SUPPORTED_PROVIDERS, type SupportedProvider } from '@/lib/llm/clients'
 import { decryptFromStorage } from '@/lib/crypto'
+import { withAuth } from '@/lib/api/middleware'
+import { analyzeRequestSchema } from '@/lib/api/validation'
+import { handleError } from '@/lib/api/errors'
 
-interface AnalyzeRequest {
-  transcript: string
-  companyId: string
-  companyTypeId: string
-  keySource: 'owner' | 'user_saved' | 'user_temporary'
-  userApiKeyId?: string
-  temporaryApiKey?: string
-  provider: SupportedProvider
-  model?: string
-}
-
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request, { user }) => {
   const startTime = Date.now()
   const requestId = crypto.randomUUID()
-  let userId: string | null = null
+  const supabaseAdmin = createClient()
   
   console.log(`[${requestId}] Analysis request started at ${new Date().toISOString()}`)
   
   try {
-    // Check if supabaseAdmin is available
-    if (!supabaseAdmin) {
-      return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      )
-    }
-
-    // Get the authorization header
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Missing or invalid authorization header' },
-        { status: 401 }
-      )
-    }
-
-    const token = authHeader.replace('Bearer ', '')
-    
-    // Verify the user session
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token)
-    if (authError || !user) {
-      console.log(`[${requestId}] Authentication failed:`, authError?.message || 'No user')
-      return NextResponse.json(
-        { error: 'Invalid or expired session' },
-        { status: 401 }
-      )
-    }
-    
-    userId = user.id
+    const userId = user.id
     console.log(`[${requestId}] User authenticated: ${user.email} (${user.id})`)
 
-    // Parse the request body
-    const body: AnalyzeRequest = await request.json()
-    const { transcript, companyId, companyTypeId, keySource, userApiKeyId, temporaryApiKey, provider, model } = body
+    // Parse and validate the request body
+    const body = await request.json()
+    const validation = analyzeRequestSchema.safeParse(body)
+
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error.format() }, { status: 400 })
+    }
+
+    const { transcript, companyId, companyTypeId, keySource, userApiKeyId, temporaryApiKey, provider, model } = validation.data
 
     console.log(`[${requestId}] Request details:`, {
       transcriptLength: transcript?.length || 0,
@@ -68,22 +37,6 @@ export async function POST(request: NextRequest) {
       hasUserApiKeyId: !!userApiKeyId,
       hasTemporaryApiKey: !!temporaryApiKey
     })
-
-    // Validate required fields
-    if (!transcript || !companyId || !companyTypeId || !keySource || !provider) {
-      console.log(`[${requestId}] Validation failed: Missing required fields`)
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
-    }
-
-    if (!SUPPORTED_PROVIDERS.includes(provider)) {
-      return NextResponse.json(
-        { error: `Unsupported provider: ${provider}` },
-        { status: 400 }
-      )
-    }
 
     // Get the user's profile to check permissions
     const { data: userProfile, error: profileError } = await supabaseAdmin
@@ -287,19 +240,9 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error: any) {
-    const totalTime = Date.now() - startTime
-    console.error(`[${requestId}] Analysis API error after ${totalTime}ms:`, {
-      error: error.message,
-      stack: error.stack,
-      userId,
-      requestId
-    })
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return handleError(error)
   }
-}
+})
 
 // Updated cost estimation with 2025 pricing
 function calculateCostEstimate(provider: string, model: string, tokens: number): number {
