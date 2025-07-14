@@ -150,7 +150,7 @@ export default function DashboardPage() {
                     <div className="ml-5 w-0 flex-1">
                       <dl>
                         <dt className="text-sm font-medium text-gray-500 truncate">
-                          Total Analyses
+                          Analyses
                         </dt>
                         <dd className="text-lg font-medium text-gray-900">
                           {stats.totalAnalyses}
@@ -190,7 +190,7 @@ export default function DashboardPage() {
                     <div className="ml-5 w-0 flex-1">
                       <dl>
                         <dt className="text-sm font-medium text-gray-500 truncate">
-                          Estimated Cost
+                          Cost
                         </dt>
                         <dd className="text-lg font-medium text-gray-900">
                           ${stats.totalCostEstimate.toFixed(4)}
@@ -216,7 +216,7 @@ export default function DashboardPage() {
                       Analyze
                     </h3>
                     <p className="text-sm text-gray-600">
-                      AI-powered transcript analysis
+                      Earnings analysis
                     </p>
                   </div>
                 </div>
@@ -234,7 +234,7 @@ export default function DashboardPage() {
                       API Keys
                     </h3>
                     <p className="text-sm text-gray-600">
-                      Manage LLM provider keys
+                      Provider keys
                     </p>
                   </div>
                 </div>
@@ -248,7 +248,7 @@ export default function DashboardPage() {
               <div className="card-header">
                 <h3 className="card-title">Recent Activity</h3>
                 <p className="card-description">
-                  Latest analyses
+                  Recent
                 </p>
               </div>
               <div className="card-content">
