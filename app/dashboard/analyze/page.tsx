@@ -137,9 +137,13 @@ export default function AnalyzePage() {
   }, [user, loading, router])
 
   useEffect(() => {
+    console.log('useEffect triggered, user:', !!user)
     if (user) {
+      console.log('User authenticated, fetching data...')
       fetchCompanies()
       fetchUserApiKeys()
+    } else {
+      console.log('No user, skipping data fetch')
     }
   }, [user])
 
@@ -204,6 +208,9 @@ export default function AnalyzePage() {
   }
 
   const handleTickerSearch = () => {
+    console.log('handleTickerSearch called with ticker:', ticker)
+    console.log('Available companies:', companies.length, companies)
+    
     if (!ticker.trim()) {
       setError('Please enter a ticker symbol')
       setFilteredCompanies([])
@@ -217,6 +224,7 @@ export default function AnalyzePage() {
       c.name.toLowerCase().includes(ticker.toLowerCase())
     )
 
+    console.log('Filtered companies:', filtered.length, filtered)
     setFilteredCompanies(filtered)
     setShowDropdown(filtered.length > 0)
     setError('')
