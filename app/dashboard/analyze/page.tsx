@@ -217,10 +217,14 @@ export default function AnalyzePage() {
     setShowDropdown(filtered.length > 0)
     setError('')
 
-    // If exact match found, auto-select it
+    // If exact match found, auto-select it but still show dropdown
     const exactMatch = filtered.find(c => c.ticker.toLowerCase() === ticker.toLowerCase())
     if (exactMatch) {
-      handleCompanySelect(exactMatch)
+      setSelectedCompany(exactMatch)
+      setTicker(exactMatch.ticker)
+      fetchCompanyTypes(exactMatch)
+      setError('')
+      // Keep dropdown open to show the match
     } else if (filtered.length === 0) {
       setError(`No companies found matching "${ticker}"`)
       setSelectedCompany(null)
@@ -546,7 +550,7 @@ export default function AnalyzePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-neutral-100">
       {/* Header */}
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -589,7 +593,7 @@ export default function AnalyzePage() {
                     value={transcript}
                     onChange={(e) => setTranscript(e.target.value)}
                     placeholder="Paste your transcript here..."
-                    className="w-full h-64 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full h-64 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
                     disabled={analyzing}
                   />
                 </div>
@@ -621,7 +625,7 @@ export default function AnalyzePage() {
                             setSelectedCompanyType(null)
                           }}
                           placeholder="e.g., AAPL, TSLA, MSFT"
-                          className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                          className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
                           disabled={analyzing}
                           onKeyPress={(e) => e.key === 'Enter' && handleTickerSearch()}
                         />
@@ -676,7 +680,7 @@ export default function AnalyzePage() {
                           const type = availableCompanyTypes.find(ct => ct.id === e.target.value)
                           setSelectedCompanyType(type || null)
                         }}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
                         disabled={analyzing}
                       >
                         <option value="">Select analysis type...</option>
@@ -801,7 +805,7 @@ export default function AnalyzePage() {
                         <select
                           value={selectedApiKey}
                           onChange={(e) => setSelectedApiKey(e.target.value)}
-                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
                           disabled={analyzing}
                         >
                           <option value="">Select an API key</option>
@@ -835,7 +839,7 @@ export default function AnalyzePage() {
                         value={temporaryApiKey}
                         onChange={(e) => setTemporaryApiKey(e.target.value)}
                         placeholder={`Enter your ${provider} API key`}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
                         disabled={analyzing}
                       />
                       <p className="text-xs text-gray-600 mt-1">
