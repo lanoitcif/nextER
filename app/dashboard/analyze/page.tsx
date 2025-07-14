@@ -137,13 +137,9 @@ export default function AnalyzePage() {
   }, [user, loading, router])
 
   useEffect(() => {
-    console.log('useEffect triggered, user:', !!user)
     if (user) {
-      console.log('User authenticated, fetching data...')
       fetchCompanies()
       fetchUserApiKeys()
-    } else {
-      console.log('No user, skipping data fetch')
     }
   }, [user])
 
@@ -187,20 +183,16 @@ export default function AnalyzePage() {
 
   const fetchCompanies = async () => {
     try {
-      console.log('Fetching companies...')
       const { data, error } = await supabase
         .from('companies')
         .select('*')
         .order('ticker')
-
-      console.log('Companies fetch result:', { data, error, count: data?.length })
 
       if (error) {
         console.error('Error fetching companies:', error)
         return
       }
 
-      console.log('Setting companies:', data?.length, 'companies loaded')
       setCompanies(data || [])
     } catch (error) {
       console.error('Error fetching companies:', error)
@@ -208,9 +200,6 @@ export default function AnalyzePage() {
   }
 
   const handleTickerSearch = () => {
-    console.log('handleTickerSearch called with ticker:', ticker)
-    console.log('Available companies:', companies.length, companies)
-    
     if (!ticker.trim()) {
       setError('Please enter a ticker symbol')
       setFilteredCompanies([])
@@ -224,7 +213,6 @@ export default function AnalyzePage() {
       c.name.toLowerCase().includes(ticker.toLowerCase())
     )
 
-    console.log('Filtered companies:', filtered.length, filtered)
     setFilteredCompanies(filtered)
     setShowDropdown(filtered.length > 0)
     setError('')
@@ -343,6 +331,7 @@ export default function AnalyzePage() {
       return
     }
 
+    console.log('Starting analysis...')
     setAnalyzing(true)
     setError('')
     setResult('')
@@ -365,6 +354,15 @@ export default function AnalyzePage() {
         ...(keySource === 'user_temporary' && { temporaryApiKey })
       }
 
+      console.log('Sending request to /api/analyze with:', {
+        transcriptLength: transcript.length,
+        company: selectedCompany.ticker,
+        companyType: selectedCompanyType.name,
+        provider,
+        model: selectedModel,
+        keySource
+      })
+
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: {
@@ -374,13 +372,17 @@ export default function AnalyzePage() {
         body: JSON.stringify(requestBody)
       })
 
+      console.log('Response status:', response.status)
       const result = await response.json()
+      console.log('Response result:', result)
 
       if (!response.ok) {
+        console.error('Analysis failed:', result)
         setError(result.error || 'Analysis failed')
         return
       }
 
+      console.log('Analysis successful, setting result')
       setResult(result.analysis)
       setAnalysisMetadata({
         model: result.model,
@@ -388,6 +390,7 @@ export default function AnalyzePage() {
         usage: result.usage
       })
     } catch (error: any) {
+      console.error('Analysis error:', error)
       setError(error.message || 'An error occurred during analysis')
     } finally {
       setAnalyzing(false)
