@@ -60,39 +60,39 @@
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
 
   .btn-primary {
-    @apply btn bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2;
+    @apply btn bg-[#c2995f] text-black hover:bg-[#c2995f]/90 h-10 px-4 py-2;
   }
 
   .btn-secondary {
-    @apply btn bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2;
+    @apply btn bg-[#1f1f1f] text-[#a4a4a4] hover:bg-[#1f1f1f]/80 border border-[#a4a4a4]/30 h-10 px-4 py-2;
   }
 
   .btn-destructive {
-    @apply btn bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 px-4 py-2;
+    @apply btn bg-red-600 text-white hover:bg-red-700 h-10 px-4 py-2;
   }
 
   .btn-outline {
-    @apply btn border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2;
+    @apply btn border border-[#a4a4a4]/30 bg-transparent text-[#a4a4a4] hover:bg-[#1f1f1f] hover:text-white h-10 px-4 py-2;
   }
 
   .btn-ghost {
-    @apply btn hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2;
+    @apply btn hover:bg-[#1f1f1f] hover:text-white text-[#a4a4a4] h-10 px-4 py-2;
   }
 
   .input {
-    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex h-10 w-full rounded-md border border-[#a4a4a4]/30 bg-[#1f1f1f] text-white px-3 py-2 text-sm placeholder:text-[#a4a4a4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c2995f] focus-visible:border-[#c2995f] disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .textarea {
-    @apply flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex min-h-[80px] w-full rounded-md border border-[#a4a4a4]/30 bg-[#1f1f1f] text-white px-3 py-2 text-sm placeholder:text-[#a4a4a4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c2995f] focus-visible:border-[#c2995f] disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .card {
-    @apply rounded-lg border bg-card text-card-foreground shadow-sm;
+    @apply rounded-lg border border-[#a4a4a4]/20 bg-[#1f1f1f] text-white shadow-sm;
   }
 
   .card-header {
@@ -100,11 +100,11 @@
   }
 
   .card-title {
-    @apply text-2xl font-semibold leading-none tracking-tight;
+    @apply text-2xl font-semibold leading-none tracking-tight text-white;
   }
 
   .card-description {
-    @apply text-sm text-muted-foreground;
+    @apply text-sm text-[#a4a4a4];
   }
 
   .card-content {
