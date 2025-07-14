@@ -90,8 +90,13 @@ export default function ApiKeysPage() {
       })
 
       if (response.ok) {
-        const result = await response.json()
-        setApiKeys(result.apiKeys || [])
+        const text = await response.text()
+        try {
+          const result = text ? JSON.parse(text) : {}
+          setApiKeys(result.apiKeys || [])
+        } catch (parseError) {
+          console.error('JSON parse error:', parseError, 'Response:', text)
+        }
       }
     } catch (error) {
       console.error('Error fetching API keys:', error)
@@ -130,10 +135,19 @@ export default function ApiKeysPage() {
         })
       })
 
-      const result = await response.json()
+      const text = await response.text()
+      let result = {}
+      
+      try {
+        result = text ? JSON.parse(text) : {}
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError, 'Response:', text)
+        setError('Invalid response from server')
+        return
+      }
 
       if (!response.ok) {
-        setError(result.error || 'Failed to add API key')
+        setError((result as any).error || 'Failed to add API key')
         return
       }
 
@@ -250,14 +264,15 @@ export default function ApiKeysPage() {
                   Add your personal LLM provider API key
                 </p>
               </div>
-              <div className="card-content space-y-4">
-                {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-md p-4">
-                    <div className="text-sm text-red-700">{error}</div>
-                  </div>
-                )}
+              <div className="card-content">
+                <form onSubmit={(e) => { e.preventDefault(); handleAddApiKey(); }} className="space-y-4">
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                      <div className="text-sm text-red-700">{error}</div>
+                    </div>
+                  )}
 
-                <div>
+                  <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Provider
                   </label>
@@ -336,36 +351,38 @@ export default function ApiKeysPage() {
                   />
                 </div>
 
-                <div className="flex space-x-3">
-                  <button
-                    onClick={handleAddApiKey}
-                    disabled={adding || !newKey.apiKey.trim()}
-                    className="btn-primary flex items-center space-x-2"
-                  >
-                    {adding ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        <span>Adding...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="h-4 w-4" />
-                        <span>Add Key</span>
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowAddForm(false)
-                      setError('')
-                      setNewKey({ provider: 'openai', apiKey: '', nickname: '', preferredModel: 'gpt-4.1-mini' })
-                    }}
-                    className="btn-ghost"
-                    disabled={adding}
-                  >
-                    Cancel
-                  </button>
-                </div>
+                  <div className="flex space-x-3">
+                    <button
+                      type="submit"
+                      disabled={adding || !newKey.apiKey.trim()}
+                      className="btn-primary flex items-center space-x-2"
+                    >
+                      {adding ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <span>Adding...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="h-4 w-4" />
+                          <span>Add Key</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAddForm(false)
+                        setError('')
+                        setNewKey({ provider: 'openai', apiKey: '', nickname: '', preferredModel: 'gpt-4.1-mini' })
+                      }}
+                      className="btn-ghost"
+                      disabled={adding}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           )}

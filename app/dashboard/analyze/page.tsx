@@ -112,6 +112,8 @@ export default function AnalyzePage() {
   const [availableCompanyTypes, setAvailableCompanyTypes] = useState<CompanyType[]>([])
   const [selectedCompanyType, setSelectedCompanyType] = useState<CompanyType | null>(null)
   const [companies, setCompanies] = useState<Company[]>([])
+  const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([])
+  const [showDropdown, setShowDropdown] = useState(false)
   const [userApiKeys, setUserApiKeys] = useState<UserApiKey[]>([])
   const [keySource, setKeySource] = useState<'owner' | 'user_saved' | 'user_temporary'>('owner')
   const [selectedApiKey, setSelectedApiKey] = useState('')
@@ -146,6 +148,19 @@ export default function AnalyzePage() {
     setSelectedModel(DEFAULT_MODELS[provider])
   }, [provider])
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element
+      if (!target.closest('.company-dropdown-container')) {
+        setShowDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   // Load user preferences on mount
   useEffect(() => {
     if (user) {
@@ -171,7 +186,6 @@ export default function AnalyzePage() {
       const { data, error } = await supabase
         .from('companies')
         .select('*')
-        .eq('is_active', true)
         .order('ticker')
 
       if (error) {
@@ -188,19 +202,38 @@ export default function AnalyzePage() {
   const handleTickerSearch = () => {
     if (!ticker.trim()) {
       setError('Please enter a ticker symbol')
+      setFilteredCompanies([])
+      setShowDropdown(false)
       return
     }
 
-    const company = companies.find(c => c.ticker.toLowerCase() === ticker.toLowerCase())
-    if (!company) {
-      setError(`Company with ticker "${ticker}" not found. Available tickers: ${companies.map(c => c.ticker).join(', ')}`)
+    // Filter companies that match the ticker or name
+    const filtered = companies.filter(c => 
+      c.ticker.toLowerCase().includes(ticker.toLowerCase()) ||
+      c.name.toLowerCase().includes(ticker.toLowerCase())
+    )
+
+    setFilteredCompanies(filtered)
+    setShowDropdown(filtered.length > 0)
+    setError('')
+
+    // If exact match found, auto-select it
+    const exactMatch = filtered.find(c => c.ticker.toLowerCase() === ticker.toLowerCase())
+    if (exactMatch) {
+      handleCompanySelect(exactMatch)
+    } else if (filtered.length === 0) {
+      setError(`No companies found matching "${ticker}"`)
       setSelectedCompany(null)
       setAvailableCompanyTypes([])
       setSelectedCompanyType(null)
-      return
     }
+  }
 
+  const handleCompanySelect = (company: Company) => {
     setSelectedCompany(company)
+    setTicker(company.ticker)
+    setShowDropdown(false)
+    setFilteredCompanies([])
     fetchCompanyTypes(company)
     setError('')
   }
@@ -568,29 +601,48 @@ export default function AnalyzePage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Ticker Symbol
                     </label>
-                    <div className="flex space-x-2">
-                      <input
-                        type="text"
-                        value={ticker}
-                        onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                        placeholder="e.g., AAPL, TSLA, MSFT"
-                        className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                        disabled={analyzing}
-                        onKeyPress={(e) => e.key === 'Enter' && handleTickerSearch()}
-                      />
-                      <button
-                        onClick={handleTickerSearch}
-                        disabled={!ticker.trim() || analyzing}
-                        className="btn-primary px-4"
-                      >
-                        Search
-                      </button>
+                    <div className="relative company-dropdown-container">
+                      <div className="flex space-x-2">
+                        <input
+                          type="text"
+                          value={ticker}
+                          onChange={(e) => {
+                            setTicker(e.target.value.toUpperCase())
+                            setShowDropdown(false)
+                            setSelectedCompany(null)
+                            setAvailableCompanyTypes([])
+                            setSelectedCompanyType(null)
+                          }}
+                          placeholder="e.g., AAPL, TSLA, MSFT"
+                          className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                          disabled={analyzing}
+                          onKeyPress={(e) => e.key === 'Enter' && handleTickerSearch()}
+                        />
+                        <button
+                          onClick={handleTickerSearch}
+                          disabled={!ticker.trim() || analyzing}
+                          className="btn-primary px-4"
+                        >
+                          Search
+                        </button>
+                      </div>
+                      
+                      {/* Company Dropdown */}
+                      {showDropdown && filteredCompanies.length > 0 && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                          {filteredCompanies.map((company) => (
+                            <button
+                              key={company.id}
+                              onClick={() => handleCompanySelect(company)}
+                              className="w-full text-left px-4 py-2 hover:bg-blue-50 focus:bg-blue-50 focus:outline-none"
+                            >
+                              <div className="font-medium text-gray-900">{company.ticker}</div>
+                              <div className="text-sm text-gray-600">{company.name}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    {companies.length > 0 && (
-                      <p className="text-xs text-gray-600 mt-1">
-                        Available companies: {companies.map(c => c.ticker).join(', ')}
-                      </p>
-                    )}
                   </div>
 
                   {/* Selected Company Display */}

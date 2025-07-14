@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 // Using standard HTML elements with Tailwind classes instead of shadcn/ui components
-import { Users, Activity, TrendingUp, Settings } from 'lucide-react'
+import { Users, Activity, TrendingUp, Settings, ArrowLeft, LogOut } from 'lucide-react'
 
 interface AdminStats {
   totalUsers: number
@@ -29,7 +30,7 @@ interface UsageLog {
 }
 
 export default function AdminDashboard() {
-  const { user, profile, loading: authLoading, session } = useAuth()
+  const { user, profile, loading: authLoading, session, signOut } = useAuth()
   const router = useRouter()
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [recentUsage, setRecentUsage] = useState<UsageLog[]>([])
@@ -90,6 +91,16 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      router.push('/auth/login')
+    } catch (error) {
+      console.error('Sign out failed:', error)
+      router.push('/auth/login')
+    }
+  }
+
   if (authLoading) {
     return (
       <div className="container mx-auto p-6">
@@ -130,13 +141,50 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <button onClick={loadAdminData} className="btn-secondary">
-          Refresh
-        </button>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <div className="flex items-center space-x-4">
+              <Link
+                href="/dashboard"
+                className="btn-ghost flex items-center space-x-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>Back to Dashboard</span>
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Admin Dashboard
+                </h1>
+                <p className="text-sm text-gray-600 mt-1">
+                  System administration and monitoring
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={loadAdminData}
+                className="btn-ghost flex items-center space-x-2"
+              >
+                <Settings className="h-4 w-4" />
+                <span>Refresh</span>
+              </button>
+              <button
+                onClick={handleSignOut}
+                className="btn-ghost flex items-center space-x-2 text-red-600 hover:text-red-700"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="px-4 py-6 sm:px-0 space-y-6">
 
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -245,7 +293,8 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </main>
     </div>
   )
 }
