@@ -358,8 +358,12 @@ export default function AnalyzePage() {
     setResult('')
 
     try {
+      console.log('Getting session...')
       const { data } = await supabase.auth.getSession()
+      console.log('Session data:', { hasSession: !!data.session, hasAccessToken: !!data.session?.access_token })
+      
       if (!data.session) {
+        console.log('No session found, setting error')
         setError('Please sign in again')
         return
       }
@@ -375,15 +379,19 @@ export default function AnalyzePage() {
         ...(keySource === 'user_temporary' && { temporaryApiKey })
       }
 
-      console.log('Sending request to /api/analyze with:', {
+      console.log('Request body prepared:', {
         transcriptLength: transcript.length,
         company: selectedCompany.ticker,
         companyType: selectedCompanyType.name,
         provider,
         model: selectedModel,
-        keySource
+        keySource,
+        hasCompanyId: !!selectedCompany.id,
+        hasCompanyTypeId: !!selectedCompanyType.id
       })
 
+      console.log('About to send fetch request to /api/analyze...')
+      
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: {
@@ -393,7 +401,9 @@ export default function AnalyzePage() {
         body: JSON.stringify(requestBody)
       })
 
-      console.log('Response status:', response.status)
+      console.log('Fetch completed! Response status:', response.status)
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+      
       const result = await response.json()
       console.log('Response result:', result)
 
