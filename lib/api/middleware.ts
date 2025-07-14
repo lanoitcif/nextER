@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 
 type ApiRouteHandler = (
   request: NextRequest,
@@ -8,12 +8,7 @@ type ApiRouteHandler = (
 
 export function withAuth(handler: ApiRouteHandler) {
   return async (request: NextRequest, options: { params?: any }) => {
-    if (!supabaseAdmin) {
-      return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      );
-    }
+    const supabase = createClient();
 
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -24,7 +19,7 @@ export function withAuth(handler: ApiRouteHandler) {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
       return NextResponse.json(
