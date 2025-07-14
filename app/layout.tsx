@@ -6,8 +6,8 @@ import { AuthProvider } from '@/lib/auth/AuthContext'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'LLM Transcript Analyzer',
-  description: 'Analyze transcripts using various LLM providers with pre-built prompts',
+  title: 'NEaR - Next Earnings Release',
+  description: 'Professional AI-powered earnings call transcript analysis platform',
 }
 
 export default function RootLayout({

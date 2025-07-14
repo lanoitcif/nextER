@@ -20,7 +20,10 @@
       "Bash(powershell:*)",
       "Bash(npm install:*)",
       "Bash(find:*)",
-      "Bash(cmd /c:*)"
+      "Bash(cmd /c:*)",
+      "Bash(git fetch:*)",
+      "Bash(git pull:*)",
+      "WebFetch(domain:151westmain.com)"
     ],
     "deny": []
   }

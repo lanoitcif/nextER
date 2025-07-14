@@ -214,7 +214,7 @@ export default function ApiKeysPage() {
               </Link>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  API Key Management
+                  NEaR API Keys
                 </h1>
                 <p className="text-sm text-gray-600 mt-1">
                   Manage your LLM provider API keys

@@ -156,7 +156,7 @@ export default function AdminDashboard() {
               </Link>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  Admin Dashboard
+                  NEaR Admin
                 </h1>
                 <p className="text-sm text-gray-600 mt-1">
                   System administration and monitoring
@@ -292,7 +292,6 @@ export default function AdminDashboard() {
               )}
             </div>
           </div>
-        </div>
         </div>
       </main>
     </div>

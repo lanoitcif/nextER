@@ -554,10 +554,10 @@ export default function AnalyzePage() {
               </Link>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Analyze
+                  NEaR Analyze
                 </h1>
                 <p className="text-sm text-gray-600 mt-1">
-                  AI-powered transcript analysis
+                  AI-powered earnings analysis
                 </p>
               </div>
             </div>
