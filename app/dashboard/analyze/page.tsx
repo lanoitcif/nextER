@@ -276,6 +276,7 @@ export default function AnalyzePage() {
         .from('company_types')
         .select('*')
         .in('id', allCompanyTypeIds)
+        .eq('is_active', true)
 
       console.log('Company types query result:', { data, error })
 
@@ -285,10 +286,12 @@ export default function AnalyzePage() {
         return
       }
 
+      console.log('Setting available company types:', data?.length, data)
       setAvailableCompanyTypes(data || [])
       
       // Auto-select primary company type
       const primaryType = data?.find(ct => ct.id === company.primary_company_type_id)
+      console.log('Found primary type:', primaryType)
       if (primaryType) {
         setSelectedCompanyType(primaryType)
       }
