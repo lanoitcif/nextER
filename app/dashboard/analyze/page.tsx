@@ -184,9 +184,19 @@ export default function AnalyzePage() {
   const fetchCompanies = async () => {
     try {
       console.log('Fetching companies...')
+      
+      // Check authentication state
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+      console.log('Session check:', { 
+        hasSession: !!sessionData.session, 
+        hasUser: !!sessionData.session?.user,
+        sessionError 
+      })
+      
       const { data, error } = await supabase
         .from('companies')
         .select('*')
+        .eq('is_active', true)
         .order('ticker')
 
       console.log('Companies fetch result:', { data, error, count: data?.length })

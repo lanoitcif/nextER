@@ -1,21 +1,34 @@
-# Resume: NextER Analysis Page Fix - January 2025
+# Resume: NextER Vercel Build Fix - January 2025
 
-## Current Status: Analysis Page Issues Fixed, Ready for Database Update
+## Current Status: Build Issues Resolved, Vercel Deployment Successful ✅
 
 ### Work Completed Today
 
-#### 1. Git Sync and Vercel Deployment ✅
-- **Committed staged changes** with comprehensive API testing and validation middleware
-- **Fixed critical import issue** - created missing `lib/supabase/server.ts` file
-- **Updated middleware** to use correct Supabase client imports
-- **Pushed to Vercel** - all changes are now deployed
+#### 1. Next.js 15 Build Failure Resolution ✅
+- **Fixed createClient import error** in admin page by switching to supabaseAdmin export
+- **Resolved route type errors** by updating to proper Next.js 15 route handler signatures
+- **Updated server client** to handle Next.js 15 cookies() Promise requirement
+- **Removed problematic middleware** wrapper due to Next.js 15 RouteContext type conflicts
+- **Added inline authentication** to all API routes for better compatibility
 
-#### 2. Analysis Page Diagnosis ✅
+#### 2. Route Handler Modernization ✅
+- **Updated analyze route** to use `export async function POST()` instead of middleware wrapper
+- **Fixed user-api-keys routes** with proper authentication and Promise params handling
+- **Corrected dynamic route params** to use `Promise<{ id: string }>` type for Next.js 15
+- **Made all createClient() calls async** throughout the application
+
+#### 3. Git Sync and Vercel Deployment ✅
+- **Committed build fixes** with comprehensive changes for Next.js 15 compatibility
+- **Pushed to GitHub** triggering automatic Vercel deployment
+- **Verified build success** locally before pushing
+- **All changes now deployed** and Vercel build passing
+
+#### 4. Analysis Page Diagnosis (Previous Session) ✅
 - **Identified root cause** of earnings analyst selection issue
 - **Located problem** in database data, not code logic
 - **Confirmed** analyze page code is working correctly
 
-#### 3. Database Schema Analysis ✅
+#### 5. Database Schema Analysis (Previous Session) ✅
 - **Verified** `earnings_analyst` company type exists and is active
 - **Confirmed** most companies have `earnings_analyst` in `additional_company_types`
 - **Identified** three companies missing earnings analyst option:
@@ -23,12 +36,12 @@
   - `PK` (Park Hotels & Resorts) 
   - `RHP` (Ryman Hospitality Properties)
 
-#### 4. MCP Server Configuration ✅
-- **Updated** Supabase MCP server settings with correct project ref: `xorjwzniopfuosadwvfu`
-- **Configured** proper service role key for database access
-- **Ready** for database operations (pending Claude Code restart)
+#### 6. MCP Server Configuration (Needs Update) ⚠️
+- **Project ref configured**: `xorjwzniopfuosadwvfu`
+- **Access token needs refresh** - current token unauthorized for database operations
+- **Ready for database operations** once valid token provided
 
-### Root Cause Identified
+### Root Cause Identified (Previous Session)
 
 The earnings analyst selection issue is caused by **incomplete database data**:
 - The `earnings_analyst` company type exists and is active
@@ -37,9 +50,10 @@ The earnings analyst selection issue is caused by **incomplete database data**:
 
 ### Next Steps (When You Resume)
 
-#### Immediate Priority: Fix Database Data
-1. **Restart Claude Code** to activate updated MCP server configuration
-2. **Run this SQL** to fix missing earnings analyst options:
+#### Immediate Priority: Database Access & Data Fix
+1. **Update Supabase access token** in `.mcp.json` - current token unauthorized
+2. **Test MCP connection** to ensure database access works
+3. **Run this SQL** to fix missing earnings analyst options:
    ```sql
    -- Add earnings_analyst to companies missing it
    UPDATE public.companies 
@@ -47,7 +61,7 @@ The earnings analyst selection issue is caused by **incomplete database data**:
    WHERE ticker IN ('ABNB', 'PK', 'RHP');
    ```
 
-3. **Verify the fix** with:
+4. **Verify the fix** with:
    ```sql
    SELECT ticker, name, additional_company_types 
    FROM public.companies 
@@ -62,27 +76,32 @@ The earnings analyst selection issue is caused by **incomplete database data**:
 4. **Test full analysis** with a sample transcript
 
 ### Files Modified Today
-- `lib/supabase/server.ts` - **CREATED** (missing server-side client)
-- `lib/api/middleware.ts` - **FIXED** (import error)
-- `.mcp.json` - **UPDATED** (correct project ref and service role key)
+- `app/api/analyze/route.ts` - **UPDATED** (removed middleware, added inline auth, async createClient)
+- `app/api/user-api-keys/route.ts` - **UPDATED** (modernized for Next.js 15)
+- `app/api/user-api-keys/[id]/route.ts` - **UPDATED** (Promise params, inline auth)
+- `app/dashboard/admin/page.tsx` - **FIXED** (supabaseAdmin import)
+- `lib/supabase/server.ts` - **UPDATED** (async function for cookies Promise)
+- `lib/api/middleware.ts` - **UPDATED** (async createClient)
+- `.mcp.json` - **UPDATED** (access token refreshed)
 - `fix_database.sql` - **CREATED** (SQL script for database fix)
 
 ### Environment Status
-- **Dev server**: Running on localhost:3000
-- **Vercel deployment**: Up to date with latest changes
-- **Database**: Ready for MCP access after Claude Code restart
+- **Dev server**: Ready for testing on localhost:3000
+- **Vercel deployment**: ✅ **SUCCESSFUL** - Next.js 15 build issues resolved
+- **Database**: ⚠️ **Needs valid access token** for MCP operations
 
 ### Key Findings
-- **Code is working correctly** - no logic errors in analyze page
-- **Issue is data-related** - missing earnings_analyst in some company records
-- **Simple fix required** - just update 3 company records
-- **Testing framework** is in place and working
+- **Build issues fully resolved** - Vercel deployment now working
+- **Next.js 15 compatibility** achieved through route handler modernization
+- **Analysis page code is correct** - issue remains in database data
+- **MCP connection configured** but needs valid access token
 
-### Documentation Updates Needed
-- Update README.md to reflect "NextER" branding (currently says "LLM Transcript Analyzer")
-- Fix environment variable names in documentation
-- Update model lists to match current analyze page options
+### Technical Achievements
+- **Solved Next.js 15 breaking changes** for route handlers and cookies
+- **Maintained authentication security** with inline auth instead of middleware
+- **Preserved all functionality** while upgrading compatibility
+- **Clean git history** with descriptive commit messages
 
 ---
 
-**Resume Point**: Restart Claude Code, fix the 3 missing company records, then test the complete analysis workflow. The hard debugging work is done - this is just a simple data fix now.
+**Resume Point**: Update Supabase access token in `.mcp.json`, test database connection, then fix the 3 missing company records. The build and deployment pipeline is now fully working.
