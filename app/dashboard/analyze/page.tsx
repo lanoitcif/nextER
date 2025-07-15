@@ -371,25 +371,52 @@ export default function AnalyzePage() {
     try {
       console.log('Getting session...')
       
-      // Temporary bypass to test fetch directly
+      // Session check with aggressive timeout
       let sessionData: any = null
       try {
         console.log('Attempting session check...')
-        sessionData = await supabase.auth.getSession()
+        
+        // Race the session check against a 3-second timeout
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Session timeout')), 3000)
+        })
+        
+        const sessionPromise = supabase.auth.getSession()
+        
+        sessionData = await Promise.race([sessionPromise, timeoutPromise])
         console.log('Session check completed:', { hasSession: !!sessionData.data.session })
-      } catch (sessionError) {
+      } catch (sessionError: any) {
         console.error('Session check failed:', sessionError)
-        setError('Session check failed. Please refresh and try again.')
-        return
+        if (sessionError.message === 'Session timeout') {
+          console.error('Session check timed out after 3 seconds')
+          setError('Session check timed out. The request may still work - trying anyway...')
+          // Continue anyway - maybe the fetch will work
+        } else {
+          setError('Session check failed. Please refresh and try again.')
+          return
+        }
       }
       
-      const { data } = sessionData
-      console.log('Session data:', { hasSession: !!data.session, hasAccessToken: !!data.session?.access_token })
+      const { data } = sessionData || { data: { session: null } }
+      console.log('Session data:', { hasSession: !!data?.session, hasAccessToken: !!data?.session?.access_token })
       
-      if (!data.session) {
-        console.log('No session found, setting error')
-        setError('Please sign in again')
-        return
+      if (!data?.session) {
+        console.log('No session found, trying to get fresh session...')
+        // Try one more time with a direct call
+        try {
+          const freshSession = await supabase.auth.getSession()
+          if (freshSession.data.session) {
+            console.log('Fresh session obtained!')
+            sessionData = freshSession
+          } else {
+            setError('Please sign in again')
+            return
+          }
+        } catch (freshError) {
+          console.error('Fresh session also failed:', freshError)
+          setError('Authentication issue. Please refresh and sign in again.')
+          return
+        }
       }
 
       const requestBody = {
