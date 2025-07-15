@@ -125,6 +125,7 @@ export default function AnalyzePage() {
   const [result, setResult] = useState('')
   const [error, setError] = useState('')
   const [viewMode, setViewMode] = useState<'rendered' | 'markdown'>('rendered')
+  const [loadingCompanies, setLoadingCompanies] = useState(true)
   const [analysisMetadata, setAnalysisMetadata] = useState<{
     model?: string
     provider?: string
@@ -198,6 +199,7 @@ export default function AnalyzePage() {
   const fetchCompanies = async () => {
     try {
       console.log('Fetching companies...')
+      setLoadingCompanies(true)
       
       // Check authentication state
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
@@ -217,13 +219,16 @@ export default function AnalyzePage() {
 
       if (error) {
         console.error('Error fetching companies:', error)
+        setLoadingCompanies(false)
         return
       }
 
       console.log('Setting companies:', data?.length, 'companies loaded')
       setCompanies(data || [])
+      setLoadingCompanies(false)
     } catch (error) {
       console.error('Error fetching companies:', error)
+      setLoadingCompanies(false)
     }
   }
 
