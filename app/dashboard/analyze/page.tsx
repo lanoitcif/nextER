@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
+import { useIsVisible } from '@/lib/utils/hooks'
 import { Upload, FileText, Send, ArrowLeft, Settings, Key, Download, Copy, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { safeLocalStorage } from '@/lib/utils/localStorage'
@@ -129,6 +130,7 @@ export default function AnalyzePage() {
     provider?: string
     usage?: any
   } | null>(null)
+  const isVisible = useIsVisible()
 
   useEffect(() => {
     if (!loading && !user) {
@@ -137,11 +139,11 @@ export default function AnalyzePage() {
   }, [user, loading, router])
 
   useEffect(() => {
-    if (user) {
+    if (user && isVisible) {
       fetchCompanies()
       fetchUserApiKeys()
     }
-  }, [user])
+  }, [user, isVisible])
 
   // Set default model when provider changes
   useEffect(() => {
