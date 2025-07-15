@@ -404,52 +404,10 @@ export default function AnalyzePage() {
       console.log('Session data:', { hasSession: !!data?.session, hasAccessToken: !!data?.session?.access_token })
       
       if (!data?.session) {
-        console.log('No session found, trying to get fresh session...')
-        // Try one more time with a direct call and timeout
-        try {
-          const freshTimeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Fresh session timeout')), 2000)
-          })
-          
-          const freshSessionPromise = supabase.auth.getSession()
-          const freshSession = await Promise.race([freshSessionPromise, freshTimeoutPromise]) as any
-          
-          if (freshSession.data.session) {
-            console.log('Fresh session obtained!')
-            sessionData = freshSession
-          } else {
-            console.log('Fresh session also returned no session')
-            setError('Authentication expired. Please refresh the page and sign in again.')
-            return
-          }
-        } catch (freshError: any) {
-          console.error('Fresh session also failed:', freshError)
-          if (freshError.message === 'Fresh session timeout') {
-            console.log('Fresh session also timed out - trying auth context fallback')
-            console.log('Current auth context:', { hasUser: !!user, userEmail: user?.email })
-            
-            // If we have a user from context but can't get session, there might be a token mismatch
-            // Let's try to proceed anyway and see if the API call works
-            if (user) {
-              console.log('Using auth context user, will attempt API call anyway')
-              // Create a fake session data to continue
-              sessionData = {
-                data: {
-                  session: {
-                    access_token: 'context_fallback', // This will likely fail but let's try
-                    user: user
-                  }
-                }
-              }
-            } else {
-              setError('Authentication system timeout. Please refresh the page and try again.')
-              return
-            }
-          } else {
-            setError('Authentication issue. Please refresh and sign in again.')
-            return
-          }
-        }
+        console.log('No session found, redirecting to login.')
+        setError('Authentication expired. Please sign in again.')
+        router.push('/auth/login')
+        return
       }
 
       const requestBody = {
