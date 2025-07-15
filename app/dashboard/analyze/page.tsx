@@ -95,7 +95,7 @@ interface CompanyType {
   id: string
   name: string
   description: string
-  system_prompt_template: string
+  system_prompt_template?: string
 }
 
 interface UserApiKey {
