@@ -142,6 +142,18 @@ export default function AnalyzePage() {
     if (user && isVisible) {
       fetchCompanies()
       fetchUserApiKeys()
+    } else if (!isVisible) {
+      // Reset state when the page is not visible
+      setTranscript('')
+      setTicker('')
+      setSelectedCompany(null)
+      setAvailableCompanyTypes([])
+      setSelectedCompanyType(null)
+      setFilteredCompanies([])
+      setShowDropdown(false)
+      setResult('')
+      setError('')
+      setAnalysisMetadata(null)
     }
   }, [user, isVisible])
 
