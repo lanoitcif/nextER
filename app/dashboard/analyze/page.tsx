@@ -104,7 +104,7 @@ interface UserApiKey {
 }
 
 export default function AnalyzePage() {
-  const { user, profile, loading } = useAuth()
+  const { user, profile, session, loading } = useAuth()
   const router = useRouter()
   const [transcript, setTranscript] = useState('')
   const [ticker, setTicker] = useState('')
@@ -371,45 +371,13 @@ export default function AnalyzePage() {
     setError('')
     setResult('')
 
-    try {
-      console.log('Getting session...')
-      
-      // Session check with aggressive timeout
-      let sessionData: any = null
-      try {
-        console.log('Attempting session check...')
-        
-        // Race the session check against a 3-second timeout
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Session timeout')), 3000)
-        })
-        
-        const sessionPromise = supabase.auth.getSession()
-        
-        sessionData = await Promise.race([sessionPromise, timeoutPromise])
-        console.log('Session check completed:', { hasSession: !!sessionData.data.session })
-      } catch (sessionError: any) {
-        console.error('Session check failed:', sessionError)
-        if (sessionError.message === 'Session timeout') {
-          console.error('Session check timed out after 3 seconds')
-          setError('Session check timed out. The request may still work - trying anyway...')
-          // Continue anyway - maybe the fetch will work
-        } else {
-          setError('Session check failed. Please refresh and try again.')
-          return
-        }
-      }
-      
-      const { data } = sessionData || { data: { session: null } }
-      console.log('Session data:', { hasSession: !!data?.session, hasAccessToken: !!data?.session?.access_token })
-      
-      if (!data?.session) {
-        console.log('No session found, redirecting to login.')
-        setError('Authentication expired. Please sign in again.')
-        router.push('/auth/login')
-        return
-      }
+    if (!session) {
+      setError('Authentication expired. Please sign in again.')
+      router.push('/auth/login')
+      return
+    }
 
+    try {
       const requestBody = {
         transcript,
         companyId: selectedCompany.id,
@@ -438,7 +406,7 @@ export default function AnalyzePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${data.session.access_token}`
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify(requestBody)
       })
@@ -464,12 +432,7 @@ export default function AnalyzePage() {
       })
     } catch (error: any) {
       console.error('Analysis error:', error)
-      if (error.message === 'Session check timeout') {
-        console.error('Session check timed out - possible Supabase connection issue')
-        setError('Connection timeout. Please try again.')
-      } else {
-        setError(error.message || 'An error occurred during analysis')
-      }
+      setError(error.message || 'An error occurred during analysis')
     } finally {
       setAnalyzing(false)
     }
