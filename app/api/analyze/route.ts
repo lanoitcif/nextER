@@ -5,6 +5,8 @@ import { decryptFromStorage } from '@/lib/crypto'
 import { analyzeRequestSchema } from '@/lib/api/validation'
 import { handleError } from '@/lib/api/errors'
 
+export const maxDuration = 300;
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
   const requestId = crypto.randomUUID()
