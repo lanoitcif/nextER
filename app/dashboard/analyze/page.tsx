@@ -294,24 +294,25 @@ export default function AnalyzePage() {
       console.log('Fetching company types for company:', company)
       console.log('Company type IDs to fetch:', allCompanyTypeIds)
       
-      // Add timeout to prevent hanging queries
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Query timeout')), 10000) // 10 second timeout
+      // Check session first
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+      console.log('Session check for company types:', { 
+        hasSession: !!sessionData.session, 
+        sessionError 
       })
       
-      const queryPromise = supabase
+      console.log('Starting company types query...')
+      const { data, error } = await supabase
         .from('company_types')
-        .select('*')
+        .select('id, name, description')
         .in('id', allCompanyTypeIds)
         .eq('is_active', true)
-
-      console.log('Starting company types query...')
-      const { data, error } = await Promise.race([queryPromise, timeoutPromise]) as any
 
       console.log('Company types query result:', { data, error, dataLength: data?.length })
 
       if (error) {
         console.error('Error fetching company types:', error)
+        console.error('Error details:', error.message, error.details, error.hint)
         setAvailableCompanyTypes([])
         return
       }
@@ -327,9 +328,6 @@ export default function AnalyzePage() {
       }
     } catch (error: any) {
       console.error('Error fetching company types:', error)
-      if (error.message === 'Query timeout') {
-        console.error('Company types query timed out - possible network or auth issue')
-      }
       setAvailableCompanyTypes([])
     }
   }
