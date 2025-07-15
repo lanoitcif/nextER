@@ -246,21 +246,40 @@ npm test
 
 ### Common Issues
 
-**Database Connection**
-- Verify Supabase credentials
-- Ensure schema is applied
+**Company Search Not Working**
+- Company dropdown not appearing: Check that companies are loaded (console logs show "Setting companies: X companies loaded")
+- "No companies found" error: Verify database has active companies (`SELECT * FROM companies WHERE is_active = true`)
+- Analysis types not loading: Check Row Level Security policies allow public access to `company_types` table
 
-**API Key Encryption**
+**Browser Extension Interference**
+- LLM analysis requests hanging: Try incognito/private browsing mode to disable extensions
+- JavaScript errors in console: Password managers and other extensions can interfere with fetch requests
+- Page not loading properly: Disable browser extensions or use private browsing
+
+**Session/Authentication Issues**
+- "Session check timeout" errors: Common in some browser configurations, app includes fallback handling
+- Analysis hanging at "Getting session...": Implemented 3-second timeout with auth context fallback
+- 401 errors on API requests: Verify SUPABASE_SERVICE_ROLE_KEY is set in Vercel environment variables
+
+**Database Connection**
+- Verify Supabase credentials in environment variables
+- Ensure schema is applied with proper RLS policies
+- Check that both anon key and service role key are configured
+
+**API Key Management**
 - Ensure encryption secret is exactly 32 characters
-- Regenerate if needed
+- Owner API keys require OWNER_[PROVIDER]_API_KEY environment variables
+- User saved keys require ENCRYPTION_KEY for decryption
 
 **LLM API Errors**
-- Verify API keys and credits
-- Check provider status
+- Verify API keys and credits/quotas
+- Check provider status and rate limits
+- Monitor Vercel function logs for detailed error messages
 
-**Authentication**
-- Enable email confirmation in Supabase
-- Verify NEXTAUTH_SECRET
+**Build/Deployment Issues**
+- TypeScript errors: All callback functions need explicit type annotations
+- Next.js cache issues: Clear .next folder and rebuild
+- Vercel deployment: Check build logs for compilation errors
 
 ## 📈 Monitoring
 
@@ -291,5 +310,27 @@ MIT License - see LICENSE file for details.
 
 ---
 
-**Status**: In Development  
-**Last Updated**: 2025-07-13
+**Status**: In Development - Core functionality working, debugging LLM analysis flow  
+**Last Updated**: 2025-07-15
+
+## 🔧 Recent Fixes & Improvements
+
+### Fixed Issues (July 15, 2025)
+- ✅ **Company Search**: Fixed company loading with proper authentication and RLS policy compliance
+- ✅ **Company Types**: Resolved analysis type dropdown population with timeout handling
+- ✅ **Dropdown Visibility**: Fixed exact match auto-selection keeping dropdown visible
+- ✅ **Browser Extension Compatibility**: Added error handling for extension interference
+- ✅ **Session Management**: Implemented timeouts and fallbacks for authentication edge cases
+- ✅ **TypeScript Compilation**: Fixed type annotations for Next.js 15 build compatibility
+- ✅ **Debugging Infrastructure**: Added comprehensive logging throughout the application
+
+### Known Limitations
+- Session timeout handling in some browser configurations (fallbacks implemented)
+- Browser extensions may interfere with fetch requests (use incognito mode as workaround)
+- Build requires explicit TypeScript types for all callback functions
+
+### Development Debugging
+- Console logs extensively document the application flow
+- Company loading: Look for "Setting companies: X companies loaded"
+- Analysis flow: Track from "Starting analysis..." through session checks
+- API requests: Monitor Vercel function logs for backend processing
