@@ -235,14 +235,17 @@ export default function AnalyzePage() {
     setShowDropdown(filtered.length > 0)
     setError('')
 
-    // If exact match found, auto-select it but still show dropdown
+    // If exact match found, auto-select it and show dropdown so user can see the match
     const exactMatch = filtered.find(c => c.ticker.toLowerCase() === ticker.toLowerCase())
     if (exactMatch) {
+      console.log('Exact match found for', ticker, '- keeping dropdown visible')
       setSelectedCompany(exactMatch)
       setTicker(exactMatch.ticker)
       fetchCompanyTypes(exactMatch)
       setError('')
-      // Keep dropdown open to show the match
+      // Explicitly keep dropdown open to show the match was found
+      setShowDropdown(true)
+      console.log('Dropdown state should be visible with', filtered.length, 'companies')
     } else if (filtered.length === 0) {
       setError(`No companies found matching "${ticker}"`)
       setSelectedCompany(null)
