@@ -412,7 +412,7 @@ export default function AnalyzePage() {
           })
           
           const freshSessionPromise = supabase.auth.getSession()
-          const freshSession = await Promise.race([freshSessionPromise, freshTimeoutPromise])
+          const freshSession = await Promise.race([freshSessionPromise, freshTimeoutPromise]) as any
           
           if (freshSession.data.session) {
             console.log('Fresh session obtained!')
