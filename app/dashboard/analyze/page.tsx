@@ -304,7 +304,7 @@ export default function AnalyzePage() {
       console.log('Starting company types query...')
       const { data, error } = await supabase
         .from('company_types')
-        .select('id, name, description')
+        .select('id, name, description, system_prompt_template')
         .in('id', allCompanyTypeIds)
         .eq('is_active', true)
 
