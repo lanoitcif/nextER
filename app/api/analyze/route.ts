@@ -113,15 +113,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Build the system prompt from the template
-    const systemPrompt = companyType.system_prompt_template
-      .replace('{role}', `You are a financial analyst specializing in ${companyType.name} companies.`)
-      .replace('{classification_rules}', JSON.stringify(companyType.classification_rules || {}))
-      .replace('{temporal_tags}', JSON.stringify(companyType.classification_rules?.temporal_tags || []))
-      .replace('{operating_metrics}', JSON.stringify(companyType.key_metrics?.operating_performance || []))
-      .replace('{segment_metrics}', JSON.stringify(companyType.key_metrics?.segment_performance || []))
-      .replace('{financial_metrics}', JSON.stringify(companyType.key_metrics?.financial_metrics || []))
-      .replace('{validation_rules}', (companyType.validation_rules || []).join(', '))
-      .replace('{special_considerations}', JSON.stringify(companyType.special_considerations || {}))
+    let systemPrompt = companyType.system_prompt_template || `You are a financial analyst specializing in ${companyType.name} companies. Please provide a detailed analysis of this earnings transcript.`
+    
+    // Only apply template replacements if the template contains placeholders
+    if (systemPrompt.includes('{')) {
+      systemPrompt = systemPrompt
+        .replace('{role}', `You are a financial analyst specializing in ${companyType.name} companies.`)
+        .replace('{classification_rules}', JSON.stringify(companyType.classification_rules || {}))
+        .replace('{temporal_tags}', JSON.stringify(companyType.classification_rules?.temporal_tags || []))
+        .replace('{operating_metrics}', JSON.stringify(companyType.key_metrics?.operating_performance || []))
+        .replace('{segment_metrics}', JSON.stringify(companyType.key_metrics?.segment_performance || []))
+        .replace('{financial_metrics}', JSON.stringify(companyType.key_metrics?.financial_metrics || []))
+        .replace('{validation_rules}', (companyType.validation_rules || []).join(', '))
+        .replace('{special_considerations}', JSON.stringify(companyType.special_considerations || {}))
+    }
+    
+    console.log(`[${requestId}] System prompt prepared (length: ${systemPrompt.length})`)
 
     // Determine which API key to use
     let apiKey: string
