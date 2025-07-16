@@ -291,6 +291,7 @@ export default function AnalyzePage() {
         : []
       const allCompanyTypeIds = [company.primary_company_type_id, ...additionalTypes]
       
+      console.log('=== COMPANY TYPES DEBUG START ===')
       console.log('Fetching company types for company:', company)
       console.log('Company type IDs to fetch:', allCompanyTypeIds)
       
@@ -299,71 +300,107 @@ export default function AnalyzePage() {
       console.log('Session check for company types:', { 
         hasSession: !!sessionData.session, 
         sessionError,
-        userId: sessionData.session?.user?.id 
+        userId: sessionData.session?.user?.id,
+        accessToken: sessionData.session?.access_token ? 'present' : 'missing'
       })
       
       // Early return if no session
       if (!sessionData.session) {
-        console.error('No session found - cannot fetch company types')
+        console.error('❌ No session found - cannot fetch company types')
         setAvailableCompanyTypes([])
         return
       }
       
-      console.log('Starting company types query...')
+      console.log('✅ Session verified, starting company types query...')
       console.log('Query details:', {
         table: 'company_types',
         select: 'id, name, description, system_prompt_template',
         filter_ids: allCompanyTypeIds,
-        filter_active: true
+        filter_active: true,
+        userId: sessionData.session.user.id,
+        userEmail: sessionData.session.user.email
       })
       
       const queryStartTime = Date.now()
-      const { data, error } = await supabase
+      
+      // Create a fresh supabase client with the current session
+      const freshSupabase = supabase
+      
+      const { data, error } = await freshSupabase
         .from('company_types')
         .select('id, name, description, system_prompt_template')
         .in('id', allCompanyTypeIds)
         .eq('is_active', true)
       
       const queryEndTime = Date.now()
-      console.log(`Company types query completed in ${queryEndTime - queryStartTime}ms`)
-      console.log('Company types query result:', { data, error, dataLength: data?.length })
+      console.log(`⏱️ Company types query completed in ${queryEndTime - queryStartTime}ms`)
+      console.log('📊 Company types query result:', { 
+        hasData: !!data,
+        dataLength: data?.length,
+        hasError: !!error,
+        errorMessage: error?.message,
+        actualData: data
+      })
 
       if (error) {
-        console.error('Error fetching company types:', error)
-        console.error('Error details:', {
+        console.error('❌ Error fetching company types:', error)
+        console.error('📝 Error details:', {
           message: error.message,
           details: error.details,
           hint: error.hint,
-          code: error.code
+          code: error.code,
+          statusCode: error.statusCode,
+          statusText: error.statusText
         })
         setAvailableCompanyTypes([])
+        console.log('=== COMPANY TYPES DEBUG END (ERROR) ===')
         return
       }
 
       if (!data || data.length === 0) {
-        console.warn('No company types found for IDs:', allCompanyTypeIds)
-        console.log('This could mean:')
-        console.log('1. The company type records do not exist in the database')
-        console.log('2. The records exist but is_active = false')
-        console.log('3. RLS policies are blocking access')
+        console.warn('⚠️ No company types found for IDs:', allCompanyTypeIds)
+        console.log('🔍 Debugging empty result:')
+        console.log('  1. The company type records do not exist in the database')
+        console.log('  2. The records exist but is_active = false')
+        console.log('  3. RLS policies are blocking access')
+        console.log('  4. Session authentication is invalid')
+        
+        // Test a simple query to verify RLS access
+        console.log('🧪 Testing basic company_types access...')
+        const { data: testData, error: testError } = await freshSupabase
+          .from('company_types')
+          .select('id, name')
+          .limit(1)
+        
+        console.log('🧪 Basic query result:', { testData, testError })
+      } else {
+        console.log('✅ Successfully fetched company types!')
       }
 
-      console.log('Setting available company types:', data?.length, data)
+      console.log('📝 Setting available company types:', data?.length, data)
       setAvailableCompanyTypes(data || [])
       
       // Auto-select primary company type
       const primaryType = data?.find((ct: CompanyType) => ct.id === company.primary_company_type_id)
-      console.log('Found primary type:', primaryType)
+      console.log('🎯 Found primary type:', primaryType)
       if (primaryType) {
         setSelectedCompanyType(primaryType)
-        console.log('Auto-selected primary company type:', primaryType.name)
+        console.log('✅ Auto-selected primary company type:', primaryType.name)
       } else {
         console.warn('Primary company type not found in results:', company.primary_company_type_id)
       }
     } catch (error: any) {
-      console.error('Exception in fetchCompanyTypes:', error)
-      console.error('Error stack:', error.stack)
+      console.error('❌ Exception in fetchCompanyTypes:', error)
+      console.error('📝 Error stack:', error.stack)
+      console.error('📝 Error details:', {
+        name: error.name,
+        message: error.message,
+        cause: error.cause
+      })
       setAvailableCompanyTypes([])
+      console.log('=== COMPANY TYPES DEBUG END (EXCEPTION) ===')
+    } finally {
+      console.log('🏁 fetchCompanyTypes completed')
     }
   }
 
