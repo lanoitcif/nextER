@@ -295,18 +295,49 @@ export default function AnalyzePage() {
       console.log('Fetching company types for company:', company)
       console.log('Company type IDs to fetch:', allCompanyTypeIds)
       
-      // Check session first
+      // Check session first - this is critical for RLS policies
+      console.log('🔐 Checking authentication session...')
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-      console.log('Session check for company types:', { 
+      
+      // Log session state immediately
+      console.log('📋 Session check for company types:', { 
         hasSession: !!sessionData.session, 
-        sessionError,
+        sessionError: sessionError ? {
+          name: sessionError.name,
+          message: sessionError.message,
+          status: sessionError.status
+        } : null,
         userId: sessionData.session?.user?.id,
-        accessToken: sessionData.session?.access_token ? 'present' : 'missing'
+        userEmail: sessionData.session?.user?.email,
+        accessToken: sessionData.session?.access_token ? 'present' : 'missing',
+        refreshToken: sessionData.session?.refresh_token ? 'present' : 'missing',
+        expiresAt: sessionData.session?.expires_at,
+        expiresIn: sessionData.session?.expires_in
       })
       
-      // Early return if no session
-      if (!sessionData.session) {
-        console.error('❌ No session found - cannot fetch company types')
+      // Handle session issues
+      if (!sessionData.session || sessionError) {
+        console.error('❌ Session invalid - cannot fetch company types')
+        console.error('💡 User needs to refresh page and re-authenticate')
+        
+        // Try to refresh the session if there's an error
+        if (sessionError) {
+          console.log('🔄 Attempting to refresh session...')
+          try {
+            const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession()
+            if (refreshError) {
+              console.error('❌ Session refresh failed:', refreshError)
+              console.error('💡 User must log out and log back in')
+            } else if (refreshData.session) {
+              console.log('✅ Session refreshed successfully')
+              // Retry the query with refreshed session
+              return fetchCompanyTypes(company)
+            }
+          } catch (refreshException) {
+            console.error('❌ Exception during session refresh:', refreshException)
+          }
+        }
+        
         setAvailableCompanyTypes([])
         return
       }
