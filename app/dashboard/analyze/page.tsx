@@ -300,14 +300,30 @@ export default function AnalyzePage() {
       
       console.log('Company type IDs to fetch:', allCompanyTypeIds)
       
+      // Check current session state
+      const { data: sessionCheck } = await supabase.auth.getSession()
+      console.log('Session check before company types query:', {
+        hasSession: !!sessionCheck.session,
+        hasUser: !!sessionCheck.session?.user,
+        userId: sessionCheck.session?.user?.id
+      })
+      
       const { data, error } = await supabase
         .from('company_types')
         .select('id, name, description, system_prompt_template')
         .in('id', allCompanyTypeIds)
         .eq('is_active', true)
 
+      console.log('Company types query result:', { data, error, queryIds: allCompanyTypeIds })
+
       if (error) {
         console.error('Error fetching company types:', error)
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
         // Fallback to default type only
         const fallbackType = {
           id: 'general_analysis',
