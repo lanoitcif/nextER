@@ -73,7 +73,7 @@ export class OpenAIClient extends LLMClient {
           { role: 'system', content: request.systemPrompt },
           { role: 'user', content: request.userMessage }
         ],
-        max_tokens: request.maxTokens || 2000,
+        max_tokens: request.maxTokens || 16384,
         temperature: request.temperature || 0.7,
       }),
     })
@@ -132,7 +132,7 @@ export class AnthropicClient extends LLMClient {
       },
       body: JSON.stringify({
         model: request.model || this.getDefaultModel(),
-        max_tokens: request.maxTokens || 2000,
+        max_tokens: request.maxTokens || 16384,
         temperature: request.temperature || 0.7,
         system: request.systemPrompt,
         messages: [
@@ -201,7 +201,7 @@ export class GoogleClient extends LLMClient {
           }]
         }],
         generationConfig: {
-          maxOutputTokens: request.maxTokens || 2000,
+          maxOutputTokens: request.maxTokens || 16384,
           temperature: request.temperature || 0.7,
         },
       }),
@@ -260,7 +260,7 @@ export class CohereClient extends LLMClient {
         model: request.model || this.getDefaultModel(),
         message: request.userMessage,
         preamble: request.systemPrompt,
-        max_tokens: request.maxTokens || 2000,
+        max_tokens: request.maxTokens || 16384,
         temperature: request.temperature || 0.7,
       }),
     })

@@ -46,7 +46,6 @@
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "fetch",
-    "supabase",
-    "openai-gpt-image"
+    "supabase"
   ]
 }

@@ -285,151 +285,42 @@ export default function AnalyzePage() {
 
   const fetchCompanyTypes = async (company: Company) => {
     try {
+      console.log('Fetching company types for company:', company.ticker)
+      
       // Get all possible company types for this company
       const additionalTypes = Array.isArray(company.additional_company_types) 
         ? company.additional_company_types 
         : []
       const allCompanyTypeIds = [company.primary_company_type_id, ...additionalTypes]
       
-      console.log('=== COMPANY TYPES DEBUG START [v2] ===')
-      console.log('Fetching company types for company:', company)
       console.log('Company type IDs to fetch:', allCompanyTypeIds)
       
-      // Check session first - this is critical for RLS policies
-      console.log('🔐 Checking authentication session...')
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-      
-      // Log session state immediately
-      console.log('📋 Session check for company types:', { 
-        hasSession: !!sessionData.session, 
-        sessionError: sessionError ? {
-          name: sessionError.name,
-          message: sessionError.message,
-          status: sessionError.status
-        } : null,
-        userId: sessionData.session?.user?.id,
-        userEmail: sessionData.session?.user?.email,
-        accessToken: sessionData.session?.access_token ? 'present' : 'missing',
-        refreshToken: sessionData.session?.refresh_token ? 'present' : 'missing',
-        expiresAt: sessionData.session?.expires_at,
-        expiresIn: sessionData.session?.expires_in
-      })
-      
-      // Handle session issues
-      if (!sessionData.session || sessionError) {
-        console.error('❌ Session invalid - cannot fetch company types')
-        console.error('💡 User needs to refresh page and re-authenticate')
-        
-        // Try to refresh the session if there's an error
-        if (sessionError) {
-          console.log('🔄 Attempting to refresh session...')
-          try {
-            const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession()
-            if (refreshError) {
-              console.error('❌ Session refresh failed:', refreshError)
-              console.error('💡 User must log out and log back in')
-            } else if (refreshData.session) {
-              console.log('✅ Session refreshed successfully')
-              // Retry the query with refreshed session
-              return fetchCompanyTypes(company)
-            }
-          } catch (refreshException) {
-            console.error('❌ Exception during session refresh:', refreshException)
-          }
-        }
-        
-        setAvailableCompanyTypes([])
-        return
-      }
-      
-      console.log('✅ Session verified, starting company types query...')
-      console.log('Query details:', {
-        table: 'company_types',
-        select: 'id, name, description, system_prompt_template',
-        filter_ids: allCompanyTypeIds,
-        filter_active: true,
-        userId: sessionData.session.user.id,
-        userEmail: sessionData.session.user.email
-      })
-      
-      const queryStartTime = Date.now()
-      
-      // Create a fresh supabase client with the current session
-      const freshSupabase = supabase
-      
-      const { data, error } = await freshSupabase
+      const { data, error } = await supabase
         .from('company_types')
         .select('id, name, description, system_prompt_template')
         .in('id', allCompanyTypeIds)
         .eq('is_active', true)
-      
-      const queryEndTime = Date.now()
-      console.log(`⏱️ Company types query completed in ${queryEndTime - queryStartTime}ms`)
-      console.log('📊 Company types query result:', { 
-        hasData: !!data,
-        dataLength: data?.length,
-        hasError: !!error,
-        errorMessage: error?.message,
-        actualData: data
-      })
 
       if (error) {
-        console.error('❌ Error fetching company types:', error)
-        console.error('📝 Error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        })
+        console.error('Error fetching company types:', error)
         setAvailableCompanyTypes([])
-        console.log('=== COMPANY TYPES DEBUG END (ERROR) ===')
+        setError('Failed to load analysis types. Please try again.')
         return
       }
 
-      if (!data || data.length === 0) {
-        console.warn('⚠️ No company types found for IDs:', allCompanyTypeIds)
-        console.log('🔍 Debugging empty result:')
-        console.log('  1. The company type records do not exist in the database')
-        console.log('  2. The records exist but is_active = false')
-        console.log('  3. RLS policies are blocking access')
-        console.log('  4. Session authentication is invalid')
-        
-        // Test a simple query to verify RLS access
-        console.log('🧪 Testing basic company_types access...')
-        const { data: testData, error: testError } = await freshSupabase
-          .from('company_types')
-          .select('id, name')
-          .limit(1)
-        
-        console.log('🧪 Basic query result:', { testData, testError })
-      } else {
-        console.log('✅ Successfully fetched company types!')
-      }
-
-      console.log('📝 Setting available company types:', data?.length, data)
+      console.log('Successfully fetched company types:', data?.length)
       setAvailableCompanyTypes(data || [])
       
       // Auto-select primary company type
       const primaryType = data?.find((ct: CompanyType) => ct.id === company.primary_company_type_id)
-      console.log('🎯 Found primary type:', primaryType)
       if (primaryType) {
         setSelectedCompanyType(primaryType)
-        console.log('✅ Auto-selected primary company type:', primaryType.name)
-      } else {
-        console.warn('Primary company type not found in results:', company.primary_company_type_id)
+        console.log('Auto-selected primary company type:', primaryType.name)
       }
     } catch (error: any) {
-      console.error('❌ Exception in fetchCompanyTypes:', error)
-      console.error('📝 Error stack:', error.stack)
-      console.error('📝 Error details:', {
-        name: error.name,
-        message: error.message,
-        cause: error.cause
-      })
+      console.error('Exception in fetchCompanyTypes:', error)
       setAvailableCompanyTypes([])
-      console.log('=== COMPANY TYPES DEBUG END (EXCEPTION) ===')
-    } finally {
-      console.log('🏁 fetchCompanyTypes completed')
+      setError('Failed to load analysis types. Please try again.')
     }
   }
 
