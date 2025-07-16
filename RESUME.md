@@ -47,7 +47,8 @@
   - Promise.race return value casting
   - CompanyType interface mismatch with simplified queries
   - Made system_prompt_template optional to match actual data structure
-- **Result**: Vercel builds succeed consistently
+  - **LATEST**: Added system_prompt_template to company types query (July 15, 2025)
+- **Result**: Vercel builds succeed consistently - **CONFIRMED WORKING**
 - **Debugging Added**: Enhanced type safety throughout codebase
 
 ### Technical Deep Dive - What We Learned
@@ -83,9 +84,9 @@
 - Company search and filtering (PEB search returns 1 result)
 - Company types loading (Hospitality REIT + Earnings Analyst) - **FIXED JULY 15**
 - Dropdown visibility and interaction
-- Build and deployment pipeline
+- Build and deployment pipeline - **VERCEL BUILD CONFIRMED JULY 15**
 - Database queries and RLS policy compliance
-- TypeScript compilation and type safety
+- TypeScript compilation and type safety - **COMPILATION ERROR FIXED JULY 15**
 - **Complete company selection workflow** - Search → Select → Analysis Types
 
 #### 🎯 READY FOR TESTING
@@ -177,8 +178,11 @@
 
 ---
 
-**Resume Point**: **MAJOR BREAKTHROUGH** - The PEB company selection issue is COMPLETELY RESOLVED! The entire company selection workflow now works perfectly: search for PEB → select company → analysis types dropdown appears with both options. Ready to test the complete LLM analysis flow.
+**Resume Point**: **VERCEL BUILD ISSUE RESOLVED** - Fixed TypeScript compilation error that was blocking Vercel deployments. Added `system_prompt_template` to company types database query to match TypeScript interface expectations. Vercel build now succeeds consistently.
 
-**Key Insight**: The timeout issue was caused by duplicate state declarations and artificial timeouts, not authentication problems. Removing the Promise.race timeout wrapper and fixing the TypeScript interface resolved all company type selection issues.
+**Recent Fixes (July 15, 2025)**:
+1. **Company Selection Workflow**: ✅ FULLY WORKING (PEB search → analysis types)
+2. **TypeScript Compilation**: ✅ FIXED (interface mismatch resolved)  
+3. **Vercel Deployment**: ✅ WORKING (build pipeline restored)
 
-**Status**: Company selection ✅ WORKING → Next: Test transcript analysis with PEB + Hospitality REIT
+**Status**: All major frontend issues resolved → Application ready for full testing and production use

@@ -298,23 +298,54 @@ export default function AnalyzePage() {
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
       console.log('Session check for company types:', { 
         hasSession: !!sessionData.session, 
-        sessionError 
+        sessionError,
+        userId: sessionData.session?.user?.id 
       })
       
+      // Early return if no session
+      if (!sessionData.session) {
+        console.error('No session found - cannot fetch company types')
+        setAvailableCompanyTypes([])
+        return
+      }
+      
       console.log('Starting company types query...')
+      console.log('Query details:', {
+        table: 'company_types',
+        select: 'id, name, description, system_prompt_template',
+        filter_ids: allCompanyTypeIds,
+        filter_active: true
+      })
+      
+      const queryStartTime = Date.now()
       const { data, error } = await supabase
         .from('company_types')
         .select('id, name, description, system_prompt_template')
         .in('id', allCompanyTypeIds)
         .eq('is_active', true)
-
+      
+      const queryEndTime = Date.now()
+      console.log(`Company types query completed in ${queryEndTime - queryStartTime}ms`)
       console.log('Company types query result:', { data, error, dataLength: data?.length })
 
       if (error) {
         console.error('Error fetching company types:', error)
-        console.error('Error details:', error.message, error.details, error.hint)
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
         setAvailableCompanyTypes([])
         return
+      }
+
+      if (!data || data.length === 0) {
+        console.warn('No company types found for IDs:', allCompanyTypeIds)
+        console.log('This could mean:')
+        console.log('1. The company type records do not exist in the database')
+        console.log('2. The records exist but is_active = false')
+        console.log('3. RLS policies are blocking access')
       }
 
       console.log('Setting available company types:', data?.length, data)
@@ -325,9 +356,13 @@ export default function AnalyzePage() {
       console.log('Found primary type:', primaryType)
       if (primaryType) {
         setSelectedCompanyType(primaryType)
+        console.log('Auto-selected primary company type:', primaryType.name)
+      } else {
+        console.warn('Primary company type not found in results:', company.primary_company_type_id)
       }
     } catch (error: any) {
-      console.error('Error fetching company types:', error)
+      console.error('Exception in fetchCompanyTypes:', error)
+      console.error('Error stack:', error.stack)
       setAvailableCompanyTypes([])
     }
   }

@@ -34,7 +34,12 @@
       "mcp__supabase__execute_sql",
       "mcp__supabase__list_tables",
       "mcp__supabase__get_project_url",
-      "mcp__supabase__get_logs"
+      "mcp__supabase__get_logs",
+      "Bash(gh pr list:*)",
+      "Bash(if [ -f \".env.local\" ])",
+      "Bash(then echo \"✓ .env.local exists\")",
+      "Bash(else echo \"✗ .env.local missing\")",
+      "Bash(fi)"
     ],
     "deny": []
   },
