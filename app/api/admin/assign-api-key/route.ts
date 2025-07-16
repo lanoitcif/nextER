@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Encrypt the API key
-    const { encryptedData, iv } = encryptForStorage(apiKey)
+    const { encrypted, iv } = encryptForStorage(apiKey)
 
     // Insert the API key
     const { data, error } = await supabaseAdmin
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       .insert({
         user_id: userId,
         provider: provider,
-        encrypted_api_key: encryptedData,
+        encrypted_api_key: encrypted,
         encryption_iv: iv,
         nickname: nickname || `${provider} (Admin Assigned)`,
         assigned_by_admin: true,
