@@ -230,9 +230,9 @@ export default function AdminApiKeysPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-100">
+    <div className="min-h-screen bg-[#161616]">
       {/* Header */}
-      <header className="bg-white shadow">
+      <header className="bg-[#1f1f1f] shadow-lg border-b border-[#a4a4a4]/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
@@ -244,10 +244,10 @@ export default function AdminApiKeysPage() {
                 <span>Back to Admin</span>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-white">
                   API Key Management
                 </h1>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-[#a4a4a4] mt-1">
                   Assign and manage user API keys
                 </p>
               </div>
@@ -267,14 +267,14 @@ export default function AdminApiKeysPage() {
         <div className="px-4 py-6 sm:px-0">
           {/* Status Messages */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
-              <div className="text-sm text-red-700">{error}</div>
+            <div className="bg-red-900/20 border border-red-500/30 rounded-md p-4 mb-6">
+              <div className="text-sm text-red-400">{error}</div>
             </div>
           )}
           
           {success && (
-            <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
-              <div className="text-sm text-green-700">{success}</div>
+            <div className="bg-green-900/20 border border-green-500/30 rounded-md p-4 mb-6">
+              <div className="text-sm text-green-400">{success}</div>
             </div>
           )}
 
@@ -287,18 +287,18 @@ export default function AdminApiKeysPage() {
               <div className="card-content">
                 <form onSubmit={handleAssignKey} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       User
                     </label>
                     <select
                       value={assignForm.userId}
                       onChange={(e) => setAssignForm(prev => ({ ...prev, userId: e.target.value }))}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
+                      className="w-full p-2 border border-[#a4a4a4]/30 rounded-md bg-[#1f1f1f] text-white focus:ring-2 focus:ring-[#c2995f] focus:border-[#c2995f]"
                       required
                     >
-                      <option value="">Select a user</option>
+                      <option value="" className="bg-[#1f1f1f] text-white">Select a user</option>
                       {users.map((user) => (
-                        <option key={user.id} value={user.id}>
+                        <option key={user.id} value={user.id} className="bg-[#1f1f1f] text-white">
                           {user.email} ({user.full_name || 'No name'})
                         </option>
                       ))}
@@ -306,7 +306,7 @@ export default function AdminApiKeysPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Provider
                     </label>
                     <select
@@ -315,28 +315,28 @@ export default function AdminApiKeysPage() {
                         ...prev, 
                         provider: e.target.value as AssignKeyForm['provider']
                       }))}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
+                      className="w-full p-2 border border-[#a4a4a4]/30 rounded-md bg-[#1f1f1f] text-white focus:ring-2 focus:ring-[#c2995f] focus:border-[#c2995f]"
                       required
                     >
-                      <option value="openai">OpenAI</option>
-                      <option value="anthropic">Anthropic</option>
-                      <option value="google">Google</option>
-                      <option value="cohere">Cohere</option>
+                      <option value="openai" className="bg-[#1f1f1f] text-white">OpenAI</option>
+                      <option value="anthropic" className="bg-[#1f1f1f] text-white">Anthropic</option>
+                      <option value="google" className="bg-[#1f1f1f] text-white">Google</option>
+                      <option value="cohere" className="bg-[#1f1f1f] text-white">Cohere</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Default Model
                     </label>
                     <select
                       value={assignForm.defaultModel}
                       onChange={(e) => setAssignForm(prev => ({ ...prev, defaultModel: e.target.value }))}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
+                      className="w-full p-2 border border-[#a4a4a4]/30 rounded-md bg-[#1f1f1f] text-white focus:ring-2 focus:ring-[#c2995f] focus:border-[#c2995f]"
                       required
                     >
                       {PROVIDER_MODELS[assignForm.provider].map((model) => (
-                        <option key={model} value={model}>
+                        <option key={model} value={model} className="bg-[#1f1f1f] text-white">
                           {model}
                         </option>
                       ))}
@@ -344,7 +344,7 @@ export default function AdminApiKeysPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       API Key
                     </label>
                     <input
@@ -352,13 +352,13 @@ export default function AdminApiKeysPage() {
                       value={assignForm.apiKey}
                       onChange={(e) => setAssignForm(prev => ({ ...prev, apiKey: e.target.value }))}
                       placeholder={`Enter ${assignForm.provider} API key`}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
+                      className="input w-full"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Nickname (Optional)
                     </label>
                     <input
@@ -366,7 +366,7 @@ export default function AdminApiKeysPage() {
                       value={assignForm.nickname}
                       onChange={(e) => setAssignForm(prev => ({ ...prev, nickname: e.target.value }))}
                       placeholder={`${assignForm.provider} (Admin Assigned)`}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
+                      className="input w-full"
                     />
                   </div>
 
@@ -406,8 +406,8 @@ export default function AdminApiKeysPage() {
               {loadingKeys ? (
                 <div className="text-center py-8">Loading API keys...</div>
               ) : userApiKeys.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <Key className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <div className="text-center py-8 text-[#a4a4a4]">
+                  <Key className="mx-auto h-12 w-12 text-[#a4a4a4]/60 mb-4" />
                   <p>No admin-assigned API keys found</p>
                 </div>
               ) : (
@@ -415,18 +415,18 @@ export default function AdminApiKeysPage() {
                   {userApiKeys.map((key: any) => (
                     <div
                       key={key.id}
-                      className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50"
+                      className="border border-[#a4a4a4]/20 rounded-lg p-4 hover:bg-[#2a2a2a] bg-[#1f1f1f]"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
-                          <div className="bg-blue-100 p-2 rounded-lg">
-                            <Key className="h-5 w-5 text-blue-600" />
+                          <div className="bg-[#c2995f]/20 p-2 rounded-lg">
+                            <Key className="h-5 w-5 text-[#c2995f]" />
                           </div>
                           <div>
-                            <h4 className="font-medium text-gray-900">
+                            <h4 className="font-medium text-white">
                               {key.nickname || `${key.provider} API Key`}
                             </h4>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-[#a4a4a4]">
                               <div>User: {key.user_profiles?.email}</div>
                               <div>Provider: {key.provider}</div>
                               <div>Default Model: {key.default_model}</div>
@@ -437,7 +437,7 @@ export default function AdminApiKeysPage() {
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={() => handleDeleteKey(key.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                            className="p-2 text-red-400 hover:bg-red-900/20 rounded-lg"
                             title="Delete API key"
                           >
                             <Trash2 className="h-4 w-4" />

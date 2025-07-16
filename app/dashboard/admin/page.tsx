@@ -87,9 +87,9 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-100">
+    <div className="min-h-screen bg-[#161616]">
       {/* Header */}
-      <header className="bg-white shadow">
+      <header className="bg-[#1f1f1f] shadow-lg border-b border-[#a4a4a4]/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
@@ -101,10 +101,10 @@ export default function AdminPage() {
                 <span>Back to Dashboard</span>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-white">
                   Admin Dashboard
                 </h1>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-[#a4a4a4] mt-1">
                   System administration and user management
                 </p>
               </div>
@@ -125,8 +125,8 @@ export default function AdminPage() {
                       <Users className="h-6 w-6 text-blue-600" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-gray-900">{stats.totalUsers}</h3>
-                      <p className="text-sm text-gray-600">Total Users</p>
+                      <h3 className="text-lg font-semibold text-white">{stats.totalUsers}</h3>
+                      <p className="text-sm text-[#a4a4a4]">Total Users</p>
                     </div>
                   </div>
                 </div>
@@ -139,8 +139,8 @@ export default function AdminPage() {
                       <Key className="h-6 w-6 text-green-600" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-gray-900">{stats.totalApiKeys}</h3>
-                      <p className="text-sm text-gray-600">API Keys</p>
+                      <h3 className="text-lg font-semibold text-white">{stats.totalApiKeys}</h3>
+                      <p className="text-sm text-[#a4a4a4]">API Keys</p>
                     </div>
                   </div>
                 </div>
@@ -153,8 +153,8 @@ export default function AdminPage() {
                       <BarChart3 className="h-6 w-6 text-purple-600" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-gray-900">{stats.totalUsage}</h3>
-                      <p className="text-sm text-gray-600">Total Analyses</p>
+                      <h3 className="text-lg font-semibold text-white">{stats.totalUsage}</h3>
+                      <p className="text-sm text-[#a4a4a4]">Total Analyses</p>
                     </div>
                   </div>
                 </div>
@@ -167,8 +167,8 @@ export default function AdminPage() {
                       <BarChart3 className="h-6 w-6 text-orange-600" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-gray-900">{stats.monthlyUsage}</h3>
-                      <p className="text-sm text-gray-600">This Month</p>
+                      <h3 className="text-lg font-semibold text-white">{stats.monthlyUsage}</h3>
+                      <p className="text-sm text-[#a4a4a4]">This Month</p>
                     </div>
                   </div>
                 </div>
@@ -185,8 +185,8 @@ export default function AdminPage() {
                     <Key className="h-8 w-8 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">API Key Management</h3>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <h3 className="text-lg font-semibold text-white">API Key Management</h3>
+                    <p className="text-sm text-[#a4a4a4] mt-1">
                       Assign and manage user API keys and default models
                     </p>
                   </div>
@@ -201,8 +201,8 @@ export default function AdminPage() {
                     <Users className="h-8 w-8 text-green-600" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <h3 className="text-lg font-semibold text-white">User Management</h3>
+                    <p className="text-sm text-[#a4a4a4] mt-1">
                       View and manage user accounts and permissions
                     </p>
                   </div>
@@ -217,8 +217,8 @@ export default function AdminPage() {
                     <BarChart3 className="h-8 w-8 text-purple-600" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Usage Analytics</h3>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <h3 className="text-lg font-semibold text-white">Usage Analytics</h3>
+                    <p className="text-sm text-[#a4a4a4] mt-1">
                       Monitor system usage and cost analytics
                     </p>
                   </div>

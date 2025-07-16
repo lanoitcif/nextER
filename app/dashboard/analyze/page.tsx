@@ -651,9 +651,9 @@ export default function AnalyzePage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-100">
+    <div className="min-h-screen bg-[#161616]">
       {/* Header */}
-      <header className="bg-white shadow">
+      <header className="bg-[#1f1f1f] shadow-lg border-b border-[#a4a4a4]/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
@@ -665,10 +665,10 @@ export default function AnalyzePage() {
                 <span>Back to Dashboard</span>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-white">
                   NEaR Analyze
                 </h1>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-[#a4a4a4] mt-1">
                   AI-powered earnings analysis
                 </p>
               </div>
@@ -694,7 +694,7 @@ export default function AnalyzePage() {
                     value={transcript}
                     onChange={(e) => setTranscript(e.target.value)}
                     placeholder="Paste your transcript here..."
-                    className="w-full h-64 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
+                    className="textarea w-full h-64"
                     disabled={analyzing}
                   />
                 </div>
@@ -710,7 +710,7 @@ export default function AnalyzePage() {
                 <div className="card-content space-y-4">
                   {/* Ticker Input */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Ticker Symbol
                     </label>
                     <div className="relative company-dropdown-container">
@@ -726,7 +726,7 @@ export default function AnalyzePage() {
                             setSelectedCompanyType(null)
                           }}
                           placeholder="e.g., AAPL, TSLA, MSFT"
-                          className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
+                          className="input flex-1"
                           disabled={analyzing}
                           onKeyPress={(e) => e.key === 'Enter' && handleTickerSearch()}
                         />
@@ -741,15 +741,15 @@ export default function AnalyzePage() {
                       
                       {/* Company Dropdown */}
                       {showDropdown && filteredCompanies.length > 0 && (
-                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                        <div className="absolute z-10 w-full mt-1 bg-[#1f1f1f] border border-[#a4a4a4]/30 rounded-md shadow-lg max-h-60 overflow-auto">
                           {filteredCompanies.map((company) => (
                             <button
                               key={company.id}
                               onClick={() => handleCompanySelect(company)}
-                              className="w-full text-left px-4 py-2 hover:bg-blue-50 focus:bg-blue-50 focus:outline-none"
+                              className="w-full text-left px-4 py-2 hover:bg-[#2a2a2a] focus:bg-[#2a2a2a] focus:outline-none"
                             >
-                              <div className="font-medium text-gray-900">{company.ticker}</div>
-                              <div className="text-sm text-gray-600">{company.name}</div>
+                              <div className="font-medium text-white">{company.ticker}</div>
+                              <div className="text-sm text-[#a4a4a4]">{company.name}</div>
                             </button>
                           ))}
                         </div>
@@ -758,22 +758,22 @@ export default function AnalyzePage() {
                   </div>
 
                   {/* Selected Company Display */}
-                  <div className="bg-green-50 border border-green-200 rounded-md p-4">
-                    <h4 className="text-sm font-medium text-green-900 mb-1">
+                  <div className="bg-[#2a3d2a] border border-[#4ade80]/30 rounded-md p-4">
+                    <h4 className="text-sm font-medium text-[#4ade80] mb-1">
                       Selected Company
                     </h4>
-                    <p className="text-sm text-green-700">
+                    <p className="text-sm text-white">
                       {selectedCompany ? (
                         <><strong>{selectedCompany.ticker}</strong> - {selectedCompany.name}</>
                       ) : (
-                        <span className="text-gray-500">No company selected</span>
+                        <span className="text-[#a4a4a4]">No company selected</span>
                       )}
                     </p>
                   </div>
 
                   {/* Analysis Type Selection */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Analysis Type
                     </label>
                     <select
@@ -782,28 +782,28 @@ export default function AnalyzePage() {
                         const type = availableCompanyTypes.find(ct => ct.id === e.target.value)
                         setSelectedCompanyType(type || null)
                       }}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
+                      className="w-full p-2 border border-[#a4a4a4]/30 rounded-md bg-[#1f1f1f] text-white focus:ring-2 focus:ring-[#c2995f] focus:border-[#c2995f]"
                       disabled={analyzing || availableCompanyTypes.length === 0}
                     >
-                      <option value="">
+                      <option value="" className="bg-[#1f1f1f] text-white">
                         {availableCompanyTypes.length === 0 
                           ? 'Select a company first...' 
                           : 'Select analysis type...'
                         }
                       </option>
                       {availableCompanyTypes.map((type) => (
-                        <option key={type.id} value={type.id}>
+                        <option key={type.id} value={type.id} className="bg-[#1f1f1f] text-white">
                           {type.name}
                         </option>
                       ))}
                     </select>
                     {selectedCompanyType && (
-                      <p className="text-xs text-gray-600 mt-1">
+                      <p className="text-xs text-[#a4a4a4] mt-1">
                         {selectedCompanyType.description}
                       </p>
                     )}
                     {availableCompanyTypes.length === 0 && selectedCompany && (
-                      <p className="text-xs text-red-600 mt-1">
+                      <p className="text-xs text-red-400 mt-1">
                         No analysis types available for this company. Check database configuration.
                       </p>
                     )}
@@ -819,7 +819,7 @@ export default function AnalyzePage() {
 
                   {/* API Key Source */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       API Key Source
                     </label>
                     <div className="space-y-2">
@@ -868,40 +868,40 @@ export default function AnalyzePage() {
 
                   {/* Provider Selection */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       LLM Provider
                     </label>
                     <select
                       value={provider}
                       onChange={(e) => setProvider(e.target.value as any)}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
+                      className="w-full p-2 border border-[#a4a4a4]/30 rounded-md bg-[#1f1f1f] text-white focus:ring-2 focus:ring-[#c2995f] focus:border-[#c2995f]"
                       disabled={analyzing}
                     >
-                      <option value="openai">OpenAI</option>
-                      <option value="anthropic">Anthropic</option>
-                      <option value="google">Google</option>
-                      <option value="cohere">Cohere</option>
+                      <option value="openai" className="bg-[#1f1f1f] text-white">OpenAI</option>
+                      <option value="anthropic" className="bg-[#1f1f1f] text-white">Anthropic</option>
+                      <option value="google" className="bg-[#1f1f1f] text-white">Google</option>
+                      <option value="cohere" className="bg-[#1f1f1f] text-white">Cohere</option>
                     </select>
                   </div>
 
                   {/* Model Selection */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Model
                     </label>
                     <select
                       value={selectedModel}
                       onChange={(e) => setSelectedModel(e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
+                      className="w-full p-2 border border-[#a4a4a4]/30 rounded-md bg-[#1f1f1f] text-white focus:ring-2 focus:ring-[#c2995f] focus:border-[#c2995f]"
                       disabled={analyzing}
                     >
                       {PROVIDER_MODELS[provider].map((model) => (
-                        <option key={model} value={model}>
+                        <option key={model} value={model} className="bg-[#1f1f1f] text-white">
                           {model}
                         </option>
                       ))}
                     </select>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-[#a4a4a4] mt-1">
                       Default: {DEFAULT_MODELS[provider]}
                     </p>
                   </div>
@@ -909,29 +909,29 @@ export default function AnalyzePage() {
                   {/* Saved API Key Selection */}
                   {keySource === 'user_saved' && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-white mb-2">
                         Saved API Key
                       </label>
                       {userApiKeys.filter(key => key.provider === provider).length > 0 ? (
                         <select
                           value={selectedApiKey}
                           onChange={(e) => setSelectedApiKey(e.target.value)}
-                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
+                          className="w-full p-2 border border-[#a4a4a4]/30 rounded-md bg-[#1f1f1f] text-white focus:ring-2 focus:ring-[#c2995f] focus:border-[#c2995f]"
                           disabled={analyzing}
                         >
-                          <option value="">Select an API key</option>
+                          <option value="" className="bg-[#1f1f1f] text-white">Select an API key</option>
                           {userApiKeys
                             .filter(key => key.provider === provider)
                             .map((key) => (
-                              <option key={key.id} value={key.id}>
+                              <option key={key.id} value={key.id} className="bg-[#1f1f1f] text-white">
                                 {key.nickname || `${key.provider} key`}
                               </option>
                             ))}
                         </select>
                       ) : (
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-[#a4a4a4]">
                           No saved {provider} API keys found.{' '}
-                          <Link href="/dashboard/api-keys" className="text-blue-600 hover:underline">
+                          <Link href="/dashboard/api-keys" className="text-[#c2995f] hover:underline">
                             Add one here
                           </Link>
                         </div>
@@ -942,7 +942,7 @@ export default function AnalyzePage() {
                   {/* Temporary API Key Input */}
                   {keySource === 'user_temporary' && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-white mb-2">
                         Temporary API Key
                       </label>
                       <input
@@ -950,10 +950,10 @@ export default function AnalyzePage() {
                         value={temporaryApiKey}
                         onChange={(e) => setTemporaryApiKey(e.target.value)}
                         placeholder={`Enter your ${provider} API key`}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
+                        className="input w-full"
                         disabled={analyzing}
                       />
-                      <p className="text-xs text-gray-600 mt-1">
+                      <p className="text-xs text-[#a4a4a4] mt-1">
                         This key will not be saved
                       </p>
                     </div>
@@ -1037,7 +1037,7 @@ export default function AnalyzePage() {
                   )}
                 </div>
                 {analysisMetadata && (
-                  <div className="mt-2 text-xs text-gray-600 bg-gray-50 px-3 py-2 rounded-md">
+                  <div className="mt-2 text-xs text-[#a4a4a4] bg-[#1f1f1f] px-3 py-2 rounded-md border border-[#a4a4a4]/20">
                     <strong>Analysis Details:</strong> {analysisMetadata.provider} • {analysisMetadata.model}
                     {analysisMetadata.usage?.totalTokens && (
                       <> • {analysisMetadata.usage.totalTokens.toLocaleString()} tokens</>
@@ -1047,8 +1047,8 @@ export default function AnalyzePage() {
               </div>
               <div className="card-content">
                 {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
-                    <div className="text-sm text-red-700">{error}</div>
+                  <div className="bg-red-900/20 border border-red-500/30 rounded-md p-4 mb-4">
+                    <div className="text-sm text-red-400">{error}</div>
                   </div>
                 )}
                 
@@ -1056,18 +1056,18 @@ export default function AnalyzePage() {
                   <div className="max-w-none">
                     {viewMode === 'rendered' ? (
                       <div 
-                        className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-ul:text-gray-700"
+                        className="prose prose-sm max-w-none prose-headings:text-white prose-p:text-[#a4a4a4] prose-strong:text-white prose-ul:text-[#a4a4a4] prose-li:text-[#a4a4a4] prose-code:text-[#c2995f] prose-code:bg-[#1f1f1f]"
                         dangerouslySetInnerHTML={{ __html: renderMarkdown(result) }}
                       />
                     ) : (
-                      <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded-md border font-mono">
+                      <pre className="whitespace-pre-wrap text-sm bg-[#1f1f1f] text-[#a4a4a4] p-4 rounded-md border border-[#a4a4a4]/30 font-mono">
                         {result}
                       </pre>
                     )}
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-gray-500">
-                    <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <div className="text-center py-12 text-[#a4a4a4]">
+                    <FileText className="mx-auto h-12 w-12 text-[#a4a4a4]/60 mb-4" />
                     <p>Analysis results will appear here after processing</p>
                   </div>
                 )}
