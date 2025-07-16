@@ -293,6 +293,11 @@ export default function AnalyzePage() {
         : []
       const allCompanyTypeIds = [company.primary_company_type_id, ...additionalTypes]
       
+      // Always include the default general analysis type
+      if (!allCompanyTypeIds.includes('general_analysis')) {
+        allCompanyTypeIds.push('general_analysis')
+      }
+      
       console.log('Company type IDs to fetch:', allCompanyTypeIds)
       
       const { data, error } = await supabase
@@ -303,24 +308,43 @@ export default function AnalyzePage() {
 
       if (error) {
         console.error('Error fetching company types:', error)
-        setAvailableCompanyTypes([])
-        setError('Failed to load analysis types. Please try again.')
+        // Fallback to default type only
+        const fallbackType = {
+          id: 'general_analysis',
+          name: 'General Analysis',
+          description: 'Default general financial analysis template',
+          system_prompt_template: 'You are a financial analyst providing comprehensive earnings analysis.'
+        }
+        setAvailableCompanyTypes([fallbackType])
+        setSelectedCompanyType(fallbackType)
+        setError('')
         return
       }
 
       console.log('Successfully fetched company types:', data?.length)
       setAvailableCompanyTypes(data || [])
       
-      // Auto-select primary company type
+      // Auto-select primary company type, or default to general analysis
       const primaryType = data?.find((ct: CompanyType) => ct.id === company.primary_company_type_id)
-      if (primaryType) {
-        setSelectedCompanyType(primaryType)
-        console.log('Auto-selected primary company type:', primaryType.name)
+      const defaultType = data?.find((ct: CompanyType) => ct.id === 'general_analysis')
+      const selectedType = primaryType || defaultType || data?.[0]
+      
+      if (selectedType) {
+        setSelectedCompanyType(selectedType)
+        console.log('Auto-selected company type:', selectedType.name)
       }
     } catch (error: any) {
       console.error('Exception in fetchCompanyTypes:', error)
-      setAvailableCompanyTypes([])
-      setError('Failed to load analysis types. Please try again.')
+      // Fallback to default type
+      const fallbackType = {
+        id: 'general_analysis',
+        name: 'General Analysis',
+        description: 'Default general financial analysis template',
+        system_prompt_template: 'You are a financial analyst providing comprehensive earnings analysis.'
+      }
+      setAvailableCompanyTypes([fallbackType])
+      setSelectedCompanyType(fallbackType)
+      setError('')
     }
   }
 
@@ -337,7 +361,19 @@ export default function AnalyzePage() {
 
       if (response.ok) {
         const result = await response.json()
-        setUserApiKeys(result.apiKeys || [])
+        const apiKeys = result.apiKeys || []
+        setUserApiKeys(apiKeys)
+        
+        // Auto-set provider and model from admin-assigned keys
+        const adminAssignedKey = apiKeys.find((key: any) => key.assigned_by_admin)
+        if (adminAssignedKey) {
+          setProvider(adminAssignedKey.provider)
+          if (adminAssignedKey.default_model) {
+            setSelectedModel(adminAssignedKey.default_model)
+          }
+          setSelectedApiKey(adminAssignedKey.id)
+          setKeySource('user_saved')
+        }
       }
     } catch (error) {
       console.error('Error fetching user API keys:', error)
