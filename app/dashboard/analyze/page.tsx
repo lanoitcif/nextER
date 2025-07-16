@@ -291,7 +291,7 @@ export default function AnalyzePage() {
         : []
       const allCompanyTypeIds = [company.primary_company_type_id, ...additionalTypes]
       
-      console.log('=== COMPANY TYPES DEBUG START ===')
+      console.log('=== COMPANY TYPES DEBUG START [v2] ===')
       console.log('Fetching company types for company:', company)
       console.log('Company type IDs to fetch:', allCompanyTypeIds)
       
