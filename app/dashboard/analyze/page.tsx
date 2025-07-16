@@ -379,9 +379,7 @@ export default function AnalyzePage() {
           message: error.message,
           details: error.details,
           hint: error.hint,
-          code: error.code,
-          statusCode: error.statusCode,
-          statusText: error.statusText
+          code: error.code
         })
         setAvailableCompanyTypes([])
         console.log('=== COMPANY TYPES DEBUG END (ERROR) ===')
