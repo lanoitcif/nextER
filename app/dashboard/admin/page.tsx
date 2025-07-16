@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/lib/auth/AuthContext'
+import { useAuth, isAdmin } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
@@ -21,13 +21,13 @@ export default function AdminPage() {
   const [loadingStats, setLoadingStats] = useState(true)
 
   useEffect(() => {
-    if (!loading && (!user || !profile?.is_admin)) {
+    if (!loading && (!user || !isAdmin(profile))) {
       router.push('/dashboard')
     }
   }, [user, profile, loading, router])
 
   useEffect(() => {
-    if (user && profile?.is_admin) {
+    if (user && isAdmin(profile)) {
       fetchStats()
     }
   }, [user, profile])
@@ -82,7 +82,7 @@ export default function AdminPage() {
     )
   }
 
-  if (!user || !profile?.is_admin) {
+  if (!user || !isAdmin(profile)) {
     return null
   }
 

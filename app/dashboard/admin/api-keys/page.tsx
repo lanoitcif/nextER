@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/lib/auth/AuthContext'
+import { useAuth, isAdmin } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
@@ -82,13 +82,13 @@ export default function AdminApiKeysPage() {
   const [success, setSuccess] = useState('')
 
   useEffect(() => {
-    if (!loading && (!user || !profile?.is_admin)) {
+    if (!loading && (!user || !isAdmin(profile))) {
       router.push('/dashboard')
     }
   }, [user, profile, loading, router])
 
   useEffect(() => {
-    if (user && profile?.is_admin) {
+    if (user && isAdmin(profile)) {
       fetchUsers()
       fetchUserApiKeys()
     }
@@ -225,7 +225,7 @@ export default function AdminApiKeysPage() {
     )
   }
 
-  if (!user || !profile?.is_admin) {
+  if (!user || !isAdmin(profile)) {
     return null
   }
 

@@ -10,9 +10,8 @@ type UserProfile = Database['public']['Tables']['user_profiles']['Row']
 // Helper function to check if a user profile has admin privileges
 export function isAdmin(profile: UserProfile | null): boolean {
   if (!profile) return false
-  // Add your admin check logic here based on your user_profiles table structure
-  // For example, if you have an is_admin column or check specific email domains
-  return profile.can_use_owner_key || false
+  // Check for is_admin column (with fallback to can_use_owner_key for backwards compatibility)
+  return (profile as any).is_admin === true || profile.can_use_owner_key || false
 }
 
 interface AuthContextType {
