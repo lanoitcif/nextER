@@ -292,12 +292,17 @@ export default function AnalyzePage() {
         userId: sessionCheck.session?.user?.id
       })
       
+      console.log('🔍 STARTING company types database query...')
+      const startTime = performance.now()
+      
       const { data, error } = await supabase
         .from('company_types')
         .select('id, name, description, system_prompt_template')
         .in('id', allCompanyTypeIds)
         .eq('is_active', true)
 
+      const queryTime = performance.now() - startTime
+      console.log('🔍 COMPLETED company types query in', queryTime.toFixed(0), 'ms')
       console.log('Company types query result:', { data, error, queryIds: allCompanyTypeIds })
 
       if (error) {
