@@ -29,27 +29,27 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#161616]">
+    <div className="min-h-screen bg-charcoal">
       {/* Header */}
-      <header className="bg-[#1f1f1f] border-b border-[#c2995f]/20">
+      <header className="bg-charcoal border-b border-teal-mist/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
-              <Activity className="h-8 w-8 text-[#c2995f]" />
-              <span className="ml-2 text-xl font-bold text-[#c2995f]">
+              <Activity className="h-8 w-8 text-teal-mist" />
+              <span className="ml-2 text-xl font-bold text-teal-mist">
                 NEaR
               </span>
             </div>
             <div className="flex items-center space-x-4">
               <Link
                 href="/auth/login"
-                className="text-[#a4a4a4] hover:text-white font-medium"
+                className="text-cream-glow hover:text-sunset-gold font-medium"
               >
                 Sign In
               </Link>
               <Link
                 href="/auth/signup"
-                className="bg-[#c2995f] text-black px-4 py-2 rounded font-medium hover:bg-[#c2995f]/90"
+                className="bg-coral text-white px-4 py-2 rounded font-medium hover:bg-fuchsia-buzz"
               >
                 Get Started
               </Link>
@@ -61,26 +61,26 @@ export default function HomePage() {
       {/* Hero Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+          <h1 className="text-4xl md:text-6xl font-bold text-cream-glow mb-6">
             Next Earnings
-            <span className="text-[#c2995f] block">Release</span>
+            <span className="text-sunset-gold block">Release</span>
           </h1>
           
-          <p className="text-xl text-[#a4a4a4] mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-cream-glow/80 mb-8 max-w-2xl mx-auto">
             Professional earnings analysis platform.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Link
               href="/auth/signup"
-              className="bg-[#c2995f] text-black text-lg px-8 py-3 rounded font-medium flex items-center justify-center space-x-2 hover:bg-[#c2995f]/90"
+              className="bg-coral text-white text-lg px-8 py-3 rounded font-medium flex items-center justify-center space-x-2 hover:bg-fuchsia-buzz transition-all duration-200 hover:scale-105 shadow-lg"
             >
               <span>Begin</span>
               <ArrowRight className="h-5 w-5" />
             </Link>
             <Link
               href="/auth/login"
-              className="border border-[#a4a4a4] text-[#a4a4a4] text-lg px-8 py-3 rounded font-medium hover:border-white hover:text-white"
+              className="border border-grape-static text-grape-static text-lg px-8 py-3 rounded font-medium hover:bg-grape-static hover:text-cream-glow transition-all duration-200"
             >
               Sign In
             </Link>
@@ -90,12 +90,12 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-[#1f1f1f] border-t border-[#c2995f]/20 mt-16">
+      <footer className="bg-charcoal border-t border-teal-mist/30 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-center">
             <div className="flex items-center">
-              <Activity className="h-6 w-6 text-[#c2995f]" />
-              <span className="ml-2 text-lg font-bold text-[#c2995f]">
+              <Activity className="h-6 w-6 text-teal-mist" />
+              <span className="ml-2 text-lg font-bold text-teal-mist">
                 NEaR
               </span>
             </div>

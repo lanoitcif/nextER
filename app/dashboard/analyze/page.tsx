@@ -798,23 +798,23 @@ export default function AnalyzePage() {
                         const type = availableCompanyTypes.find(ct => ct.id === e.target.value)
                         setSelectedCompanyType(type || null)
                       }}
-                      className="w-full p-2 border border-[#a4a4a4]/30 rounded-md bg-[#1f1f1f] text-white focus:ring-2 focus:ring-[#c2995f] focus:border-[#c2995f]"
+                      className="w-full p-2 border border-grape-static rounded-md bg-cream-glow text-charcoal focus:ring-2 focus:ring-coral focus:border-coral"
                       disabled={analyzing || availableCompanyTypes.length === 0}
                     >
-                      <option value="" className="bg-[#1f1f1f] text-white">
+                      <option value="" className="bg-cream-glow text-charcoal">
                         {availableCompanyTypes.length === 0 
                           ? 'Select a company first...' 
                           : 'Select analysis type...'
                         }
                       </option>
                       {availableCompanyTypes.map((type) => (
-                        <option key={type.id} value={type.id} className="bg-[#1f1f1f] text-white">
+                        <option key={type.id} value={type.id} className="bg-cream-glow text-charcoal">
                           {type.name}
                         </option>
                       ))}
                     </select>
                     {selectedCompanyType && (
-                      <p className="text-xs text-[#a4a4a4] mt-1">
+                      <p className="text-xs text-charcoal/70 mt-1">
                         {selectedCompanyType.description}
                       </p>
                     )}
@@ -890,7 +890,7 @@ export default function AnalyzePage() {
                     <select
                       value={provider}
                       onChange={(e) => setProvider(e.target.value as any)}
-                      className="w-full p-2 border border-[#a4a4a4]/30 rounded-md bg-[#1f1f1f] text-white focus:ring-2 focus:ring-[#c2995f] focus:border-[#c2995f]"
+                      className="w-full p-2 border border-grape-static rounded-md bg-cream-glow text-charcoal focus:ring-2 focus:ring-coral focus:border-coral"
                       disabled={analyzing}
                     >
                       <option value="openai" className="bg-[#1f1f1f] text-white">OpenAI</option>
@@ -908,7 +908,7 @@ export default function AnalyzePage() {
                     <select
                       value={selectedModel}
                       onChange={(e) => setSelectedModel(e.target.value)}
-                      className="w-full p-2 border border-[#a4a4a4]/30 rounded-md bg-[#1f1f1f] text-white focus:ring-2 focus:ring-[#c2995f] focus:border-[#c2995f]"
+                      className="w-full p-2 border border-grape-static rounded-md bg-cream-glow text-charcoal focus:ring-2 focus:ring-coral focus:border-coral"
                       disabled={analyzing}
                     >
                       {PROVIDER_MODELS[provider].map((model) => (
@@ -932,10 +932,10 @@ export default function AnalyzePage() {
                         <select
                           value={selectedApiKey}
                           onChange={(e) => setSelectedApiKey(e.target.value)}
-                          className="w-full p-2 border border-[#a4a4a4]/30 rounded-md bg-[#1f1f1f] text-white focus:ring-2 focus:ring-[#c2995f] focus:border-[#c2995f]"
+                          className="w-full p-2 border border-grape-static rounded-md bg-cream-glow text-charcoal focus:ring-2 focus:ring-coral focus:border-coral"
                           disabled={analyzing}
                         >
-                          <option value="" className="bg-[#1f1f1f] text-white">Select an API key</option>
+                          <option value="" className="bg-cream-glow text-charcoal">Select an API key</option>
                           {userApiKeys
                             .filter(key => key.provider === provider)
                             .map((key) => (
@@ -969,7 +969,7 @@ export default function AnalyzePage() {
                         className="input w-full"
                         disabled={analyzing}
                       />
-                      <p className="text-xs text-[#a4a4a4] mt-1">
+                      <p className="text-xs text-charcoal/70 mt-1">
                         This key will not be saved
                       </p>
                     </div>
