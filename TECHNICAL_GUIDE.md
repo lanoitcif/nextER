@@ -87,3 +87,35 @@ For a full breakdown of all components and their styles, see the `DESIGN_SYSTEM.
 - **LLM Analysis**: 2-15 seconds depending on provider/model
 - **Database Queries**: Optimized, no unnecessary fetches identified
 - **Caching & Performance**: Redis Cache, CDN Integration, Load Balancing, and Background Jobs are planned for future enhancements.
+
+## 8. Common Issues and Debugging
+
+### Alt-Tab State Reset Issue
+- **Problem**: Analysis types dropdown resets when alt-tabbing away and back
+- **Root Cause**: useEffect dependency on `isVisible` causing unnecessary re-renders
+- **Solution**: Remove `isVisible` from useEffect dependency arrays
+- **Files Affected**: `app/dashboard/page.tsx`, `app/dashboard/analyze/page.tsx`
+- **Fixed**: Commit 16e1368
+
+### Dropdown Selection Issues
+- **Problem**: Company selection dropdown not populating or resetting
+- **Root Cause**: Race condition in onChange handler state management
+- **Solution**: Separate typing state from selection state
+- **Debugging**: Check console for `fetchCompanyTypes` logs and database query results
+- **Fixed**: Commit 4e25658
+
+### Database Connection Issues
+- **Problem**: "No analysis types available" error message
+- **Debugging Steps**:
+  1. Check Supabase connection in browser console
+  2. Verify RLS policies allow access to `company_types` table
+  3. Check database logs for query errors
+  4. Ensure user authentication is valid
+- **Common Fix**: Refresh page to re-establish session
+
+### Development Debugging
+- **Console Logging**: Extensive logging implemented for analysis flow
+- **Company Loading**: Look for "Setting companies: X companies loaded"
+- **Analysis Flow**: Track from "Starting analysis..." through session checks
+- **API Requests**: Monitor Vercel function logs for backend processing
+- **Database Queries**: Look for timing logs and query result objects

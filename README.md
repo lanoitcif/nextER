@@ -344,3 +344,9 @@ MIT License - see LICENSE file for details.
 - Company loading: Look for "Setting companies: X companies loaded"
 - Analysis flow: Track from "Starting analysis..." through session checks
 - API requests: Monitor Vercel function logs for backend processing
+
+### Alt-Tab Issues
+If you experience dropdown resets or state clearing when alt-tabbing:
+- Issue was resolved in commit 16e1368
+- If still occurring, refresh the page to restore proper state
+- Check browser console for any useEffect dependency errors

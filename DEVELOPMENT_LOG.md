@@ -2,6 +2,14 @@
 
 ## Session Summaries
 
+### July 17, 2025: Alt-Tab State Reset Fix & Documentation Consolidation
+- **Alt-Tab State Reset Issue**: Resolved analysis types dropdown resetting on window focus changes
+- **Root Cause**: Dashboard page `useEffect` with `[user, isVisible]` dependency causing unnecessary re-renders
+- **Solution**: Removed `isVisible` dependency from dashboard page useEffect
+- **Documentation Consolidation**: Successfully reduced documentation from 25 to 10 files using management best practices
+- **Database Data Consistency**: Ensured all records have proper field values, fixed general_analysis company type
+- **Deployment**: All fixes deployed to production (commits 1dad503, 16e1368)
+
 ### July 15, 2025: Complete Frontend Debugging & Fixes
 - **Company Search System**: Resolved authentication and RLS policy issues.
 - **Company Types Dropdown**: Fixed duplicate state declarations and artificial timeouts.
@@ -23,7 +31,14 @@
 
 ## Problem Resolution Case Studies
 
-### Dropdown Selection Issue
+### Alt-Tab State Reset Issue (July 17, 2025)
+- **Problem**: Analysis types dropdown was resetting to "Select a company first..." after alt-tabbing away and back
+- **Investigation**: Database queries were succeeding but state was being reset due to visibility changes
+- **Root Cause**: Dashboard page `useEffect` with `[user, isVisible]` dependency causing React re-renders
+- **Resolution**: Removed `isVisible` dependency from dashboard page useEffect, matching fix already applied to analyze page
+- **Impact**: Users can now alt-tab without losing their analysis type selection
+
+### Dropdown Selection Issue (January 17, 2025)
 - **Problem**: A persistent issue with the company dropdown selection.
 - **Investigation**: The team used a systematic debugging approach, including adding debugger statements, enhanced logging, and verifying click handler attachment.
 - **Resolution**: The root cause was identified as a race condition in the `onChange` handler, and the issue was resolved by separating the typing state from the selection state.
@@ -37,3 +52,7 @@ The resolution of the dropdown selection issue was a major success for the TRIPO
 - **Multi-AI Collaboration**: Different perspectives provide comprehensive analysis.
 - **State Management**: Race conditions can masquerade as database issues.
 - **Symptom vs. Cause**: Database "hanging" was actually state interference.
+- **Visibility Dependencies**: useEffect dependencies on `isVisible` can cause unexpected re-renders.
+- **Alt-Tab Behavior**: Window focus changes can trigger React effects and reset application state.
+- **Documentation Management**: Consolidating documentation reduces maintenance overhead and improves discoverability.
+- **Database Consistency**: Regular data consistency checks prevent production issues.
