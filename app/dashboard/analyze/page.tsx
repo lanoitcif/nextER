@@ -139,11 +139,13 @@ export default function AnalyzePage() {
 
   useEffect(() => {
     if (user) {
+      // Load preferences first, then fetch data to avoid provider conflicts
+      loadUserPreferences()
       fetchCompanies()
       fetchUserApiKeys()
     }
     // Fixed: Removed isVisible dependency to prevent refetch on alt-tab
-    // This was causing dropdown state to reset when users alt-tab and return
+    // Combined user-dependent effects to prevent race conditions
   }, [user])
 
   // Set default model when provider changes
@@ -163,13 +165,6 @@ export default function AnalyzePage() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
-  // Load user preferences on mount
-  useEffect(() => {
-    if (user) {
-      loadUserPreferences()
-    }
-  }, [user])
 
 
   const loadUserPreferences = () => {
@@ -245,7 +240,7 @@ export default function AnalyzePage() {
     // If exact match found, auto-select it and show dropdown so user can see the match
     const exactMatch = filtered.find(c => c.ticker.toLowerCase() === ticker.toLowerCase())
     if (exactMatch) {
-      console.log('Exact match found for', ticker, '- keeping dropdown visible')
+      console.log('🔍 PROGRAMMATIC SELECTION - Exact match found for', ticker, '- keeping dropdown visible')
       setSelectedCompany(exactMatch)
       setTicker(exactMatch.ticker)
       fetchCompanyTypes(exactMatch)
@@ -262,7 +257,8 @@ export default function AnalyzePage() {
   }
 
   const handleCompanySelect = (company: Company) => {
-    console.log('Selected company:', company)
+    debugger; // DEBUGGING: Check if click handler fires
+    console.log('🎯 CLICK HANDLER FIRED - Selected company:', company)
     setSelectedCompany(company)
     setTicker(company.ticker)
     setShowDropdown(false)
@@ -368,9 +364,10 @@ export default function AnalyzePage() {
         const apiKeys = result.apiKeys || []
         setUserApiKeys(apiKeys)
         
-        // Auto-set provider and model from admin-assigned keys
+        // Auto-set provider and model from admin-assigned keys (overrides user preferences)
         const adminAssignedKey = apiKeys.find((key: any) => key.assigned_by_admin)
         if (adminAssignedKey) {
+          console.log('Found admin-assigned key, setting provider:', adminAssignedKey.provider)
           setProvider(adminAssignedKey.provider)
           if (adminAssignedKey.default_model) {
             setSelectedModel(adminAssignedKey.default_model)
