@@ -415,50 +415,62 @@ export default function AnalyzePage() {
         userId: sessionCheck.session?.user?.id
       })
       
+      // Check if supabase client is properly initialized
+      console.log('Supabase client check:', {
+        hasClient: !!supabase,
+        hasFrom: typeof supabase?.from === 'function',
+        hasAuth: !!supabase?.auth
+      })
+      
       console.log('🔍 STARTING company types database query...')
       const startTime = performance.now()
       
-      // Add timeout wrapper to prevent hanging
-      const fetchWithTimeout = (promiseLike: PromiseLike<any>, ms: number) => {
-        return Promise.race([
-          Promise.resolve(promiseLike),
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error(`Query timeout after ${ms}ms`)), ms)
-          )
-        ])
-      }
-      
-      const queryPromise = supabase
+      // Create the query
+      const query = supabase
         .from('company_types')
         .select('id, name, description, system_prompt_template')
         .in('id', allCompanyTypeIds)
         .eq('is_active', true)
       
-      const { data, error } = await fetchWithTimeout(queryPromise, 10000)
+      // Execute with timeout
+      let queryResult
+      const timeoutId = setTimeout(() => {
+        console.error('Company types query timed out after 10 seconds')
+      }, 10000)
+      
+      try {
+        queryResult = await query
+        clearTimeout(timeoutId)
 
-      const queryTime = performance.now() - startTime
-      console.log('🔍 COMPLETED company types query in', queryTime.toFixed(0), 'ms')
-      console.log('Company types query result:', { data, error, queryIds: allCompanyTypeIds })
+        const queryTime = performance.now() - startTime
+        console.log('🔍 COMPLETED company types query in', queryTime.toFixed(0), 'ms')
+        
+        const { data, error } = queryResult
+        console.log('Company types query result:', { data, error, queryIds: allCompanyTypeIds })
 
-      if (error) {
-        console.error('Error fetching company types:', error)
-        console.error('Error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        })
-        // Fallback to default type only
-        const fallbackType = {
-          id: 'general_analysis',
-          name: 'General Analysis',
-          description: 'Default general financial analysis template',
-          system_prompt_template: 'You are a financial analyst providing comprehensive earnings analysis.'
+        if (error) {
+          console.error('Error fetching company types:', error)
+          console.error('Error details:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code
+          })
+          // Fallback to default type only
+          const fallbackType = {
+            id: 'general_analysis',
+            name: 'General Analysis',
+            description: 'Default general financial analysis template',
+            system_prompt_template: 'You are a financial analyst providing comprehensive earnings analysis.'
+          }
+          dispatch({ type: 'SET_AVAILABLE_COMPANY_TYPES', payload: [fallbackType] })
+          dispatch({ type: 'SET_SELECTED_COMPANY_TYPE', payload: fallbackType })
+          dispatch({ type: 'SET_ERROR', payload: '' })
+          return
         }
-        dispatch({ type: 'SET_AVAILABLE_COMPANY_TYPES', payload: [fallbackType] })
-        dispatch({ type: 'SET_SELECTED_COMPANY_TYPE', payload: fallbackType })
-        dispatch({ type: 'SET_ERROR', payload: '' })
-        return
+      } catch (timeoutError) {
+        console.error('Timeout or error in fetchCompanyTypes:', timeoutError)
+        throw timeoutError
       }
 
       console.log('Successfully fetched company types:', data?.length)

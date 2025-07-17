@@ -41,7 +41,8 @@
       "Bash(else echo \"✗ .env.local missing\")",
       "Bash(fi)",
       "Bash(git checkout:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "mcp__fetch__fetch"
     ],
     "deny": []
   },
