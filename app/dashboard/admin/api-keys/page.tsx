@@ -287,7 +287,7 @@ export default function AdminApiKeysPage() {
               <div className="card-content">
                 <form onSubmit={handleAssignKey} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">
+                    <label className="block text-sm font-medium text-cream-glow mb-2">
                       User
                     </label>
                     <select
@@ -306,7 +306,7 @@ export default function AdminApiKeysPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">
+                    <label className="block text-sm font-medium text-cream-glow mb-2">
                       Provider
                     </label>
                     <select
@@ -326,7 +326,7 @@ export default function AdminApiKeysPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">
+                    <label className="block text-sm font-medium text-cream-glow mb-2">
                       Default Model
                     </label>
                     <select
@@ -344,7 +344,7 @@ export default function AdminApiKeysPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">
+                    <label className="block text-sm font-medium text-cream-glow mb-2">
                       API Key
                     </label>
                     <input
@@ -358,7 +358,7 @@ export default function AdminApiKeysPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">
+                    <label className="block text-sm font-medium text-cream-glow mb-2">
                       Nickname (Optional)
                     </label>
                     <input
