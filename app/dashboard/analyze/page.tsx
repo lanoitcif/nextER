@@ -200,31 +200,18 @@ export default function AnalyzePage() {
     try {
       console.log('Fetching companies...')
       setLoadingCompanies(true)
-      
-      // Check authentication state
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-      console.log('Session check:', { 
-        hasSession: !!sessionData.session, 
-        hasUser: !!sessionData.session?.user,
-        sessionError 
-      })
-      
-      const { data, error } = await supabase
-        .from('companies')
-        .select('*')
-        .eq('is_active', true)
-        .order('ticker')
 
-      console.log('Companies fetch result:', { data, error, count: data?.length })
-
-      if (error) {
-        console.error('Error fetching companies:', error)
+      const response = await fetch('/api/companies', { headers: { Accept: 'application/json' } })
+      if (!response.ok) {
+        const err = await response.json()
+        console.error('Error fetching companies:', err)
         setLoadingCompanies(false)
         return
       }
 
-      console.log('Setting companies:', data?.length, 'companies loaded')
-      setCompanies(data || [])
+      const result = await response.json()
+      console.log('Companies fetch result:', { count: result.companies?.length })
+      setCompanies(result.companies || [])
       setLoadingCompanies(false)
     } catch (error) {
       console.error('Error fetching companies:', error)
