@@ -8,6 +8,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Retro CRT Color Palette
+        'cream-glow': '#FAF3E3',
+        'coral': '#F7797D',
+        'sunset-gold': '#F4B860',
+        'teal-mist': '#59C9A5',
+        'fuchsia-buzz': '#D881D4',
+        'grape-static': '#8D8BE0',
+        'charcoal': '#2C2C32',
+        
+        // shadcn/ui CSS variables (keeping for component compatibility)
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

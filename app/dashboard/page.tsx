@@ -99,16 +99,16 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#161616]">
+    <div className="min-h-screen bg-charcoal">
       {/* Header */}
-      <header className="bg-[#1f1f1f] border-b border-[#c2995f]/20">
+      <header className="bg-charcoal border-b border-teal-mist/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-[#c2995f]">
+              <h1 className="text-3xl font-bold text-teal-mist">
                 NEaR
               </h1>
-              <p className="text-sm text-[#a4a4a4] mt-1">
+              <p className="text-sm text-cream-glow/80 mt-1">
                 {profile.full_name || profile.email}
               </p>
             </div>
@@ -116,7 +116,7 @@ export default function DashboardPage() {
               {profile.can_use_owner_key && (
                 <Link
                   href="/dashboard/admin"
-                  className="text-[#a4a4a4] hover:text-white flex items-center space-x-2 px-3 py-2 rounded"
+                  className="text-cream-glow hover:text-sunset-gold flex items-center space-x-2 px-3 py-2 rounded transition-colors"
                 >
                   <Shield className="h-4 w-4" />
                   <span>Admin</span>
@@ -124,7 +124,7 @@ export default function DashboardPage() {
               )}
               <Link
                 href="/dashboard/settings"
-                className="text-[#a4a4a4] hover:text-white flex items-center space-x-2 px-3 py-2 rounded"
+                className="text-cream-glow hover:text-sunset-gold flex items-center space-x-2 px-3 py-2 rounded transition-colors"
               >
                 <Settings className="h-4 w-4" />
                 <span>Settings</span>
@@ -154,10 +154,10 @@ export default function DashboardPage() {
                     </div>
                     <div className="ml-5 w-0 flex-1">
                       <dl>
-                        <dt className="text-sm font-medium text-[#a4a4a4] truncate">
+                        <dt className="text-sm font-medium text-charcoal/70 truncate">
                           Analyses
                         </dt>
-                        <dd className="text-lg font-medium text-white">
+                        <dd className="text-lg font-medium text-charcoal">
                           {stats.totalAnalyses}
                         </dd>
                       </dl>
@@ -174,10 +174,10 @@ export default function DashboardPage() {
                     </div>
                     <div className="ml-5 w-0 flex-1">
                       <dl>
-                        <dt className="text-sm font-medium text-[#a4a4a4] truncate">
+                        <dt className="text-sm font-medium text-charcoal/70 truncate">
                           Tokens Used
                         </dt>
-                        <dd className="text-lg font-medium text-white">
+                        <dd className="text-lg font-medium text-charcoal">
                           {stats.totalTokensUsed.toLocaleString()}
                         </dd>
                       </dl>
@@ -194,10 +194,10 @@ export default function DashboardPage() {
                     </div>
                     <div className="ml-5 w-0 flex-1">
                       <dl>
-                        <dt className="text-sm font-medium text-[#a4a4a4] truncate">
+                        <dt className="text-sm font-medium text-charcoal/70 truncate">
                           Cost
                         </dt>
-                        <dd className="text-lg font-medium text-white">
+                        <dd className="text-lg font-medium text-charcoal">
                           ${stats.totalCostEstimate.toFixed(4)}
                         </dd>
                       </dl>
@@ -217,10 +217,10 @@ export default function DashboardPage() {
                     <FileText className="h-12 w-12 text-blue-600" />
                   </div>
                   <div className="ml-5">
-                    <h3 className="text-lg font-medium text-white">
+                    <h3 className="text-lg font-medium text-charcoal">
                       Analyze
                     </h3>
-                    <p className="text-sm text-[#a4a4a4]">
+                    <p className="text-sm text-charcoal/70">
                       Earnings analysis
                     </p>
                   </div>
@@ -235,10 +235,10 @@ export default function DashboardPage() {
                     <Key className="h-12 w-12 text-green-600" />
                   </div>
                   <div className="ml-5">
-                    <h3 className="text-lg font-medium text-white">
+                    <h3 className="text-lg font-medium text-charcoal">
                       API Keys
                     </h3>
-                    <p className="text-sm text-[#a4a4a4]">
+                    <p className="text-sm text-charcoal/70">
                       Provider keys
                     </p>
                   </div>
@@ -262,20 +262,20 @@ export default function DashboardPage() {
                     <div key={analysis.id} className="flex items-center justify-between py-3 border-b border-[#a4a4a4]/30 last:border-b-0">
                       <div className="flex items-center space-x-3">
                         <div className="flex-shrink-0">
-                          <FileText className="h-5 w-5 text-[#a4a4a4]" />
+                          <FileText className="h-5 w-5 text-cream-glow/70" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-white">
+                          <p className="text-sm font-medium text-cream-glow">
                             {analysis.provider} - {analysis.model}
                           </p>
-                          <p className="text-xs text-[#a4a4a4]">
+                          <p className="text-xs text-cream-glow/70">
                             {new Date(analysis.created_at).toLocaleString()}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
                         {analysis.used_owner_key && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#c2995f]/20 text-[#c2995f]">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sunset-gold/20 text-sunset-gold">
                             Owner Key
                           </span>
                         )}
@@ -296,10 +296,10 @@ export default function DashboardPage() {
                     <div className="w-3 h-3 bg-[#c2995f] rounded-full"></div>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-white">
+                    <p className="text-sm font-medium text-cream-glow">
                       System Access Enabled
                     </p>
-                    <p className="text-xs text-[#a4a4a4]">
+                    <p className="text-xs text-cream-glow/70">
                       Free analysis using system keys
                     </p>
                   </div>

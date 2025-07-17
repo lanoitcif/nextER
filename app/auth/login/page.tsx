@@ -36,16 +36,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#161616] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-charcoal py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-cream-glow">
             Sign In
           </h2>
-          <p className="mt-2 text-center text-sm text-[#a4a4a4]">
+          <p className="mt-2 text-center text-sm text-cream-glow/80">
             <Link
               href="/auth/signup"
-              className="font-medium text-[#c2995f] hover:text-[#c2995f]/80"
+              className="font-medium text-sunset-gold hover:text-coral transition-colors"
             >
               New account
             </Link>
@@ -54,8 +54,8 @@ export default function LoginPage() {
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="rounded-md bg-red-900/20 border border-red-500/30 p-4">
-              <div className="text-sm text-red-400">{error}</div>
+            <div className="rounded-md bg-coral/20 border border-coral/50 p-4">
+              <div className="text-sm text-coral">{error}</div>
             </div>
           )}
           
@@ -70,7 +70,7 @@ export default function LoginPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-[#a4a4a4]/30 placeholder-[#a4a4a4] text-white bg-[#1f1f1f] rounded-t-md focus:outline-none focus:ring-[#c2995f] focus:border-[#c2995f] focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-grape-static bg-cream-glow text-charcoal placeholder-charcoal/60 rounded-t-md focus:outline-none focus:ring-2 focus:ring-coral focus:border-coral focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -86,7 +86,7 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-[#a4a4a4]/30 placeholder-[#a4a4a4] text-white bg-[#1f1f1f] rounded-b-md focus:outline-none focus:ring-[#c2995f] focus:border-[#c2995f] focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-grape-static bg-cream-glow text-charcoal placeholder-charcoal/60 rounded-b-md focus:outline-none focus:ring-2 focus:ring-coral focus:border-coral focus:z-10 sm:text-sm"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -98,7 +98,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-black bg-[#c2995f] hover:bg-[#c2995f]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#c2995f] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-coral hover:bg-fuchsia-buzz transition-all duration-200 hover:scale-105 shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-coral disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>

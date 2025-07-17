@@ -2,9 +2,8 @@
 
 import { useAuth } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useReducer } from 'react'
 import { supabase } from '@/lib/supabase/client'
-import { useIsVisible } from '@/lib/utils/hooks'
 import { Upload, FileText, Send, ArrowLeft, Settings, Key, Download, Copy, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { safeLocalStorage } from '@/lib/utils/localStorage'
@@ -104,34 +103,160 @@ interface UserApiKey {
   nickname: string
 }
 
+// Centralized state management with useReducer
+interface AppState {
+  // Company selection
+  ticker: string
+  selectedCompany: Company | null
+  companies: Company[]
+  filteredCompanies: Company[]
+  showDropdown: boolean
+  loadingCompanies: boolean
+  
+  // Company types
+  availableCompanyTypes: CompanyType[]
+  selectedCompanyType: CompanyType | null
+  
+  // API configuration
+  keySource: 'owner' | 'user_saved' | 'user_temporary'
+  selectedApiKey: string
+  temporaryApiKey: string
+  provider: 'openai' | 'anthropic' | 'google' | 'cohere'
+  selectedModel: string
+  userApiKeys: UserApiKey[]
+  
+  // Analysis state
+  analyzing: boolean
+  result: string
+  error: string
+  analysisMetadata: {
+    model?: string
+    provider?: string
+    usage?: any
+  } | null
+  
+  // UI state
+  viewMode: 'rendered' | 'markdown'
+}
+
+type AppAction = 
+  | { type: 'SET_TICKER'; payload: string }
+  | { type: 'SET_SELECTED_COMPANY'; payload: Company | null }
+  | { type: 'SET_COMPANIES'; payload: Company[] }
+  | { type: 'SET_FILTERED_COMPANIES'; payload: Company[] }
+  | { type: 'SET_SHOW_DROPDOWN'; payload: boolean }
+  | { type: 'SET_LOADING_COMPANIES'; payload: boolean }
+  | { type: 'SET_AVAILABLE_COMPANY_TYPES'; payload: CompanyType[] }
+  | { type: 'SET_SELECTED_COMPANY_TYPE'; payload: CompanyType | null }
+  | { type: 'SET_KEY_SOURCE'; payload: 'owner' | 'user_saved' | 'user_temporary' }
+  | { type: 'SET_SELECTED_API_KEY'; payload: string }
+  | { type: 'SET_TEMPORARY_API_KEY'; payload: string }
+  | { type: 'SET_PROVIDER'; payload: 'openai' | 'anthropic' | 'google' | 'cohere' }
+  | { type: 'SET_SELECTED_MODEL'; payload: string }
+  | { type: 'SET_USER_API_KEYS'; payload: UserApiKey[] }
+  | { type: 'SET_ANALYZING'; payload: boolean }
+  | { type: 'SET_RESULT'; payload: string }
+  | { type: 'SET_ERROR'; payload: string }
+  | { type: 'SET_ANALYSIS_METADATA'; payload: any }
+  | { type: 'SET_VIEW_MODE'; payload: 'rendered' | 'markdown' }
+  | { type: 'RESET_COMPANY_SELECTION' }
+  | { type: 'RESET_ANALYSIS' }
+
+const initialState: AppState = {
+  ticker: '',
+  selectedCompany: null,
+  companies: [],
+  filteredCompanies: [],
+  showDropdown: false,
+  loadingCompanies: true,
+  availableCompanyTypes: [],
+  selectedCompanyType: null,
+  keySource: 'owner',
+  selectedApiKey: '',
+  temporaryApiKey: '',
+  provider: 'openai',
+  selectedModel: '',
+  userApiKeys: [],
+  analyzing: false,
+  result: '',
+  error: '',
+  analysisMetadata: null,
+  viewMode: 'rendered'
+}
+
+function appReducer(state: AppState, action: AppAction): AppState {
+  switch (action.type) {
+    case 'SET_TICKER':
+      return { ...state, ticker: action.payload }
+    case 'SET_SELECTED_COMPANY':
+      return { ...state, selectedCompany: action.payload }
+    case 'SET_COMPANIES':
+      return { ...state, companies: action.payload }
+    case 'SET_FILTERED_COMPANIES':
+      return { ...state, filteredCompanies: action.payload }
+    case 'SET_SHOW_DROPDOWN':
+      return { ...state, showDropdown: action.payload }
+    case 'SET_LOADING_COMPANIES':
+      return { ...state, loadingCompanies: action.payload }
+    case 'SET_AVAILABLE_COMPANY_TYPES':
+      console.log('🔄 SET_AVAILABLE_COMPANY_TYPES action:', {
+        previous: state.availableCompanyTypes.length,
+        new: action.payload?.length || 0,
+        payload: action.payload
+      })
+      return { ...state, availableCompanyTypes: action.payload }
+    case 'SET_SELECTED_COMPANY_TYPE':
+      return { ...state, selectedCompanyType: action.payload }
+    case 'SET_KEY_SOURCE':
+      return { ...state, keySource: action.payload }
+    case 'SET_SELECTED_API_KEY':
+      return { ...state, selectedApiKey: action.payload }
+    case 'SET_TEMPORARY_API_KEY':
+      return { ...state, temporaryApiKey: action.payload }
+    case 'SET_PROVIDER':
+      return { ...state, provider: action.payload }
+    case 'SET_SELECTED_MODEL':
+      return { ...state, selectedModel: action.payload }
+    case 'SET_USER_API_KEYS':
+      return { ...state, userApiKeys: action.payload }
+    case 'SET_ANALYZING':
+      return { ...state, analyzing: action.payload }
+    case 'SET_RESULT':
+      return { ...state, result: action.payload }
+    case 'SET_ERROR':
+      return { ...state, error: action.payload }
+    case 'SET_ANALYSIS_METADATA':
+      return { ...state, analysisMetadata: action.payload }
+    case 'SET_VIEW_MODE':
+      return { ...state, viewMode: action.payload }
+    case 'RESET_COMPANY_SELECTION':
+      return {
+        ...state,
+        selectedCompany: null,
+        availableCompanyTypes: [],
+        selectedCompanyType: null,
+        filteredCompanies: [],
+        showDropdown: false,
+        error: ''
+      }
+    case 'RESET_ANALYSIS':
+      return {
+        ...state,
+        result: '',
+        error: '',
+        analysisMetadata: null,
+        analyzing: false
+      }
+    default:
+      return state
+  }
+}
+
 export default function AnalyzePage() {
   const { user, profile, session, loading } = useAuth()
   const router = useRouter()
   const [transcript, setTranscript] = useState('')
-  const [ticker, setTicker] = useState('')
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
-  const [availableCompanyTypes, setAvailableCompanyTypes] = useState<CompanyType[]>([])
-  const [selectedCompanyType, setSelectedCompanyType] = useState<CompanyType | null>(null)
-  const [companies, setCompanies] = useState<Company[]>([])
-  const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([])
-  const [showDropdown, setShowDropdown] = useState(false)
-  const [userApiKeys, setUserApiKeys] = useState<UserApiKey[]>([])
-  const [keySource, setKeySource] = useState<'owner' | 'user_saved' | 'user_temporary'>('owner')
-  const [selectedApiKey, setSelectedApiKey] = useState('')
-  const [temporaryApiKey, setTemporaryApiKey] = useState('')
-  const [provider, setProvider] = useState<'openai' | 'anthropic' | 'google' | 'cohere'>('openai')
-  const [selectedModel, setSelectedModel] = useState('')
-  const [analyzing, setAnalyzing] = useState(false)
-  const [result, setResult] = useState('')
-  const [error, setError] = useState('')
-  const [viewMode, setViewMode] = useState<'rendered' | 'markdown'>('rendered')
-  const [loadingCompanies, setLoadingCompanies] = useState(true)
-  const [analysisMetadata, setAnalysisMetadata] = useState<{
-    model?: string
-    provider?: string
-    usage?: any
-  } | null>(null)
-  const isVisible = useIsVisible()
+  const [state, dispatch] = useReducer(appReducer, initialState)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -140,48 +265,42 @@ export default function AnalyzePage() {
   }, [user, loading, router])
 
   useEffect(() => {
-    if (user && isVisible) {
+    if (user) {
+      // Load preferences first, then fetch data to avoid provider conflicts
+      loadUserPreferences()
       fetchCompanies()
       fetchUserApiKeys()
-    } else if (!isVisible) {
-      // Reset state when the page is not visible
-      setTranscript('')
-      setTicker('')
-      setSelectedCompany(null)
-      setAvailableCompanyTypes([])
-      setSelectedCompanyType(null)
-      setFilteredCompanies([])
-      setShowDropdown(false)
-      setResult('')
-      setError('')
-      setAnalysisMetadata(null)
     }
-  }, [user, isVisible])
+    // Fixed: Removed isVisible dependency to prevent refetch on alt-tab
+    // Combined user-dependent effects to prevent race conditions
+  }, [user])
 
   // Set default model when provider changes
   useEffect(() => {
-    setSelectedModel(DEFAULT_MODELS[provider])
-  }, [provider])
+    dispatch({ type: 'SET_SELECTED_MODEL', payload: DEFAULT_MODELS[state.provider] })
+  }, [state.provider])
+  
+  // Debug: Monitor availableCompanyTypes changes
+  useEffect(() => {
+    console.log('📊 availableCompanyTypes updated:', {
+      length: state.availableCompanyTypes.length,
+      types: state.availableCompanyTypes.map(t => ({ id: t.id, name: t.name })),
+      selectedCompany: state.selectedCompany?.ticker
+    })
+  }, [state.availableCompanyTypes])
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element
       if (!target.closest('.company-dropdown-container')) {
-        setShowDropdown(false)
+        dispatch({ type: 'SET_SHOW_DROPDOWN', payload: false })
       }
     }
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
-  // Load user preferences on mount
-  useEffect(() => {
-    if (user) {
-      loadUserPreferences()
-    }
-  }, [user])
 
 
   const loadUserPreferences = () => {
@@ -190,233 +309,218 @@ export default function AnalyzePage() {
       defaultModels?: Record<string, string>;
     }>(`user-preferences-${user?.id}`, null)
     if (preferences) {
-      setProvider(preferences.defaultProvider || 'openai')
       const defaultProvider = preferences.defaultProvider || 'openai'
-      setSelectedModel(preferences.defaultModels?.[defaultProvider] || DEFAULT_MODELS[defaultProvider as keyof typeof DEFAULT_MODELS])
+      dispatch({ type: 'SET_PROVIDER', payload: defaultProvider })
+      dispatch({ 
+        type: 'SET_SELECTED_MODEL', 
+        payload: preferences.defaultModels?.[defaultProvider] || DEFAULT_MODELS[defaultProvider as keyof typeof DEFAULT_MODELS]
+      })
     }
   }
 
   const fetchCompanies = async () => {
     try {
       console.log('Fetching companies...')
-      setLoadingCompanies(true)
+      dispatch({ type: 'SET_LOADING_COMPANIES', payload: true })
 
       const response = await fetch('/api/companies', { headers: { Accept: 'application/json' } })
       if (!response.ok) {
         const err = await response.json()
         console.error('Error fetching companies:', err)
-        setLoadingCompanies(false)
+        dispatch({ type: 'SET_LOADING_COMPANIES', payload: false })
         return
       }
 
       const result = await response.json()
       console.log('Companies fetch result:', { count: result.companies?.length })
-      setCompanies(result.companies || [])
-      setLoadingCompanies(false)
+      dispatch({ type: 'SET_COMPANIES', payload: result.companies || [] })
+      dispatch({ type: 'SET_LOADING_COMPANIES', payload: false })
     } catch (error) {
       console.error('Error fetching companies:', error)
-      setLoadingCompanies(false)
+      dispatch({ type: 'SET_LOADING_COMPANIES', payload: false })
     }
   }
 
   const handleTickerSearch = () => {
-    console.log('handleTickerSearch called with ticker:', ticker)
-    console.log('Available companies:', companies.length, companies)
+    console.log('handleTickerSearch called with ticker:', state.ticker)
+    console.log('Available companies:', state.companies.length, state.companies)
     
-    if (!ticker.trim()) {
-      setError('Please enter a ticker symbol')
-      setFilteredCompanies([])
-      setShowDropdown(false)
+    if (!state.ticker.trim()) {
+      dispatch({ type: 'SET_ERROR', payload: 'Please enter a ticker symbol' })
+      dispatch({ type: 'SET_FILTERED_COMPANIES', payload: [] })
+      dispatch({ type: 'SET_SHOW_DROPDOWN', payload: false })
       return
     }
 
     // Filter companies that match the ticker or name
-    const filtered = companies.filter(c => 
-      c.ticker.toLowerCase().includes(ticker.toLowerCase()) ||
-      c.name.toLowerCase().includes(ticker.toLowerCase())
+    const filtered = state.companies.filter(c => 
+      c.ticker.toLowerCase().includes(state.ticker.toLowerCase()) ||
+      c.name.toLowerCase().includes(state.ticker.toLowerCase())
     )
 
     console.log('Filtered companies:', filtered.length, filtered)
-    setFilteredCompanies(filtered)
-    setShowDropdown(filtered.length > 0)
-    setError('')
+    dispatch({ type: 'SET_FILTERED_COMPANIES', payload: filtered })
+    dispatch({ type: 'SET_SHOW_DROPDOWN', payload: filtered.length > 0 })
+    dispatch({ type: 'SET_ERROR', payload: '' })
 
     // If exact match found, auto-select it and show dropdown so user can see the match
-    const exactMatch = filtered.find(c => c.ticker.toLowerCase() === ticker.toLowerCase())
+    const exactMatch = filtered.find(c => c.ticker.toLowerCase() === state.ticker.toLowerCase())
     if (exactMatch) {
-      console.log('Exact match found for', ticker, '- keeping dropdown visible')
-      setSelectedCompany(exactMatch)
-      setTicker(exactMatch.ticker)
+      console.log('🔍 PROGRAMMATIC SELECTION - Exact match found for', state.ticker, '- keeping dropdown visible')
+      dispatch({ type: 'SET_SELECTED_COMPANY', payload: exactMatch })
+      dispatch({ type: 'SET_TICKER', payload: exactMatch.ticker })
       fetchCompanyTypes(exactMatch)
-      setError('')
+      dispatch({ type: 'SET_ERROR', payload: '' })
       // Explicitly keep dropdown open to show the match was found
-      setShowDropdown(true)
+      dispatch({ type: 'SET_SHOW_DROPDOWN', payload: true })
       console.log('Dropdown state should be visible with', filtered.length, 'companies')
     } else if (filtered.length === 0) {
-      setError(`No companies found matching "${ticker}"`)
-      setSelectedCompany(null)
-      setAvailableCompanyTypes([])
-      setSelectedCompanyType(null)
+      dispatch({ type: 'SET_ERROR', payload: `No companies found matching "${state.ticker}"` })
+      dispatch({ type: 'RESET_COMPANY_SELECTION' })
     }
   }
 
   const handleCompanySelect = (company: Company) => {
-    console.log('Selected company:', company)
-    setSelectedCompany(company)
-    setTicker(company.ticker)
-    setShowDropdown(false)
-    setFilteredCompanies([])
+    console.log('🎯 Company selected:', company)
+    dispatch({ type: 'SET_SELECTED_COMPANY', payload: company })
+    dispatch({ type: 'SET_TICKER', payload: company.ticker }) // Update the input field to the selected ticker
+    dispatch({ type: 'SET_SHOW_DROPDOWN', payload: false })
+    
+    // Now, fetch the company types
     fetchCompanyTypes(company)
-    setError('')
+    dispatch({ type: 'SET_ERROR', payload: '' })
   }
 
   const fetchCompanyTypes = async (company: Company) => {
     try {
+      console.log('Fetching company types for company:', company.ticker)
+      
       // Get all possible company types for this company
       const additionalTypes = Array.isArray(company.additional_company_types) 
         ? company.additional_company_types 
         : []
       const allCompanyTypeIds = [company.primary_company_type_id, ...additionalTypes]
       
-      console.log('=== COMPANY TYPES DEBUG START [v2] ===')
-      console.log('Fetching company types for company:', company)
-      console.log('Company type IDs to fetch:', allCompanyTypeIds)
-      
-      // Check session first - this is critical for RLS policies
-      console.log('🔐 Checking authentication session...')
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-      
-      // Log session state immediately
-      console.log('📋 Session check for company types:', { 
-        hasSession: !!sessionData.session, 
-        sessionError: sessionError ? {
-          name: sessionError.name,
-          message: sessionError.message,
-          status: sessionError.status
-        } : null,
-        userId: sessionData.session?.user?.id,
-        userEmail: sessionData.session?.user?.email,
-        accessToken: sessionData.session?.access_token ? 'present' : 'missing',
-        refreshToken: sessionData.session?.refresh_token ? 'present' : 'missing',
-        expiresAt: sessionData.session?.expires_at,
-        expiresIn: sessionData.session?.expires_in
-      })
-      
-      // Handle session issues
-      if (!sessionData.session || sessionError) {
-        console.error('❌ Session invalid - cannot fetch company types')
-        console.error('💡 User needs to refresh page and re-authenticate')
-        
-        // Try to refresh the session if there's an error
-        if (sessionError) {
-          console.log('🔄 Attempting to refresh session...')
-          try {
-            const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession()
-            if (refreshError) {
-              console.error('❌ Session refresh failed:', refreshError)
-              console.error('💡 User must log out and log back in')
-            } else if (refreshData.session) {
-              console.log('✅ Session refreshed successfully')
-              // Retry the query with refreshed session
-              return fetchCompanyTypes(company)
-            }
-          } catch (refreshException) {
-            console.error('❌ Exception during session refresh:', refreshException)
-          }
-        }
-        
-        setAvailableCompanyTypes([])
-        return
+      // Always include the default general analysis type
+      if (!allCompanyTypeIds.includes('general_analysis')) {
+        allCompanyTypeIds.push('general_analysis')
       }
       
-      console.log('✅ Session verified, starting company types query...')
-      console.log('Query details:', {
-        table: 'company_types',
-        select: 'id, name, description, system_prompt_template',
-        filter_ids: allCompanyTypeIds,
-        filter_active: true,
-        userId: sessionData.session.user.id,
-        userEmail: sessionData.session.user.email
+      console.log('Company type IDs to fetch:', allCompanyTypeIds)
+      
+      // Check current session state
+      const { data: sessionCheck } = await supabase.auth.getSession()
+      console.log('Session check before company types query:', {
+        hasSession: !!sessionCheck.session,
+        hasUser: !!sessionCheck.session?.user,
+        userId: sessionCheck.session?.user?.id
       })
       
-      const queryStartTime = Date.now()
+      // Check if supabase client is properly initialized
+      console.log('Supabase client check:', {
+        hasClient: !!supabase,
+        hasFrom: typeof supabase?.from === 'function',
+        hasAuth: !!supabase?.auth
+      })
       
-      // Create a fresh supabase client with the current session
-      const freshSupabase = supabase
+      console.log('🔍 STARTING company types database query...')
+      const startTime = performance.now()
       
-      const { data, error } = await freshSupabase
+      // Create and execute the query directly without timeout wrapper
+      const { data, error } = await supabase
         .from('company_types')
         .select('id, name, description, system_prompt_template')
         .in('id', allCompanyTypeIds)
         .eq('is_active', true)
       
-      const queryEndTime = Date.now()
-      console.log(`⏱️ Company types query completed in ${queryEndTime - queryStartTime}ms`)
-      console.log('📊 Company types query result:', { 
-        hasData: !!data,
-        dataLength: data?.length,
-        hasError: !!error,
-        errorMessage: error?.message,
-        actualData: data
+      const queryTime = performance.now() - startTime
+      console.log('🔍 COMPLETED company types query in', queryTime.toFixed(0), 'ms')
+      console.log('Company types query result:', { 
+        data, 
+        error, 
+        queryIds: allCompanyTypeIds,
+        dataLength: data?.length || 0,
+        errorMessage: error?.message 
       })
 
       if (error) {
-        console.error('❌ Error fetching company types:', error)
-        console.error('📝 Error details:', {
+        console.error('Error fetching company types:', error)
+        console.error('Error details:', {
           message: error.message,
           details: error.details,
           hint: error.hint,
           code: error.code
         })
-        setAvailableCompanyTypes([])
-        console.log('=== COMPANY TYPES DEBUG END (ERROR) ===')
+        // Fallback to default type only
+        const fallbackType = {
+          id: 'general_analysis',
+          name: 'General Analysis',
+          description: 'Default general financial analysis template',
+          system_prompt_template: 'You are a financial analyst providing comprehensive earnings analysis.'
+        }
+        dispatch({ type: 'SET_AVAILABLE_COMPANY_TYPES', payload: [fallbackType] })
+        dispatch({ type: 'SET_SELECTED_COMPANY_TYPE', payload: fallbackType })
+        dispatch({ type: 'SET_ERROR', payload: 'Using default analysis type due to connection issue.' })
+        
+        // Clear error after 3 seconds
+        setTimeout(() => dispatch({ type: 'SET_ERROR', payload: '' }), 3000)
         return
       }
 
-      if (!data || data.length === 0) {
-        console.warn('⚠️ No company types found for IDs:', allCompanyTypeIds)
-        console.log('🔍 Debugging empty result:')
-        console.log('  1. The company type records do not exist in the database')
-        console.log('  2. The records exist but is_active = false')
-        console.log('  3. RLS policies are blocking access')
-        console.log('  4. Session authentication is invalid')
-        
-        // Test a simple query to verify RLS access
-        console.log('🧪 Testing basic company_types access...')
-        const { data: testData, error: testError } = await freshSupabase
-          .from('company_types')
-          .select('id, name')
-          .limit(1)
-        
-        console.log('🧪 Basic query result:', { testData, testError })
-      } else {
-        console.log('✅ Successfully fetched company types!')
-      }
-
-      console.log('📝 Setting available company types:', data?.length, data)
-      setAvailableCompanyTypes(data || [])
+      console.log('Successfully fetched company types:', data?.length)
+      console.log('Company types data:', data)
       
-      // Auto-select primary company type
+      // Ensure we have valid data before dispatching
+      if (!data || data.length === 0) {
+        console.warn('No company types returned from query, using fallback')
+        const fallbackType = {
+          id: 'general_analysis',
+          name: 'General Analysis',
+          description: 'Default general financial analysis template',
+          system_prompt_template: 'You are a financial analyst providing comprehensive earnings analysis.'
+        }
+        dispatch({ type: 'SET_AVAILABLE_COMPANY_TYPES', payload: [fallbackType] })
+        dispatch({ type: 'SET_SELECTED_COMPANY_TYPE', payload: fallbackType })
+        return
+      }
+      
+      dispatch({ type: 'SET_AVAILABLE_COMPANY_TYPES', payload: data })
+      
+      // Auto-select primary company type, or default to general analysis
       const primaryType = data?.find((ct: CompanyType) => ct.id === company.primary_company_type_id)
-      console.log('🎯 Found primary type:', primaryType)
-      if (primaryType) {
-        setSelectedCompanyType(primaryType)
-        console.log('✅ Auto-selected primary company type:', primaryType.name)
-      } else {
-        console.warn('Primary company type not found in results:', company.primary_company_type_id)
+      const defaultType = data?.find((ct: CompanyType) => ct.id === 'general_analysis')
+      const selectedType = primaryType || defaultType || data?.[0]
+      
+      if (selectedType) {
+        dispatch({ type: 'SET_SELECTED_COMPANY_TYPE', payload: selectedType })
+        console.log('Auto-selected company type:', selectedType.name)
       }
     } catch (error: any) {
-      console.error('❌ Exception in fetchCompanyTypes:', error)
-      console.error('📝 Error stack:', error.stack)
-      console.error('📝 Error details:', {
-        name: error.name,
-        message: error.message,
-        cause: error.cause
-      })
-      setAvailableCompanyTypes([])
-      console.log('=== COMPANY TYPES DEBUG END (EXCEPTION) ===')
-    } finally {
-      console.log('🏁 fetchCompanyTypes completed')
+      console.error('Exception in fetchCompanyTypes:', error)
+      
+      // Provide user-friendly error message
+      let errorMessage = 'Unable to load analysis types. Using default option.'
+      if (error.message?.includes('timeout')) {
+        errorMessage = 'Analysis types loading slowly. Using default option.'
+      } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+        errorMessage = 'Network issue loading analysis types. Using default option.'
+      }
+      
+      // Show user-friendly message (non-blocking)
+      dispatch({ type: 'SET_ERROR', payload: errorMessage })
+      
+      // Always fallback to default type so user can continue
+      const fallbackType = {
+        id: 'general_analysis',
+        name: 'General Analysis',
+        description: 'Default general financial analysis template',
+        system_prompt_template: 'You are a financial analyst providing comprehensive earnings analysis.'
+      }
+      dispatch({ type: 'SET_AVAILABLE_COMPANY_TYPES', payload: [fallbackType] })
+      dispatch({ type: 'SET_SELECTED_COMPANY_TYPE', payload: fallbackType })
+      
+      // Clear error message after 5 seconds
+      setTimeout(() => dispatch({ type: 'SET_ERROR', payload: '' }), 5000)
     }
   }
 
@@ -433,7 +537,20 @@ export default function AnalyzePage() {
 
       if (response.ok) {
         const result = await response.json()
-        setUserApiKeys(result.apiKeys || [])
+        const apiKeys = result.apiKeys || []
+        dispatch({ type: 'SET_USER_API_KEYS', payload: apiKeys })
+        
+        // Auto-set provider and model from admin-assigned keys (overrides user preferences)
+        const adminAssignedKey = apiKeys.find((key: any) => key.assigned_by_admin)
+        if (adminAssignedKey) {
+          console.log('Found admin-assigned key, setting provider:', adminAssignedKey.provider)
+          dispatch({ type: 'SET_PROVIDER', payload: adminAssignedKey.provider })
+          if (adminAssignedKey.default_model) {
+            dispatch({ type: 'SET_SELECTED_MODEL', payload: adminAssignedKey.default_model })
+          }
+          dispatch({ type: 'SET_SELECTED_API_KEY', payload: adminAssignedKey.id })
+          dispatch({ type: 'SET_KEY_SOURCE', payload: 'user_saved' })
+        }
       }
     } catch (error) {
       console.error('Error fetching user API keys:', error)
@@ -442,42 +559,42 @@ export default function AnalyzePage() {
 
   const handleAnalyze = async () => {
     if (!transcript.trim()) {
-      setError('Please enter a transcript')
+      dispatch({ type: 'SET_ERROR', payload: 'Please enter a transcript' })
       return
     }
 
-    if (!selectedCompany) {
-      setError('Please search for and select a company')
+    if (!state.selectedCompany) {
+      dispatch({ type: 'SET_ERROR', payload: 'Please search for and select a company' })
       return
     }
 
-    if (!selectedCompanyType) {
-      setError('Please select an analysis type')
+    if (!state.selectedCompanyType) {
+      dispatch({ type: 'SET_ERROR', payload: 'Please select an analysis type' })
       return
     }
 
-    if (keySource === 'user_saved' && !selectedApiKey) {
-      setError('Please select an API key')
+    if (state.keySource === 'user_saved' && !state.selectedApiKey) {
+      dispatch({ type: 'SET_ERROR', payload: 'Please select an API key' })
       return
     }
 
-    if (keySource === 'user_temporary' && !temporaryApiKey.trim()) {
-      setError('Please enter a temporary API key')
+    if (state.keySource === 'user_temporary' && !state.temporaryApiKey.trim()) {
+      dispatch({ type: 'SET_ERROR', payload: 'Please enter a temporary API key' })
       return
     }
 
-    if (!profile?.can_use_owner_key && keySource === 'owner') {
-      setError('You do not have permission to use owner API keys')
+    if (!profile?.can_use_owner_key && state.keySource === 'owner') {
+      dispatch({ type: 'SET_ERROR', payload: 'You do not have permission to use owner API keys' })
       return
     }
 
     console.log('Starting analysis...')
-    setAnalyzing(true)
-    setError('')
-    setResult('')
+    dispatch({ type: 'SET_ANALYZING', payload: true })
+    dispatch({ type: 'SET_ERROR', payload: '' })
+    dispatch({ type: 'SET_RESULT', payload: '' })
 
     if (!session) {
-      setError('Authentication expired. Please sign in again.')
+      dispatch({ type: 'SET_ERROR', payload: 'Authentication expired. Please sign in again.' })
       router.push('/auth/login')
       return
     }
@@ -485,24 +602,24 @@ export default function AnalyzePage() {
     try {
       const requestBody = {
         transcript,
-        companyId: selectedCompany.id,
-        companyTypeId: selectedCompanyType.id,
-        keySource,
-        provider,
-        model: selectedModel || DEFAULT_MODELS[provider],
-        ...(keySource === 'user_saved' && { userApiKeyId: selectedApiKey }),
-        ...(keySource === 'user_temporary' && { temporaryApiKey })
+        companyId: state.selectedCompany.id,
+        companyTypeId: state.selectedCompanyType.id,
+        keySource: state.keySource,
+        provider: state.provider,
+        model: state.selectedModel || DEFAULT_MODELS[state.provider],
+        ...(state.keySource === 'user_saved' && { userApiKeyId: state.selectedApiKey }),
+        ...(state.keySource === 'user_temporary' && { temporaryApiKey: state.temporaryApiKey })
       }
 
       console.log('Request body prepared:', {
         transcriptLength: transcript.length,
-        company: selectedCompany.ticker,
-        companyType: selectedCompanyType.name,
-        provider,
-        model: selectedModel,
-        keySource,
-        hasCompanyId: !!selectedCompany.id,
-        hasCompanyTypeId: !!selectedCompanyType.id
+        company: state.selectedCompany.ticker,
+        companyType: state.selectedCompanyType.name,
+        provider: state.provider,
+        model: state.selectedModel,
+        keySource: state.keySource,
+        hasCompanyId: !!state.selectedCompany.id,
+        hasCompanyTypeId: !!state.selectedCompanyType.id
       })
 
       console.log('About to send fetch request to /api/analyze...')
@@ -524,28 +641,28 @@ export default function AnalyzePage() {
 
       if (!response.ok) {
         console.error('Analysis failed:', result)
-        setError(result.error || 'Analysis failed')
+        dispatch({ type: 'SET_ERROR', payload: result.error || 'Analysis failed' })
         return
       }
 
       console.log('Analysis successful, setting result')
-      setResult(result.analysis)
-      setAnalysisMetadata({
+      dispatch({ type: 'SET_RESULT', payload: result.analysis })
+      dispatch({ type: 'SET_ANALYSIS_METADATA', payload: {
         model: result.model,
         provider: result.provider,
         usage: result.usage
-      })
+      }})
     } catch (error: any) {
       console.error('Analysis error:', error)
-      setError(error.message || 'An error occurred during analysis')
+      dispatch({ type: 'SET_ERROR', payload: error.message || 'An error occurred during analysis' })
     } finally {
-      setAnalyzing(false)
+      dispatch({ type: 'SET_ANALYZING', payload: false })
     }
   }
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(result)
+      await navigator.clipboard.writeText(state.result)
       // You could add a toast notification here
     } catch (err) {
       console.error('Failed to copy to clipboard:', err)
@@ -553,11 +670,11 @@ export default function AnalyzePage() {
   }
 
   const downloadAsWord = async () => {
-    if (!result) return
+    if (!state.result) return
 
     try {
       // Convert markdown to HTML first
-      const markdownHtml = convertMarkdownToHtml(result)
+      const markdownHtml = convertMarkdownToHtml(state.result)
       
       // Create a blob with Word document format
       const htmlContent = `
@@ -565,7 +682,7 @@ export default function AnalyzePage() {
         <html>
         <head>
           <meta charset="utf-8">
-          <title>Transcript Analysis - ${selectedCompany?.ticker}</title>
+          <title>Transcript Analysis - ${state.selectedCompany?.ticker}</title>
           <style>
             body { 
               font-family: 'Times New Roman', serif; 
@@ -625,17 +742,17 @@ export default function AnalyzePage() {
         <body>
           <div class="header">
             <h1>Transcript Analysis Report</h1>
-            <p><strong>Company:</strong> ${selectedCompany?.ticker} - ${selectedCompany?.name}</p>
-            <p><strong>Analysis Type:</strong> ${selectedCompanyType?.name}</p>
+            <p><strong>Company:</strong> ${state.selectedCompany?.ticker} - ${state.selectedCompany?.name}</p>
+            <p><strong>Analysis Type:</strong> ${state.selectedCompanyType?.name}</p>
             <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
           </div>
           
-          ${analysisMetadata && `
+          ${state.analysisMetadata && `
             <div class="metadata">
               <strong>Analysis Details:</strong><br>
-              Provider: ${analysisMetadata.provider}<br>
-              Model: ${analysisMetadata.model}<br>
-              ${analysisMetadata.usage ? `Tokens Used: ${analysisMetadata.usage.totalTokens?.toLocaleString() || 'N/A'}` : ''}
+              Provider: ${state.analysisMetadata.provider}<br>
+              Model: ${state.analysisMetadata.model}<br>
+              ${state.analysisMetadata.usage ? `Tokens Used: ${state.analysisMetadata.usage.totalTokens?.toLocaleString() || 'N/A'}` : ''}
             </div>
           `}
           
@@ -657,7 +774,7 @@ export default function AnalyzePage() {
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `analysis-${selectedCompany?.ticker}-${new Date().toISOString().split('T')[0]}.doc`
+      link.download = `analysis-${state.selectedCompany?.ticker}-${new Date().toISOString().split('T')[0]}.doc`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -711,9 +828,9 @@ export default function AnalyzePage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-100">
+    <div className="min-h-screen bg-[#161616]">
       {/* Header */}
-      <header className="bg-white shadow">
+      <header className="bg-[#1f1f1f] shadow-lg border-b border-[#a4a4a4]/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
@@ -725,10 +842,10 @@ export default function AnalyzePage() {
                 <span>Back to Dashboard</span>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-white">
                   NEaR Analyze
                 </h1>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-[#a4a4a4] mt-1">
                   AI-powered earnings analysis
                 </p>
               </div>
@@ -754,8 +871,8 @@ export default function AnalyzePage() {
                     value={transcript}
                     onChange={(e) => setTranscript(e.target.value)}
                     placeholder="Paste your transcript here..."
-                    className="w-full h-64 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
-                    disabled={analyzing}
+                    className="textarea w-full h-64"
+                    disabled={state.analyzing}
                   />
                 </div>
               </div>
@@ -770,29 +887,38 @@ export default function AnalyzePage() {
                 <div className="card-content space-y-4">
                   {/* Ticker Input */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Ticker Symbol
                     </label>
                     <div className="relative company-dropdown-container">
                       <div className="flex space-x-2">
                         <input
                           type="text"
-                          value={ticker}
+                          value={state.ticker}
                           onChange={(e) => {
-                            setTicker(e.target.value.toUpperCase())
-                            setShowDropdown(false)
-                            setSelectedCompany(null)
-                            setAvailableCompanyTypes([])
-                            setSelectedCompanyType(null)
+                            const newTicker = e.target.value.toUpperCase()
+                            dispatch({ type: 'SET_TICKER', payload: newTicker })
+                            
+                            if (newTicker.trim() === '') {
+                              dispatch({ type: 'SET_FILTERED_COMPANIES', payload: [] })
+                              dispatch({ type: 'SET_SHOW_DROPDOWN', payload: false })
+                            } else {
+                              const filtered = state.companies.filter(company => 
+                                company.ticker.startsWith(newTicker)
+                              )
+                              dispatch({ type: 'SET_FILTERED_COMPANIES', payload: filtered })
+                              dispatch({ type: 'SET_SHOW_DROPDOWN', payload: true })
+                            }
+                            // DO NOT reset selectedCompany or availableCompanyTypes here
                           }}
                           placeholder="e.g., AAPL, TSLA, MSFT"
-                          className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
-                          disabled={analyzing}
+                          className="input flex-1"
+                          disabled={state.analyzing}
                           onKeyPress={(e) => e.key === 'Enter' && handleTickerSearch()}
                         />
                         <button
                           onClick={handleTickerSearch}
-                          disabled={!ticker.trim() || analyzing}
+                          disabled={!state.ticker.trim() || state.analyzing}
                           className="btn-primary px-4"
                         >
                           Search
@@ -800,16 +926,16 @@ export default function AnalyzePage() {
                       </div>
                       
                       {/* Company Dropdown */}
-                      {showDropdown && filteredCompanies.length > 0 && (
-                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                          {filteredCompanies.map((company) => (
+                      {state.showDropdown && state.filteredCompanies.length > 0 && (
+                        <div className="absolute z-10 w-full mt-1 bg-[#1f1f1f] border border-[#a4a4a4]/30 rounded-md shadow-lg max-h-60 overflow-auto">
+                          {state.filteredCompanies.map((company) => (
                             <button
                               key={company.id}
                               onClick={() => handleCompanySelect(company)}
-                              className="w-full text-left px-4 py-2 hover:bg-blue-50 focus:bg-blue-50 focus:outline-none"
+                              className="w-full text-left px-4 py-2 hover:bg-[#2a2a2a] focus:bg-[#2a2a2a] focus:outline-none"
                             >
-                              <div className="font-medium text-gray-900">{company.ticker}</div>
-                              <div className="text-sm text-gray-600">{company.name}</div>
+                              <div className="font-medium text-white">{company.ticker}</div>
+                              <div className="text-sm text-[#a4a4a4]">{company.name}</div>
                             </button>
                           ))}
                         </div>
@@ -818,52 +944,52 @@ export default function AnalyzePage() {
                   </div>
 
                   {/* Selected Company Display */}
-                  <div className="bg-green-50 border border-green-200 rounded-md p-4">
-                    <h4 className="text-sm font-medium text-green-900 mb-1">
+                  <div className="bg-[#2a3d2a] border border-[#4ade80]/30 rounded-md p-4">
+                    <h4 className="text-sm font-medium text-[#4ade80] mb-1">
                       Selected Company
                     </h4>
-                    <p className="text-sm text-green-700">
-                      {selectedCompany ? (
-                        <><strong>{selectedCompany.ticker}</strong> - {selectedCompany.name}</>
+                    <p className="text-sm text-white">
+                      {state.selectedCompany ? (
+                        <><strong>{state.selectedCompany.ticker}</strong> - {state.selectedCompany.name}</>
                       ) : (
-                        <span className="text-gray-500">No company selected</span>
+                        <span className="text-[#a4a4a4]">No company selected</span>
                       )}
                     </p>
                   </div>
 
                   {/* Analysis Type Selection */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Analysis Type
                     </label>
                     <select
-                      value={selectedCompanyType?.id || ''}
+                      value={state.selectedCompanyType?.id || ''}
                       onChange={(e) => {
-                        const type = availableCompanyTypes.find(ct => ct.id === e.target.value)
-                        setSelectedCompanyType(type || null)
+                        const type = state.availableCompanyTypes.find(ct => ct.id === e.target.value)
+                        dispatch({ type: 'SET_SELECTED_COMPANY_TYPE', payload: type || null })
                       }}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
-                      disabled={analyzing || availableCompanyTypes.length === 0}
+                      className="select w-full"
+                      disabled={state.analyzing || state.availableCompanyTypes.length === 0}
                     >
                       <option value="">
-                        {availableCompanyTypes.length === 0 
+                        {state.availableCompanyTypes.length === 0 
                           ? 'Select a company first...' 
                           : 'Select analysis type...'
                         }
                       </option>
-                      {availableCompanyTypes.map((type) => (
+                      {state.availableCompanyTypes.map((type) => (
                         <option key={type.id} value={type.id}>
                           {type.name}
                         </option>
                       ))}
                     </select>
-                    {selectedCompanyType && (
-                      <p className="text-xs text-gray-600 mt-1">
-                        {selectedCompanyType.description}
+                    {state.selectedCompanyType && (
+                      <p className="text-xs text-charcoal/70 mt-1">
+                        {state.selectedCompanyType.description}
                       </p>
                     )}
-                    {availableCompanyTypes.length === 0 && selectedCompany && (
-                      <p className="text-xs text-red-600 mt-1">
+                    {state.availableCompanyTypes.length === 0 && state.selectedCompany && (
+                      <p className="text-xs text-red-400 mt-1">
                         No analysis types available for this company. Check database configuration.
                       </p>
                     )}
@@ -879,7 +1005,7 @@ export default function AnalyzePage() {
 
                   {/* API Key Source */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       API Key Source
                     </label>
                     <div className="space-y-2">
@@ -889,10 +1015,10 @@ export default function AnalyzePage() {
                             type="radio"
                             name="keySource"
                             value="owner"
-                            checked={keySource === 'owner'}
-                            onChange={(e) => setKeySource(e.target.value as any)}
+                            checked={state.keySource === 'owner'}
+                            onChange={(e) => dispatch({ type: 'SET_KEY_SOURCE', payload: e.target.value as any })}
                             className="mr-2"
-                            disabled={analyzing}
+                            disabled={state.analyzing}
                           />
                           <span className="text-sm">Use system API keys (free)</span>
                         </label>
@@ -903,10 +1029,10 @@ export default function AnalyzePage() {
                           type="radio"
                           name="keySource"
                           value="user_saved"
-                          checked={keySource === 'user_saved'}
-                          onChange={(e) => setKeySource(e.target.value as any)}
+                          checked={state.keySource === 'user_saved'}
+                          onChange={(e) => dispatch({ type: 'SET_KEY_SOURCE', payload: e.target.value as any })}
                           className="mr-2"
-                          disabled={analyzing}
+                          disabled={state.analyzing}
                         />
                         <span className="text-sm">Use saved API key</span>
                       </label>
@@ -916,10 +1042,10 @@ export default function AnalyzePage() {
                           type="radio"
                           name="keySource"
                           value="user_temporary"
-                          checked={keySource === 'user_temporary'}
-                          onChange={(e) => setKeySource(e.target.value as any)}
+                          checked={state.keySource === 'user_temporary'}
+                          onChange={(e) => dispatch({ type: 'SET_KEY_SOURCE', payload: e.target.value as any })}
                           className="mr-2"
-                          disabled={analyzing}
+                          disabled={state.analyzing}
                         />
                         <span className="text-sm">Use temporary API key</span>
                       </label>
@@ -928,70 +1054,70 @@ export default function AnalyzePage() {
 
                   {/* Provider Selection */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       LLM Provider
                     </label>
                     <select
-                      value={provider}
-                      onChange={(e) => setProvider(e.target.value as any)}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
-                      disabled={analyzing}
+                      value={state.provider}
+                      onChange={(e) => dispatch({ type: 'SET_PROVIDER', payload: e.target.value as any })}
+                      className="w-full p-2 border border-grape-static rounded-md bg-cream-glow text-charcoal focus:ring-2 focus:ring-coral focus:border-coral"
+                      disabled={state.analyzing}
                     >
-                      <option value="openai">OpenAI</option>
-                      <option value="anthropic">Anthropic</option>
-                      <option value="google">Google</option>
-                      <option value="cohere">Cohere</option>
+                      <option value="openai" className="bg-[#1f1f1f] text-white">OpenAI</option>
+                      <option value="anthropic" className="bg-[#1f1f1f] text-white">Anthropic</option>
+                      <option value="google" className="bg-[#1f1f1f] text-white">Google</option>
+                      <option value="cohere" className="bg-[#1f1f1f] text-white">Cohere</option>
                     </select>
                   </div>
 
                   {/* Model Selection */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       Model
                     </label>
                     <select
-                      value={selectedModel}
-                      onChange={(e) => setSelectedModel(e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
-                      disabled={analyzing}
+                      value={state.selectedModel}
+                      onChange={(e) => dispatch({ type: 'SET_SELECTED_MODEL', payload: e.target.value })}
+                      className="w-full p-2 border border-grape-static rounded-md bg-cream-glow text-charcoal focus:ring-2 focus:ring-coral focus:border-coral"
+                      disabled={state.analyzing}
                     >
-                      {PROVIDER_MODELS[provider].map((model) => (
-                        <option key={model} value={model}>
+                      {PROVIDER_MODELS[state.provider].map((model) => (
+                        <option key={model} value={model} className="bg-[#1f1f1f] text-white">
                           {model}
                         </option>
                       ))}
                     </select>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Default: {DEFAULT_MODELS[provider]}
+                    <p className="text-xs text-[#a4a4a4] mt-1">
+                      Default: {DEFAULT_MODELS[state.provider]}
                     </p>
                   </div>
 
                   {/* Saved API Key Selection */}
-                  {keySource === 'user_saved' && (
+                  {state.keySource === 'user_saved' && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-white mb-2">
                         Saved API Key
                       </label>
-                      {userApiKeys.filter(key => key.provider === provider).length > 0 ? (
+                      {state.userApiKeys.filter(key => key.provider === state.provider).length > 0 ? (
                         <select
-                          value={selectedApiKey}
-                          onChange={(e) => setSelectedApiKey(e.target.value)}
-                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
-                          disabled={analyzing}
+                          value={state.selectedApiKey}
+                          onChange={(e) => dispatch({ type: 'SET_SELECTED_API_KEY', payload: e.target.value })}
+                          className="w-full p-2 border border-grape-static rounded-md bg-cream-glow text-charcoal focus:ring-2 focus:ring-coral focus:border-coral"
+                          disabled={state.analyzing}
                         >
-                          <option value="">Select an API key</option>
-                          {userApiKeys
-                            .filter(key => key.provider === provider)
+                          <option value="" className="bg-cream-glow text-charcoal">Select an API key</option>
+                          {state.userApiKeys
+                            .filter(key => key.provider === state.provider)
                             .map((key) => (
-                              <option key={key.id} value={key.id}>
+                              <option key={key.id} value={key.id} className="bg-[#1f1f1f] text-white">
                                 {key.nickname || `${key.provider} key`}
                               </option>
                             ))}
                         </select>
                       ) : (
-                        <div className="text-sm text-gray-600">
-                          No saved {provider} API keys found.{' '}
-                          <Link href="/dashboard/api-keys" className="text-blue-600 hover:underline">
+                        <div className="text-sm text-[#a4a4a4]">
+                          No saved {state.provider} API keys found.{' '}
+                          <Link href="/dashboard/api-keys" className="text-[#c2995f] hover:underline">
                             Add one here
                           </Link>
                         </div>
@@ -1000,20 +1126,20 @@ export default function AnalyzePage() {
                   )}
 
                   {/* Temporary API Key Input */}
-                  {keySource === 'user_temporary' && (
+                  {state.keySource === 'user_temporary' && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-white mb-2">
                         Temporary API Key
                       </label>
                       <input
                         type="password"
-                        value={temporaryApiKey}
-                        onChange={(e) => setTemporaryApiKey(e.target.value)}
-                        placeholder={`Enter your ${provider} API key`}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
-                        disabled={analyzing}
+                        value={state.temporaryApiKey}
+                        onChange={(e) => dispatch({ type: 'SET_TEMPORARY_API_KEY', payload: e.target.value })}
+                        placeholder={`Enter your ${state.provider} API key`}
+                        className="input w-full"
+                        disabled={state.analyzing}
                       />
-                      <p className="text-xs text-gray-600 mt-1">
+                      <p className="text-xs text-charcoal/70 mt-1">
                         This key will not be saved
                       </p>
                     </div>
@@ -1022,10 +1148,10 @@ export default function AnalyzePage() {
                   {/* Analyze Button */}
                   <button
                     onClick={handleAnalyze}
-                    disabled={analyzing || !transcript.trim() || !selectedCompany || !selectedCompanyType}
+                    disabled={state.analyzing || !transcript.trim() || !state.selectedCompany || !state.selectedCompanyType}
                     className="w-full btn-primary flex items-center justify-center space-x-2"
                   >
-                    {analyzing ? (
+                    {state.analyzing ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                         <span>Analyzing...</span>
@@ -1051,13 +1177,13 @@ export default function AnalyzePage() {
                       AI analysis results will appear here
                     </p>
                   </div>
-                  {result && (
+                  {state.result && (
                     <div className="flex items-center space-x-2">
                       <div className="flex items-center border rounded-lg">
                         <button
-                          onClick={() => setViewMode('rendered')}
+                          onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: 'rendered' })}
                           className={`px-3 py-1 text-sm rounded-l-lg ${
-                            viewMode === 'rendered' 
+                            state.viewMode === 'rendered' 
                               ? 'bg-blue-600 text-white' 
                               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                           }`}
@@ -1066,9 +1192,9 @@ export default function AnalyzePage() {
                           Formatted
                         </button>
                         <button
-                          onClick={() => setViewMode('markdown')}
+                          onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: 'markdown' })}
                           className={`px-3 py-1 text-sm rounded-r-lg ${
-                            viewMode === 'markdown' 
+                            state.viewMode === 'markdown' 
                               ? 'bg-blue-600 text-white' 
                               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                           }`}
@@ -1096,38 +1222,38 @@ export default function AnalyzePage() {
                     </div>
                   )}
                 </div>
-                {analysisMetadata && (
-                  <div className="mt-2 text-xs text-gray-600 bg-gray-50 px-3 py-2 rounded-md">
-                    <strong>Analysis Details:</strong> {analysisMetadata.provider} • {analysisMetadata.model}
-                    {analysisMetadata.usage?.totalTokens && (
-                      <> • {analysisMetadata.usage.totalTokens.toLocaleString()} tokens</>
+                {state.analysisMetadata && (
+                  <div className="mt-2 text-xs text-[#a4a4a4] bg-[#1f1f1f] px-3 py-2 rounded-md border border-[#a4a4a4]/20">
+                    <strong>Analysis Details:</strong> {state.analysisMetadata.provider} • {state.analysisMetadata.model}
+                    {state.analysisMetadata.usage?.totalTokens && (
+                      <> • {state.analysisMetadata.usage.totalTokens.toLocaleString()} tokens</>
                     )}
                   </div>
                 )}
               </div>
               <div className="card-content">
-                {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
-                    <div className="text-sm text-red-700">{error}</div>
+                {state.error && (
+                  <div className="bg-red-900/20 border border-red-500/30 rounded-md p-4 mb-4">
+                    <div className="text-sm text-red-400">{state.error}</div>
                   </div>
                 )}
                 
-                {result ? (
+                {state.result ? (
                   <div className="max-w-none">
-                    {viewMode === 'rendered' ? (
+                    {state.viewMode === 'rendered' ? (
                       <div 
-                        className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-ul:text-gray-700"
-                        dangerouslySetInnerHTML={{ __html: renderMarkdown(result) }}
+                        className="prose prose-sm max-w-none prose-headings:text-white prose-p:text-[#a4a4a4] prose-strong:text-white prose-ul:text-[#a4a4a4] prose-li:text-[#a4a4a4] prose-code:text-[#c2995f] prose-code:bg-[#1f1f1f]"
+                        dangerouslySetInnerHTML={{ __html: renderMarkdown(state.result) }}
                       />
                     ) : (
-                      <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded-md border font-mono">
-                        {result}
+                      <pre className="whitespace-pre-wrap text-sm bg-[#1f1f1f] text-[#a4a4a4] p-4 rounded-md border border-[#a4a4a4]/30 font-mono">
+                        {state.result}
                       </pre>
                     )}
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-gray-500">
-                    <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <div className="text-center py-12 text-[#a4a4a4]">
+                    <FileText className="mx-auto h-12 w-12 text-[#a4a4a4]/60 mb-4" />
                     <p>Analysis results will appear here after processing</p>
                   </div>
                 )}

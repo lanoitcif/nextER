@@ -4,48 +4,50 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    /* Retro CRT Color Palette */
+    --background: 44 50% 94%;        /* Cream Pixel Glow */
+    --foreground: 240 6% 19%;        /* Shadow Grid Charcoal */
+    --card: 44 50% 94%;              /* Cream Pixel Glow */
+    --card-foreground: 240 6% 19%;   /* Shadow Grid Charcoal */
+    --popover: 44 50% 94%;           /* Cream Pixel Glow */
+    --popover-foreground: 240 6% 19%; /* Shadow Grid Charcoal */
+    --primary: 42 85% 67%;           /* Retro Sunset Gold */
+    --primary-foreground: 240 6% 19%; /* Shadow Grid Charcoal */
+    --secondary: 158 51% 58%;        /* Pacific Teal Mist */
+    --secondary-foreground: 240 6% 19%; /* Shadow Grid Charcoal */
+    --muted: 44 50% 94%;             /* Cream Pixel Glow */
+    --muted-foreground: 240 6% 19%;   /* Shadow Grid Charcoal */
+    --accent: 302 57% 68%;           /* Pastel Fuchsia Buzz */
+    --accent-foreground: 240 6% 19%; /* Shadow Grid Charcoal */
+    --destructive: 358 85% 72%;      /* Sunbleached Coral */
+    --destructive-foreground: 44 50% 94%; /* Cream Pixel Glow */
+    --border: 240 6% 19%;            /* Shadow Grid Charcoal */
+    --input: 44 50% 94%;             /* Cream Pixel Glow */
+    --ring: 242 59% 69%;             /* Cool Grape Static */
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
+    /* Dark mode using same retro palette but inverted */
+    --background: 240 6% 19%;        /* Shadow Grid Charcoal */
+    --foreground: 44 50% 94%;        /* Cream Pixel Glow */
+    --card: 240 6% 19%;              /* Shadow Grid Charcoal */
+    --card-foreground: 44 50% 94%;   /* Cream Pixel Glow */
+    --popover: 240 6% 19%;           /* Shadow Grid Charcoal */
+    --popover-foreground: 44 50% 94%; /* Cream Pixel Glow */
+    --primary: 42 85% 67%;           /* Retro Sunset Gold */
+    --primary-foreground: 240 6% 19%; /* Shadow Grid Charcoal */
+    --secondary: 158 51% 58%;        /* Pacific Teal Mist */
+    --secondary-foreground: 240 6% 19%; /* Shadow Grid Charcoal */
+    --muted: 240 6% 19%;             /* Shadow Grid Charcoal */
+    --muted-foreground: 44 50% 94%;   /* Cream Pixel Glow */
+    --accent: 302 57% 68%;           /* Pastel Fuchsia Buzz */
+    --accent-foreground: 240 6% 19%; /* Shadow Grid Charcoal */
+    --destructive: 358 85% 72%;      /* Sunbleached Coral */
+    --destructive-foreground: 44 50% 94%; /* Cream Pixel Glow */
+    --border: 44 50% 94%;            /* Cream Pixel Glow */
+    --input: 240 6% 19%;             /* Shadow Grid Charcoal */
+    --ring: 242 59% 69%;             /* Cool Grape Static */
   }
 }
 
@@ -60,39 +62,39 @@
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-all duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
 
   .btn-primary {
-    @apply btn bg-[#c2995f] text-black hover:bg-[#c2995f]/90 h-10 px-4 py-2;
+    @apply btn bg-coral text-white hover:bg-fuchsia-buzz shadow-lg h-10 px-4 py-2;
   }
 
   .btn-secondary {
-    @apply btn bg-[#1f1f1f] text-[#a4a4a4] hover:bg-[#1f1f1f]/80 border border-[#a4a4a4]/30 h-10 px-4 py-2;
+    @apply btn bg-teal-mist text-white hover:bg-grape-static shadow-lg h-10 px-4 py-2;
   }
 
   .btn-destructive {
-    @apply btn bg-red-600 text-white hover:bg-red-700 h-10 px-4 py-2;
+    @apply btn bg-coral text-white hover:bg-coral/90 shadow-lg h-10 px-4 py-2;
   }
 
   .btn-outline {
-    @apply btn border border-[#a4a4a4]/30 bg-transparent text-[#a4a4a4] hover:bg-[#1f1f1f] hover:text-white h-10 px-4 py-2;
+    @apply btn border border-grape-static bg-transparent text-charcoal hover:bg-grape-static hover:text-cream-glow h-10 px-4 py-2;
   }
 
   .btn-ghost {
-    @apply btn hover:bg-[#1f1f1f] hover:text-white text-[#a4a4a4] h-10 px-4 py-2;
+    @apply btn hover:bg-grape-static/20 hover:text-charcoal text-charcoal h-10 px-4 py-2;
   }
 
   .input {
-    @apply flex h-10 w-full rounded-md border border-[#a4a4a4]/30 bg-[#1f1f1f] text-white px-3 py-2 text-sm placeholder:text-[#a4a4a4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c2995f] focus-visible:border-[#c2995f] disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex h-10 w-full rounded-md border border-grape-static bg-cream-glow text-charcoal px-3 py-2 text-sm placeholder:text-charcoal/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral focus-visible:border-coral disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .textarea {
-    @apply flex min-h-[80px] w-full rounded-md border border-[#a4a4a4]/30 bg-[#1f1f1f] text-white px-3 py-2 text-sm placeholder:text-[#a4a4a4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c2995f] focus-visible:border-[#c2995f] disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex min-h-[80px] w-full rounded-md border border-grape-static bg-cream-glow text-charcoal px-3 py-2 text-sm placeholder:text-charcoal/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral focus-visible:border-coral disabled:cursor-not-allowed disabled:opacity-50 resize-y;
   }
 
   .card {
-    @apply rounded-lg border border-[#a4a4a4]/20 bg-[#1f1f1f] text-white shadow-sm;
+    @apply rounded-lg border border-charcoal bg-cream-glow text-charcoal shadow-lg;
   }
 
   .card-header {
@@ -100,11 +102,11 @@
   }
 
   .card-title {
-    @apply text-2xl font-semibold leading-none tracking-tight text-white;
+    @apply text-2xl font-semibold leading-none tracking-tight text-charcoal;
   }
 
   .card-description {
-    @apply text-sm text-[#a4a4a4];
+    @apply text-sm text-charcoal/70;
   }
 
   .card-content {
@@ -113,5 +115,29 @@
 
   .card-footer {
     @apply flex items-center p-6 pt-0;
+  }
+
+  /* Custom scrollbar styling */
+  .scrollbar-retro {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.teal-mist') theme('colors.charcoal');
+  }
+  
+  .scrollbar-retro::-webkit-scrollbar {
+    width: 12px;
+  }
+  
+  .scrollbar-retro::-webkit-scrollbar-track {
+    background: theme('colors.charcoal');
+    border-radius: 6px;
+  }
+  
+  .scrollbar-retro::-webkit-scrollbar-thumb {
+    background: theme('colors.teal-mist');
+    border-radius: 6px;
+  }
+  
+  .scrollbar-retro::-webkit-scrollbar-thumb:hover {
+    background: theme('colors.coral');
   }
 }

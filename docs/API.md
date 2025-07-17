@@ -392,26 +392,35 @@ ORDER BY category, display_name;
 
 ## LLM Providers & Models
 
-### OpenAI
-- `gpt-4o` (default)
-- `gpt-4o-mini`
-- `gpt-4-turbo`
-- `gpt-3.5-turbo`
+### OpenAI (Updated 2025)
+- `gpt-4.1-mini` (default)
+- `gpt-4.1`
+- `gpt-4.1-nano`
+- `o3`, `o3-pro`
+- `o4-mini`, `o4-mini-high`
+- `gpt-4o`, `gpt-4o-mini`, `gpt-4o-audio`
+- `gpt-4-turbo`, `gpt-4`, `gpt-3.5-turbo`
 
-### Anthropic
-- `claude-3-5-sonnet-20241022` (default)
-- `claude-3-haiku-20240307`
-- `claude-3-opus-20240229`
+### Anthropic (Updated 2025)
+- `claude-4-sonnet` (default)
+- `claude-4-opus`
+- `claude-3.7-sonnet`
+- `claude-3-5-sonnet-20241022`
+- `claude-3-5-haiku-20241022`
+- `claude-3-opus-20240229`, `claude-3-sonnet-20240229`, `claude-3-haiku-20240307`
 
-### Google
-- `gemini-1.5-pro` (default)
-- `gemini-1.5-flash`
-- `gemini-pro`
+### Google (Updated 2025)
+- `gemini-2.5-flash` (default)
+- `gemini-2.5-pro`
+- `gemini-2.5-flash-lite`
+- `gemini-2.0-flash`, `gemini-2.0-flash-lite`
+- `gemini-1.5-pro`, `gemini-1.5-flash`, `gemini-1.5-flash-8b`
 
-### Cohere
-- `command-r-plus` (default)
-- `command-r`
-- `command`
+### Cohere (Updated 2025)
+- `command-a-03-2025` (default)
+- `command-r-plus-08-2024`
+- `command-r-08-2024`, `command-r7b`
+- `command-r-plus`, `command-r`, `command`
 
 ## Rate Limits
 
