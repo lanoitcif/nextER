@@ -17,8 +17,8 @@ export interface EncryptedData {
  * Encrypts an API key using AES-256-GCM
  */
 export function encryptApiKey(apiKey: string): EncryptedData {
-  const iv = crypto.randomBytes(16)
-  const cipher = crypto.createCipher(ALGORITHM, SECRET_KEY)
+  const iv = crypto.randomBytes(12)
+  const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(SECRET_KEY), iv)
   cipher.setAAD(Buffer.from('api-key'))
   
   let encrypted = cipher.update(apiKey, 'utf8', 'hex')
@@ -37,7 +37,7 @@ export function encryptApiKey(apiKey: string): EncryptedData {
  * Decrypts an API key using AES-256-GCM
  */
 export function decryptApiKey(encryptedData: string, iv: string, authTag: string): string {
-  const decipher = crypto.createDecipher(ALGORITHM, SECRET_KEY)
+  const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(SECRET_KEY), Buffer.from(iv, 'hex'))
   decipher.setAAD(Buffer.from('api-key'))
   decipher.setAuthTag(Buffer.from(authTag, 'hex'))
   
@@ -52,8 +52,8 @@ export function decryptApiKey(encryptedData: string, iv: string, authTag: string
  * Combines encrypted data, IV, and auth tag into a single string
  */
 export function encryptForStorage(apiKey: string): { encrypted: string; iv: string } {
-  const iv = crypto.randomBytes(16)
-  const cipher = crypto.createCipher(ALGORITHM, SECRET_KEY)
+  const iv = crypto.randomBytes(12)
+  const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(SECRET_KEY), iv)
   
   let encrypted = cipher.update(apiKey, 'utf8', 'hex')
   encrypted += cipher.final('hex')
@@ -72,8 +72,8 @@ export function encryptForStorage(apiKey: string): { encrypted: string; iv: stri
  */
 export function decryptFromStorage(encryptedCombined: string, iv: string): string {
   const [encrypted, authTag] = encryptedCombined.split(':')
-  
-  const decipher = crypto.createDecipher(ALGORITHM, SECRET_KEY)
+
+  const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(SECRET_KEY), Buffer.from(iv, 'hex'))
   decipher.setAuthTag(Buffer.from(authTag, 'hex'))
   
   let decrypted = decipher.update(encrypted, 'hex', 'utf8')
