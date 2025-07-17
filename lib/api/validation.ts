@@ -18,7 +18,11 @@ export const addApiKeyRequestSchema = z.object({
   preferredModel: z.string().optional(),
 });
 
-export const updateApiKeyRequestSchema = z.object({
-  nickname: z.string().optional(),
-  preferredModel: z.string().optional(),
-});
+export const updateApiKeyRequestSchema = z
+  .object({
+    nickname: z.string().optional(),
+    preferredModel: z.string().optional(),
+  })
+  .refine((data) => data.nickname !== undefined || data.preferredModel !== undefined, {
+    message: 'At least one field must be provided',
+  });
