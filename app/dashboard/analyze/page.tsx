@@ -199,6 +199,11 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'SET_LOADING_COMPANIES':
       return { ...state, loadingCompanies: action.payload }
     case 'SET_AVAILABLE_COMPANY_TYPES':
+      console.log('🔄 SET_AVAILABLE_COMPANY_TYPES action:', {
+        previous: state.availableCompanyTypes.length,
+        new: action.payload?.length || 0,
+        payload: action.payload
+      })
       return { ...state, availableCompanyTypes: action.payload }
     case 'SET_SELECTED_COMPANY_TYPE':
       return { ...state, selectedCompanyType: action.payload }
@@ -274,6 +279,15 @@ export default function AnalyzePage() {
   useEffect(() => {
     dispatch({ type: 'SET_SELECTED_MODEL', payload: DEFAULT_MODELS[state.provider] })
   }, [state.provider])
+  
+  // Debug: Monitor availableCompanyTypes changes
+  useEffect(() => {
+    console.log('📊 availableCompanyTypes updated:', {
+      length: state.availableCompanyTypes.length,
+      types: state.availableCompanyTypes.map(t => ({ id: t.id, name: t.name })),
+      selectedCompany: state.selectedCompany?.ticker
+    })
+  }, [state.availableCompanyTypes])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -425,56 +439,65 @@ export default function AnalyzePage() {
       console.log('🔍 STARTING company types database query...')
       const startTime = performance.now()
       
-      // Create the query
-      const query = supabase
+      // Create and execute the query directly without timeout wrapper
+      const { data, error } = await supabase
         .from('company_types')
         .select('id, name, description, system_prompt_template')
         .in('id', allCompanyTypeIds)
         .eq('is_active', true)
       
-      // Execute with timeout
-      let queryResult
-      const timeoutId = setTimeout(() => {
-        console.error('Company types query timed out after 10 seconds')
-      }, 10000)
-      
-      try {
-        queryResult = await query
-        clearTimeout(timeoutId)
+      const queryTime = performance.now() - startTime
+      console.log('🔍 COMPLETED company types query in', queryTime.toFixed(0), 'ms')
+      console.log('Company types query result:', { 
+        data, 
+        error, 
+        queryIds: allCompanyTypeIds,
+        dataLength: data?.length || 0,
+        errorMessage: error?.message 
+      })
 
-        const queryTime = performance.now() - startTime
-        console.log('🔍 COMPLETED company types query in', queryTime.toFixed(0), 'ms')
-        
-        const { data, error } = queryResult
-        console.log('Company types query result:', { data, error, queryIds: allCompanyTypeIds })
-
-        if (error) {
-          console.error('Error fetching company types:', error)
-          console.error('Error details:', {
-            message: error.message,
-            details: error.details,
-            hint: error.hint,
-            code: error.code
-          })
-          // Fallback to default type only
-          const fallbackType = {
-            id: 'general_analysis',
-            name: 'General Analysis',
-            description: 'Default general financial analysis template',
-            system_prompt_template: 'You are a financial analyst providing comprehensive earnings analysis.'
-          }
-          dispatch({ type: 'SET_AVAILABLE_COMPANY_TYPES', payload: [fallbackType] })
-          dispatch({ type: 'SET_SELECTED_COMPANY_TYPE', payload: fallbackType })
-          dispatch({ type: 'SET_ERROR', payload: '' })
-          return
+      if (error) {
+        console.error('Error fetching company types:', error)
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
+        // Fallback to default type only
+        const fallbackType = {
+          id: 'general_analysis',
+          name: 'General Analysis',
+          description: 'Default general financial analysis template',
+          system_prompt_template: 'You are a financial analyst providing comprehensive earnings analysis.'
         }
-      } catch (timeoutError) {
-        console.error('Timeout or error in fetchCompanyTypes:', timeoutError)
-        throw timeoutError
+        dispatch({ type: 'SET_AVAILABLE_COMPANY_TYPES', payload: [fallbackType] })
+        dispatch({ type: 'SET_SELECTED_COMPANY_TYPE', payload: fallbackType })
+        dispatch({ type: 'SET_ERROR', payload: 'Using default analysis type due to connection issue.' })
+        
+        // Clear error after 3 seconds
+        setTimeout(() => dispatch({ type: 'SET_ERROR', payload: '' }), 3000)
+        return
       }
 
       console.log('Successfully fetched company types:', data?.length)
-      dispatch({ type: 'SET_AVAILABLE_COMPANY_TYPES', payload: data || [] })
+      console.log('Company types data:', data)
+      
+      // Ensure we have valid data before dispatching
+      if (!data || data.length === 0) {
+        console.warn('No company types returned from query, using fallback')
+        const fallbackType = {
+          id: 'general_analysis',
+          name: 'General Analysis',
+          description: 'Default general financial analysis template',
+          system_prompt_template: 'You are a financial analyst providing comprehensive earnings analysis.'
+        }
+        dispatch({ type: 'SET_AVAILABLE_COMPANY_TYPES', payload: [fallbackType] })
+        dispatch({ type: 'SET_SELECTED_COMPANY_TYPE', payload: fallbackType })
+        return
+      }
+      
+      dispatch({ type: 'SET_AVAILABLE_COMPANY_TYPES', payload: data })
       
       // Auto-select primary company type, or default to general analysis
       const primaryType = data?.find((ct: CompanyType) => ct.id === company.primary_company_type_id)
@@ -958,17 +981,17 @@ export default function AnalyzePage() {
                         const type = state.availableCompanyTypes.find(ct => ct.id === e.target.value)
                         dispatch({ type: 'SET_SELECTED_COMPANY_TYPE', payload: type || null })
                       }}
-                      className="w-full p-2 border border-grape-static rounded-md bg-cream-glow text-charcoal focus:ring-2 focus:ring-coral focus:border-coral"
+                      className="select w-full"
                       disabled={state.analyzing || state.availableCompanyTypes.length === 0}
                     >
-                      <option value="" className="bg-cream-glow text-charcoal">
+                      <option value="">
                         {state.availableCompanyTypes.length === 0 
                           ? 'Select a company first...' 
                           : 'Select analysis type...'
                         }
                       </option>
                       {state.availableCompanyTypes.map((type) => (
-                        <option key={type.id} value={type.id} className="bg-cream-glow text-charcoal">
+                        <option key={type.id} value={type.id}>
                           {type.name}
                         </option>
                       ))}
