@@ -230,9 +230,9 @@ export default function AdminApiKeysPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#161616]">
+    <div className="min-h-screen bg-charcoal">
       {/* Header */}
-      <header className="bg-[#1f1f1f] shadow-lg border-b border-[#a4a4a4]/20">
+      <header className="bg-charcoal shadow-lg border-b border-teal-mist/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
@@ -244,10 +244,10 @@ export default function AdminApiKeysPage() {
                 <span>Back to Admin</span>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-white">
+                <h1 className="text-2xl font-bold text-cream-glow">
                   API Key Management
                 </h1>
-                <p className="text-sm text-[#a4a4a4] mt-1">
+                <p className="text-sm text-cream-glow/80 mt-1">
                   Assign and manage user API keys
                 </p>
               </div>
@@ -287,18 +287,18 @@ export default function AdminApiKeysPage() {
               <div className="card-content">
                 <form onSubmit={handleAssignKey} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">
+                    <label className="block text-sm font-medium text-charcoal mb-2">
                       User
                     </label>
                     <select
                       value={assignForm.userId}
                       onChange={(e) => setAssignForm(prev => ({ ...prev, userId: e.target.value }))}
-                      className="w-full p-2 border border-[#a4a4a4]/30 rounded-md bg-[#1f1f1f] text-white focus:ring-2 focus:ring-[#c2995f] focus:border-[#c2995f]"
+                      className="w-full p-2 border border-grape-static rounded-md bg-cream-glow text-charcoal focus:ring-2 focus:ring-coral focus:border-coral"
                       required
                     >
-                      <option value="" className="bg-[#1f1f1f] text-white">Select a user</option>
+                      <option value="" className="bg-cream-glow text-charcoal">Select a user</option>
                       {users.map((user) => (
-                        <option key={user.id} value={user.id} className="bg-[#1f1f1f] text-white">
+                        <option key={user.id} value={user.id} className="bg-cream-glow text-charcoal">
                           {user.email} ({user.full_name || 'No name'})
                         </option>
                       ))}
@@ -306,7 +306,7 @@ export default function AdminApiKeysPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">
+                    <label className="block text-sm font-medium text-charcoal mb-2">
                       Provider
                     </label>
                     <select
@@ -315,28 +315,28 @@ export default function AdminApiKeysPage() {
                         ...prev, 
                         provider: e.target.value as AssignKeyForm['provider']
                       }))}
-                      className="w-full p-2 border border-[#a4a4a4]/30 rounded-md bg-[#1f1f1f] text-white focus:ring-2 focus:ring-[#c2995f] focus:border-[#c2995f]"
+                      className="w-full p-2 border border-grape-static rounded-md bg-cream-glow text-charcoal focus:ring-2 focus:ring-coral focus:border-coral"
                       required
                     >
-                      <option value="openai" className="bg-[#1f1f1f] text-white">OpenAI</option>
-                      <option value="anthropic" className="bg-[#1f1f1f] text-white">Anthropic</option>
-                      <option value="google" className="bg-[#1f1f1f] text-white">Google</option>
-                      <option value="cohere" className="bg-[#1f1f1f] text-white">Cohere</option>
+                      <option value="openai" className="bg-cream-glow text-charcoal">OpenAI</option>
+                      <option value="anthropic" className="bg-cream-glow text-charcoal">Anthropic</option>
+                      <option value="google" className="bg-cream-glow text-charcoal">Google</option>
+                      <option value="cohere" className="bg-cream-glow text-charcoal">Cohere</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">
+                    <label className="block text-sm font-medium text-charcoal mb-2">
                       Default Model
                     </label>
                     <select
                       value={assignForm.defaultModel}
                       onChange={(e) => setAssignForm(prev => ({ ...prev, defaultModel: e.target.value }))}
-                      className="w-full p-2 border border-[#a4a4a4]/30 rounded-md bg-[#1f1f1f] text-white focus:ring-2 focus:ring-[#c2995f] focus:border-[#c2995f]"
+                      className="w-full p-2 border border-grape-static rounded-md bg-cream-glow text-charcoal focus:ring-2 focus:ring-coral focus:border-coral"
                       required
                     >
                       {PROVIDER_MODELS[assignForm.provider].map((model) => (
-                        <option key={model} value={model} className="bg-[#1f1f1f] text-white">
+                        <option key={model} value={model} className="bg-cream-glow text-charcoal">
                           {model}
                         </option>
                       ))}
@@ -344,7 +344,7 @@ export default function AdminApiKeysPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">
+                    <label className="block text-sm font-medium text-charcoal mb-2">
                       API Key
                     </label>
                     <input
@@ -358,7 +358,7 @@ export default function AdminApiKeysPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">
+                    <label className="block text-sm font-medium text-charcoal mb-2">
                       Nickname (Optional)
                     </label>
                     <input
@@ -406,7 +406,7 @@ export default function AdminApiKeysPage() {
               {loadingKeys ? (
                 <div className="text-center py-8">Loading API keys...</div>
               ) : userApiKeys.length === 0 ? (
-                <div className="text-center py-8 text-[#a4a4a4]">
+                <div className="text-center py-8 text-charcoal/70">
                   <Key className="mx-auto h-12 w-12 text-[#a4a4a4]/60 mb-4" />
                   <p>No admin-assigned API keys found</p>
                 </div>
