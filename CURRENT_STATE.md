@@ -1,24 +1,24 @@
 # NEaR Platform Current State
 
 ## System Status
-**Last Updated**: 2025-01-17 18:30 UTC  
+**Last Updated**: 2025-01-17 19:15 UTC  
 **Environment**: Vercel Production  
-**Branch**: main (commit: 6ec1a5f)  
-**Deployment Status**: ✅ Live and accessible
+**Branch**: main (commit: e7b7ca5)  
+**Deployment Status**: ✅ Live and accessible with enhanced debugging
 
 ## Active Issues
 
-### ✅ **RESOLVED: Dropdown Selection Issue** 
-- **Location**: `app/dashboard/analyze/page.tsx`
-- **Root Cause**: Browser extension interference (chrome-extension://pejdijmoenmkgeppbflobdenhhabjlaj/)
-- **Solution**: Use incognito/private browsing mode for testing
-- **Status**: No code changes required - environmental issue confirmed
-- **Verification**: Click handlers confirmed working via debugger testing
+### 🔄 **ACTIVE: Database Query Issue in fetchCompanyTypes**
+- **Location**: `app/dashboard/analyze/page.tsx:270`
+- **Root Cause**: Supabase company_types query hanging or failing silently
+- **Symptoms**: Click handlers work, but availableCompanyTypes never populate
+- **Status**: Enhanced debugging deployed (commit e7b7ca5) - testing in progress
+- **Priority**: High - Blocks entire analysis workflow
 
-### ✅ **RESOLVED: Alt-Tab Behavior**
-- **Location**: Same file as above
-- **Status**: Fixed race conditions, removed isVisible dependency
-- **Verification**: Working correctly in clean browser environment
+### ✅ **RESOLVED: Click Handler Issue**
+- **Previous Theory**: Browser extension interference 
+- **Actual Status**: Click handlers confirmed working across multiple browsers
+- **Verification**: Debugger statements prove handleCompanySelect fires correctly
 
 ## Working Features ✅
 
@@ -66,10 +66,12 @@
 4. Company data loading → ✅ Working
 5. LLM analysis execution → ✅ Working
 
-### ✅ **All Paths Working** (in clean browser environment)
-1. Company search → Company selection → ✅ Working
-2. Analysis type dropdown → ✅ Working 
-3. Complete analysis flow → ✅ Working
+### 🔄 **Partially Working Paths**
+1. Company search → ✅ Working
+2. Company selection (click handler) → ✅ Working  
+3. Company types database fetch → ❌ **FAILING** (under investigation)
+4. Analysis type dropdown → ❌ Blocked by #3
+5. Complete analysis flow → ❌ Blocked by #3
 
 ## Database State
 
