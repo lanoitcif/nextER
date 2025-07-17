@@ -22,7 +22,7 @@ describe('/api/user-api-keys/[id]', () => {
     it('should return 401 if the token is invalid', async () => {
       const supabase = {
         auth: {
-          getUser: jest.fn().mockResolvedValue({ error: new Error('Invalid token'), user: null }),
+          getUser: jest.fn().mockResolvedValue({ data: { user: null }, error: new Error('Invalid token') }),
         },
       };
       (createClient as jest.Mock).mockReturnValue(supabase);
@@ -41,7 +41,7 @@ describe('/api/user-api-keys/[id]', () => {
     it('should return 400 if the request body is invalid', async () => {
       const supabase = {
         auth: {
-          getUser: jest.fn().mockResolvedValue({ error: null, user: { id: '123' } }),
+          getUser: jest.fn().mockResolvedValue({ data: { user: { id: '123' } }, error: null }),
         },
       };
       (createClient as jest.Mock).mockReturnValue(supabase);
@@ -51,7 +51,7 @@ describe('/api/user-api-keys/[id]', () => {
         headers: new Headers({
           Authorization: 'Bearer valid-token',
         }),
-        body: JSON.stringify({}),
+        body: JSON.stringify({ nickname: 123 }),
       });
 
       const response = await PUT(request, { params: { id: '123' } });
@@ -73,7 +73,7 @@ describe('/api/user-api-keys/[id]', () => {
     it('should return 401 if the token is invalid', async () => {
       const supabase = {
         auth: {
-          getUser: jest.fn().mockResolvedValue({ error: new Error('Invalid token'), user: null }),
+          getUser: jest.fn().mockResolvedValue({ data: { user: null }, error: new Error('Invalid token') }),
         },
       };
       (createClient as jest.Mock).mockReturnValue(supabase);
