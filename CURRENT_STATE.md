@@ -12,8 +12,8 @@
 ### 🔄 **NEW: API Key Storage Encryption Issue**
 - **Root Cause**: Deprecated `crypto.createCipher()` causing storage failures
 - **Solution**: Codex implemented secure encryption fix
-- **Status**: Ready for review and testing
-- **Priority**: High - Security critical, affects user workflow
+- **Status**: Implementation complete, but automated tests are failing.
+- **Priority**: High - Security critical, but blocked by testing issues.
 - **Branch**: `codex/review-user-settings-page-for-api-keys`
 
 ### 🎉 **RESOLVED: Dropdown Selection Issue**

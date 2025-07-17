@@ -5,6 +5,38 @@ This document tracks major architectural and implementation decisions with ratio
 
 ---
 
+## 2025-07-17: API Test Suite Refactoring
+
+### Decision: Refactor API tests to use mocked Supabase client
+**Context**: After implementing the API key encryption fix, the existing Jest tests began to fail due to environment and scope issues. The tests were trying to make real network requests.
+**Options Considered**:
+1.  Skip the tests and debug in production.
+2.  Set up a dedicated test database.
+3.  Refactor the tests and application code to use dependency injection and mocking.
+
+**Chosen**: #3 - Refactor tests and code for mocking.
+**Rationale**:
+-   Running tests against a real database is slow and brittle.
+-   Mocking allows for fast, deterministic, and isolated unit tests for the API routes.
+-   This approach improves the overall quality and maintainability of the codebase.
+
+**Implementation**:
+1.  Modified `lib/supabase/server.ts` to accept a `cookieStore` object, decoupling it from `next/headers`.
+2.  Updated all API routes to pass the `cookies()` object to the `createClient` function.
+3.  Created a `.env.test` file to provide necessary environment variables for the test runner.
+4.  Added a global mock for `next/headers` in `jest.setup.js` to prevent errors in the test environment.
+5.  Rewrote the failing API test suites (`/api/analyze`, `/api/user-api-keys`, and `/api/user-api-keys/[id]`) to use `jest.mock` to provide a mocked Supabase client instance.
+6.  Iteratively debugged the mocks to handle different test cases (e.g., valid user, invalid token).
+
+**Outcome**: 🚧 **In Progress** - The tests are still not passing, but the underlying architecture is now much more testable. The remaining issues are with the mock implementations themselves, not the application code. This is a better state to be in.
+**Lessons Learned**:
+-   Code that relies on global functions or specific request contexts (like `next/headers`) is difficult to test.
+-   Dependency injection (passing the `cookieStore` as an argument) is a powerful pattern for improving testability.
+-   Complex mocks require careful setup to cover all code paths.
+**Future Considerations**: The current test failures indicate the mocks need to be more robust. The next developer (Codex) should focus on refining the mocks in the test files to correctly simulate the behavior of the Supabase client for each test case.
+
+---
+
 ## 2025-01-17: Dropdown Selection Debugging Strategy
 
 ### Decision: Systematic Debugging with Gemini Collaboration
