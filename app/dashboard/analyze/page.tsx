@@ -266,6 +266,7 @@ export default function AnalyzePage() {
 
   useEffect(() => {
     if (user) {
+      console.log('User object changed, re-fetching data...', user);
       // Load preferences first, then fetch data to avoid provider conflicts
       loadUserPreferences()
       fetchCompanies()
