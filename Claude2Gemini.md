@@ -201,10 +201,14 @@ This document outlines our collaborative debugging and development process for c
 - `Claude2Gemini.md`: Framework/meta documentation
 - Timestamps in content for complex multi-day issues
 
-### Version Control
+### Version Control & Production Deployment 🚨
+- **CRITICAL**: Project runs on **Vercel Production** - no local development
+- **All changes must be committed and pushed to git** for testing
+- **Git commit → Auto-deploy to Vercel → User tests live site**
 - Commit communication files with descriptive messages
 - Include progress markers in commit history
 - Preserve conversation history for future reference
+- **Testing workflow**: Code → Commit → Push → Wait for Vercel deploy → Test live
 
 ## Recovery Procedures
 

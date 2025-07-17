@@ -39,7 +39,9 @@
       "Bash(if [ -f \".env.local\" ])",
       "Bash(then echo \"✓ .env.local exists\")",
       "Bash(else echo \"✗ .env.local missing\")",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)"
     ],
     "deny": []
   },
