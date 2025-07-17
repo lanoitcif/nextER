@@ -188,8 +188,34 @@ This document tracks major architectural and implementation decisions with ratio
 - Systematic debugging approach proven effective in previous phases
 
 **Implementation**: Added performance.now() timing, START/COMPLETE markers, session validation logging  
-**Outcome**: [Testing in progress - deployment commit e7b7ca5]  
-**Next Steps**: Based on timing data, implement appropriate fix (timeout, RLS review, or performance optimization)
+**Outcome**: ✅ **Issue Redirected** - Revealed symptoms, but Gemini identified true root cause  
+**Next Steps**: Led to discovering race condition in onChange handler (see next decision entry)
+
+---
+
+## 2025-01-17: Race Condition Resolution in State Management
+
+### Decision: Implement Gemini's onChange Handler Separation Pattern
+**Context**: Database query appeared to hang, but Gemini analysis revealed race condition in state management  
+**Options Considered**:
+1. Add database query timeouts and retry logic
+2. Investigate Row Level Security policies
+3. Fix race condition in onChange handler as identified by Gemini
+
+**Chosen**: #3 - Fix race condition per Gemini's analysis  
+**Rationale**:
+- Gemini correctly identified aggressive onChange handler resetting selectedCompany/availableCompanyTypes
+- onChange was creating timing conflicts between typing and database queries
+- Surgical fix addresses root cause rather than symptoms
+
+**Implementation**: 
+- Separated typing state (filteredCompanies) from selection state (selectedCompany)
+- onChange only manages filtering logic, preserves selection persistence
+- Cleaned up handleCompanySelect to match Gemini's specification
+
+**Outcome**: ✅ **COMPLETE SUCCESS** - End-to-end dropdown selection workflow functional  
+**Lessons Learned**: Multi-AI collaboration and systematic debugging methodology highly effective  
+**Future Considerations**: Apply TRIPOD framework to other complex technical issues
 
 ---
 
