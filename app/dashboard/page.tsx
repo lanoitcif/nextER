@@ -4,7 +4,6 @@ import { useAuth } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
-import { useIsVisible } from '@/lib/utils/hooks'
 import { LogOut, FileText, Key, Settings, BarChart3, Shield } from 'lucide-react'
 import Link from 'next/link'
 
@@ -26,7 +25,6 @@ export default function DashboardPage() {
   const router = useRouter()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loadingStats, setLoadingStats] = useState(true)
-  const isVisible = useIsVisible()
 
   useEffect(() => {
     if (!loading && !user) {
@@ -35,10 +33,10 @@ export default function DashboardPage() {
   }, [user, loading, router])
 
   useEffect(() => {
-    if (user && isVisible) {
+    if (user) {
       fetchDashboardStats()
     }
-  }, [user, isVisible])
+  }, [user]) // Fixed: Removed isVisible dependency to prevent refetch on alt-tab
 
   const fetchDashboardStats = async () => {
     try {
