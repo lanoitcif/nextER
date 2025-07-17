@@ -183,6 +183,17 @@ export default function AnalyzePage() {
     }
   }, [user])
 
+  // Auto-select primary company type when available types change
+  useEffect(() => {
+    if (selectedCompany && availableCompanyTypes.length > 0 && !selectedCompanyType) {
+      const primaryType = availableCompanyTypes.find(ct => ct.id === selectedCompany.primary_company_type_id)
+      if (primaryType) {
+        console.log('useEffect: Auto-selecting primary type:', primaryType.name)
+        setSelectedCompanyType(primaryType)
+      }
+    }
+  }, [availableCompanyTypes, selectedCompany, selectedCompanyType])
+
 
   const loadUserPreferences = () => {
     const preferences = safeLocalStorage.getItem<{
@@ -245,10 +256,19 @@ export default function AnalyzePage() {
     const exactMatch = filtered.find(c => c.ticker.toLowerCase() === ticker.toLowerCase())
     if (exactMatch) {
       console.log('Exact match found for', ticker, '- keeping dropdown visible')
+      
+      // Clear previous selections
+      setSelectedCompanyType(null)
+      setAvailableCompanyTypes([])
+      
+      // Set new company
       setSelectedCompany(exactMatch)
       setTicker(exactMatch.ticker)
-      fetchCompanyTypes(exactMatch)
       setError('')
+      
+      // Fetch and auto-select analyst types
+      fetchCompanyTypes(exactMatch)
+      
       // Explicitly keep dropdown open to show the match was found
       setShowDropdown(true)
       console.log('Dropdown state should be visible with', filtered.length, 'companies')
@@ -262,12 +282,20 @@ export default function AnalyzePage() {
 
   const handleCompanySelect = (company: Company) => {
     console.log('Selected company:', company)
+    
+    // Clear previous selections
+    setSelectedCompanyType(null)
+    setAvailableCompanyTypes([])
+    
+    // Set new company
     setSelectedCompany(company)
     setTicker(company.ticker)
     setShowDropdown(false)
     setFilteredCompanies([])
-    fetchCompanyTypes(company)
     setError('')
+    
+    // Fetch and auto-select analyst types
+    fetchCompanyTypes(company)
   }
 
   const fetchCompanyTypes = async (company: Company) => {
@@ -301,21 +329,31 @@ export default function AnalyzePage() {
         console.error('Error fetching company types:', error)
         console.error('Error details:', error.message, error.details, error.hint)
         setAvailableCompanyTypes([])
+        setSelectedCompanyType(null)
         return
       }
 
       console.log('Setting available company types:', data?.length, data)
       setAvailableCompanyTypes(data || [])
       
-      // Auto-select primary company type
+      // Auto-select primary company type with a delay to ensure state updates properly
       const primaryType = data?.find((ct: CompanyType) => ct.id === company.primary_company_type_id)
       console.log('Found primary type:', primaryType)
       if (primaryType) {
-        setSelectedCompanyType(primaryType)
+        console.log('Auto-selecting primary company type:', primaryType.name)
+        // Use setTimeout to ensure the state update happens after the component re-renders
+        setTimeout(() => {
+          setSelectedCompanyType(primaryType)
+          console.log('Primary company type selected:', primaryType.name)
+        }, 100)
+      } else {
+        console.warn('No primary company type found for company:', company.ticker)
+        setSelectedCompanyType(null)
       }
     } catch (error: any) {
       console.error('Error fetching company types:', error)
       setAvailableCompanyTypes([])
+      setSelectedCompanyType(null)
     }
   }
 
@@ -734,11 +772,15 @@ export default function AnalyzePage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Analysis Type
+                      {selectedCompanyType && selectedCompany && selectedCompanyType.id === selectedCompany.primary_company_type_id && (
+                        <span className="text-xs text-green-600 ml-2">(Auto-selected)</span>
+                      )}
                     </label>
                     <select
                       value={selectedCompanyType?.id || ''}
                       onChange={(e) => {
                         const type = availableCompanyTypes.find(ct => ct.id === e.target.value)
+                        console.log('Manual analyst selection:', type?.name)
                         setSelectedCompanyType(type || null)
                       }}
                       className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-black"
@@ -753,6 +795,7 @@ export default function AnalyzePage() {
                       {availableCompanyTypes.map((type) => (
                         <option key={type.id} value={type.id}>
                           {type.name}
+                          {selectedCompany && type.id === selectedCompany.primary_company_type_id ? ' (Primary)' : ''}
                         </option>
                       ))}
                     </select>
