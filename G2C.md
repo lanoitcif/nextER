@@ -36,7 +36,7 @@ This can happen for a few reasons in React:
 Yes, absolutely. We need to decouple the **input's state** from the **selection's state**.
 
 *   The `onChange` handler for the text input should **only** be responsible for updating the `ticker` value and the `filteredCompanies` list. It should **not** reset `selectedCompany` or other dependent states.
-*   A dedicated `handleCompanySelect(company)` function should be called **only** when a user explicitly clicks a dropdown item. This function is responsible for setting the `selectedCompany`, hiding the dropdown, and fetching the company types.
+*   A dedicated `handleCompanySelect(company)` function should be called *only* when a user explicitly clicks a dropdown item. This function is responsible for setting the `selectedCompany`, hiding the dropdown, and fetching the company types.
 
 #### 3. Alt-Tab Side Effects: What else could be happening?
 Alt-tabbing triggers `window.blur` and `window.focus` events. If any `useEffect` hooks are sensitive to these events (or if a third-party library is), it can trigger unexpected state updates and re-renders. It can also sometimes cause issues with CSS `:focus` or `:hover` states, which might affect the dropdown's appearance or interactivity.

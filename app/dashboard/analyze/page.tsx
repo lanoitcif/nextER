@@ -257,12 +257,12 @@ export default function AnalyzePage() {
   }
 
   const handleCompanySelect = (company: Company) => {
-    debugger; // DEBUGGING: Check if click handler fires
-    console.log('🎯 CLICK HANDLER FIRED - Selected company:', company)
+    console.log('🎯 Company selected:', company)
     setSelectedCompany(company)
-    setTicker(company.ticker)
+    setTicker(company.ticker) // Update the input field to the selected ticker
     setShowDropdown(false)
-    setFilteredCompanies([])
+    
+    // Now, fetch the company types
     fetchCompanyTypes(company)
     setError('')
   }
@@ -725,11 +725,20 @@ export default function AnalyzePage() {
                           type="text"
                           value={ticker}
                           onChange={(e) => {
-                            setTicker(e.target.value.toUpperCase())
-                            setShowDropdown(false)
-                            setSelectedCompany(null)
-                            setAvailableCompanyTypes([])
-                            setSelectedCompanyType(null)
+                            const newTicker = e.target.value.toUpperCase()
+                            setTicker(newTicker)
+                            
+                            if (newTicker.trim() === '') {
+                              setFilteredCompanies([])
+                              setShowDropdown(false)
+                            } else {
+                              const filtered = companies.filter(company => 
+                                company.ticker.startsWith(newTicker)
+                              )
+                              setFilteredCompanies(filtered)
+                              setShowDropdown(true)
+                            }
+                            // DO NOT reset selectedCompany or availableCompanyTypes here
                           }}
                           placeholder="e.g., AAPL, TSLA, MSFT"
                           className="input flex-1"
