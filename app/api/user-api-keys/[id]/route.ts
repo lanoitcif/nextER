@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { updateApiKeyRequestSchema } from '@/lib/api/validation'
 import { handleError } from '@/lib/api/errors'
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Authentication
-  const supabase = await createClient()
+  const cookieStore = cookies()
+  const supabase = createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return NextResponse.json(
@@ -72,7 +74,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Authentication
-  const supabase = await createClient()
+  const cookieStore = cookies()
+  const supabase = createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return NextResponse.json(

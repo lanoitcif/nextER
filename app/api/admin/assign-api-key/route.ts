@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { encryptForStorage } from '@/lib/crypto'
 
@@ -7,7 +8,8 @@ export async function POST(request: NextRequest) {
   console.log(`[${requestId}] Admin API key assignment request received`)
 
   // Authentication
-  const supabase = await createClient()
+  const cookieStore = cookies()
+  const supabase = createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -128,7 +130,8 @@ export async function DELETE(request: NextRequest) {
   console.log(`[${requestId}] Admin API key deletion request received`)
 
   // Authentication
-  const supabase = await createClient()
+  const cookieStore = cookies()
+  const supabase = createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

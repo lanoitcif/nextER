@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server';
 
 type AuthenticatedHandler = (
@@ -8,7 +9,8 @@ type AuthenticatedHandler = (
 
 export function withAuth(handler: AuthenticatedHandler) {
   return async (request: NextRequest, context: { params?: any } = {}) => {
-    const supabase = await createClient();
+    const cookieStore = cookies()
+    const supabase = createClient(cookieStore);
 
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

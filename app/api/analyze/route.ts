@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { createLLMClient, SUPPORTED_PROVIDERS, type SupportedProvider } from '@/lib/llm/clients'
 import { decryptFromStorage } from '@/lib/crypto'
@@ -14,7 +15,8 @@ export async function POST(request: NextRequest) {
   console.log(`[${requestId}] Analysis request received at ${new Date().toISOString()}`)
   
   // Authentication
-  const supabase = await createClient()
+  const cookieStore = cookies()
+  const supabase = createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   console.log(`[${requestId}] Auth header present:`, !!authHeader)
   
