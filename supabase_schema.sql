@@ -11,7 +11,7 @@ CREATE TABLE public.user_profiles (
   email TEXT NOT NULL,
   full_name TEXT,
   can_use_owner_key BOOLEAN DEFAULT FALSE,
-  role TEXT DEFAULT 'user' NOT NULL,
+  is_admin BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -26,6 +26,10 @@ CREATE TABLE public.user_api_keys (
   nickname TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  assigned_by_admin BOOLEAN DEFAULT FALSE,
+  admin_assigned_at TIMESTAMP WITH TIME ZONE,
+  admin_assigned_by UUID REFERENCES public.user_profiles(id),
+  default_model TEXT,
   UNIQUE(user_id, provider, nickname)
 );
 
@@ -74,7 +78,7 @@ CREATE POLICY "Users can view their own profile" ON public.user_profiles
 CREATE POLICY "Admins can view all profiles" ON public.user_profiles
   FOR SELECT TO authenticated
   USING (
-    (SELECT role FROM public.user_profiles WHERE id = auth.uid()) = 'admin'
+    (SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true
   );
 
 CREATE POLICY "Users can update their own profile" ON public.user_profiles
@@ -83,7 +87,7 @@ CREATE POLICY "Users can update their own profile" ON public.user_profiles
 CREATE POLICY "Admins can update any profile" ON public.user_profiles
   FOR UPDATE TO authenticated
   USING (
-    (SELECT role FROM public.user_profiles WHERE id = auth.uid()) = 'admin'
+    (SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true
   );
 
 CREATE POLICY "Users can insert their own profile" ON public.user_profiles
@@ -95,7 +99,7 @@ CREATE POLICY "Users can delete their own profile" ON public.user_profiles
 CREATE POLICY "Admins can delete any profile" ON public.user_profiles
   FOR DELETE TO authenticated
   USING (
-    (SELECT role FROM public.user_profiles WHERE id = auth.uid()) = 'admin'
+    (SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true
   );
 
 
@@ -106,7 +110,7 @@ CREATE POLICY "Users can manage their own API keys" ON public.user_api_keys
 CREATE POLICY "Admins can manage all API keys" ON public.user_api_keys
   FOR ALL TO authenticated
   USING (
-    (SELECT role FROM public.user_profiles WHERE id = auth.uid()) = 'admin'
+    (SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true
   );
 
 -- RLS Policies for prompts (read-only for users, admin manages via service role)
@@ -120,7 +124,7 @@ CREATE POLICY "Users can view their own usage logs" ON public.usage_logs
 CREATE POLICY "Admins can view all usage logs" ON public.usage_logs
   FOR SELECT TO authenticated
   USING (
-    (SELECT role FROM public.user_profiles WHERE id = auth.uid()) = 'admin'
+    (SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true
   );
 
 CREATE POLICY "System can insert usage logs" ON public.usage_logs
@@ -673,6 +677,27 @@ CRITICAL INSTRUCTION: Structure your response as a narrative analysis with the f
   '{}',
   ARRAY['Ensure narrative flow between sections', 'Include relevant management quotes', 'Highlight unexpected developments', 'Connect metrics to business implications'],
   '{"tone_analysis": ["Management confidence level", "Changes in forward guidance", "Response to challenges"], "context_requirements": ["Market expectations", "Industry trends", "Competitive dynamics"]}'
+),
+(
+  'general_analysis',
+  'General Analysis',
+  'Default general financial analysis template suitable for all company types',
+  'Role: {role}
+
+You are a financial analyst providing analysis on an earnings call transcript. Please provide a comprehensive analysis covering:
+
+1. **Key Financial Metrics**: Extract and analyze the most important quantitative results
+2. **Business Performance**: Analyze operational performance and strategic initiatives
+3. **Management Commentary**: Highlight key statements and guidance from management
+4. **Q&A Insights**: Summarize the most important questions and management responses
+5. **Overall Assessment**: Provide your professional assessment of the company performance
+
+Focus on providing actionable insights for investors and analysts.',
+  '{}',
+  '{}',
+  '{}',
+  '{}',
+  '{}'
 );
 
 -- Insert companies from sample data
@@ -778,7 +803,7 @@ ALTER TABLE public.system_settings ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for system_settings (admin-only access)
 CREATE POLICY "Admins can manage system settings" ON public.system_settings
-  FOR ALL USING ((SELECT role FROM public.user_profiles WHERE id = auth.uid()) = 'admin');
+  FOR ALL USING ((SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true);
 
 -- Insert default system settings
 INSERT INTO public.system_settings (key, value, description) VALUES

@@ -45,7 +45,7 @@ npm install
 
 ### 2. Database Setup
 
-1. Create a Supabase project
+1. Create a Supabase project at `https://xorjwzniopfuosadwvfu.supabase.co`
 2. Run the SQL schema from `supabase_schema.sql` in your Supabase SQL Editor
 
 ### 3. Environment Configuration
@@ -54,7 +54,7 @@ Create `.env.local` with these variables:
 
 ```bash
 # Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_URL=https://xorjwzniopfuosadwvfu.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
@@ -150,6 +150,7 @@ API key management
 2. **API Keys**: Add personal keys or use system keys (if authorized)
 3. **Analyze**: Paste transcript → select analysis type → get insights
 4. **Manage**: View usage statistics and manage API keys
+5. After any completion of code updates, we need to push to git for this project so that Vercel updates automatically.
 
 ## 🚀 Deployment
 
@@ -180,6 +181,10 @@ WHERE email = 'user@company.com';
 ```
 
 ### Admins
+- Can assign API keys to users with specific providers and default models.
+- Default "General Analysis" company type is always available as fallback.
+- Admin dashboard provides user management and usage analytics.
+- Can delete admin-assigned API keys but not user-created ones.
 Grant access via database:
 ```sql
 UPDATE user_profiles
