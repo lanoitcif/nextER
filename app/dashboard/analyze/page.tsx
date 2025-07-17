@@ -4,7 +4,6 @@ import { useAuth } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
-import { useIsVisible } from '@/lib/utils/hooks'
 import { Upload, FileText, Send, ArrowLeft, Settings, Key, Download, Copy, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { safeLocalStorage } from '@/lib/utils/localStorage'
@@ -131,7 +130,6 @@ export default function AnalyzePage() {
     provider?: string
     usage?: any
   } | null>(null)
-  const isVisible = useIsVisible()
 
   useEffect(() => {
     if (!loading && !user) {
@@ -140,13 +138,13 @@ export default function AnalyzePage() {
   }, [user, loading, router])
 
   useEffect(() => {
-    if (user && isVisible) {
+    if (user) {
       fetchCompanies()
       fetchUserApiKeys()
     }
-    // Removed state reset when page becomes invisible - this was causing
-    // the dropdown to break when users alt-tab away and come back
-  }, [user, isVisible])
+    // Fixed: Removed isVisible dependency to prevent refetch on alt-tab
+    // This was causing dropdown state to reset when users alt-tab and return
+  }, [user])
 
   // Set default model when provider changes
   useEffect(() => {
