@@ -406,8 +406,8 @@ export default function AdminApiKeysPage() {
               {loadingKeys ? (
                 <div className="text-center py-8">Loading API keys...</div>
               ) : userApiKeys.length === 0 ? (
-                <div className="text-center py-8 text-charcoal/70">
-                  <Key className="mx-auto h-12 w-12 text-[#a4a4a4]/60 mb-4" />
+                <div className="text-center py-8 text-cream-glow/70">
+                  <Key className="mx-auto h-12 w-12 text-cream-glow/60 mb-4" />
                   <p>No admin-assigned API keys found</p>
                 </div>
               ) : (
@@ -419,14 +419,14 @@ export default function AdminApiKeysPage() {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
-                          <div className="bg-[#c2995f]/20 p-2 rounded-lg">
-                            <Key className="h-5 w-5 text-[#c2995f]" />
+                          <div className="bg-sunset-gold/20 p-2 rounded-lg">
+                            <Key className="h-5 w-5 text-sunset-gold" />
                           </div>
                           <div>
-                            <h4 className="font-medium text-white">
+                            <h4 className="font-medium text-cream-glow">
                               {key.nickname || `${key.provider} API Key`}
                             </h4>
-                            <div className="text-sm text-[#a4a4a4]">
+                            <div className="text-sm text-cream-glow/70">
                               <div>User: {key.user_profiles?.email}</div>
                               <div>Provider: {key.provider}</div>
                               <div>Default Model: {key.default_model}</div>

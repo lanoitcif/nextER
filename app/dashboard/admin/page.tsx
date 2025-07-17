@@ -125,8 +125,8 @@ export default function AdminPage() {
                       <Users className="h-6 w-6 text-teal-mist" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-charcoal">{stats.totalUsers}</h3>
-                      <p className="text-sm text-charcoal/70">Total Users</p>
+                      <h3 className="text-lg font-semibold text-cream-glow">{stats.totalUsers}</h3>
+                      <p className="text-sm text-cream-glow/70">Total Users</p>
                     </div>
                   </div>
                 </div>
@@ -139,8 +139,8 @@ export default function AdminPage() {
                       <Key className="h-6 w-6 text-sunset-gold" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-charcoal">{stats.totalApiKeys}</h3>
-                      <p className="text-sm text-charcoal/70">API Keys</p>
+                      <h3 className="text-lg font-semibold text-cream-glow">{stats.totalApiKeys}</h3>
+                      <p className="text-sm text-cream-glow/70">API Keys</p>
                     </div>
                   </div>
                 </div>
@@ -153,8 +153,8 @@ export default function AdminPage() {
                       <BarChart3 className="h-6 w-6 text-fuchsia-buzz" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-charcoal">{stats.totalUsage}</h3>
-                      <p className="text-sm text-charcoal/70">Total Analyses</p>
+                      <h3 className="text-lg font-semibold text-cream-glow">{stats.totalUsage}</h3>
+                      <p className="text-sm text-cream-glow/70">Total Analyses</p>
                     </div>
                   </div>
                 </div>
@@ -163,12 +163,12 @@ export default function AdminPage() {
               <div className="card">
                 <div className="card-content">
                   <div className="flex items-center">
-                    <div className="bg-orange-100 p-3 rounded-lg">
+                    <div className="bg-coral/20 p-3 rounded-lg">
                       <BarChart3 className="h-6 w-6 text-coral" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-charcoal">{stats.monthlyUsage}</h3>
-                      <p className="text-sm text-charcoal/70">This Month</p>
+                      <h3 className="text-lg font-semibold text-cream-glow">{stats.monthlyUsage}</h3>
+                      <p className="text-sm text-cream-glow/70">This Month</p>
                     </div>
                   </div>
                 </div>
@@ -181,12 +181,12 @@ export default function AdminPage() {
             <Link href="/dashboard/admin/api-keys" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
               <div className="card-content">
                 <div className="flex items-center space-x-4">
-                  <div className="bg-blue-100 p-3 rounded-lg">
+                  <div className="bg-teal-mist/20 p-3 rounded-lg">
                     <Key className="h-8 w-8 text-teal-mist" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-charcoal">API Key Management</h3>
-                    <p className="text-sm text-charcoal/70 mt-1">
+                    <h3 className="text-lg font-semibold text-cream-glow">API Key Management</h3>
+                    <p className="text-sm text-cream-glow/70 mt-1">
                       Assign and manage user API keys and default models
                     </p>
                   </div>
@@ -201,8 +201,8 @@ export default function AdminPage() {
                     <Users className="h-8 w-8 text-sunset-gold" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-charcoal">User Management</h3>
-                    <p className="text-sm text-charcoal/70 mt-1">
+                    <h3 className="text-lg font-semibold text-cream-glow">User Management</h3>
+                    <p className="text-sm text-cream-glow/70 mt-1">
                       View and manage user accounts and permissions
                     </p>
                   </div>
@@ -217,8 +217,8 @@ export default function AdminPage() {
                     <BarChart3 className="h-8 w-8 text-fuchsia-buzz" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-charcoal">Usage Analytics</h3>
-                    <p className="text-sm text-charcoal/70 mt-1">
+                    <h3 className="text-lg font-semibold text-cream-glow">Usage Analytics</h3>
+                    <p className="text-sm text-cream-glow/70 mt-1">
                       Monitor system usage and cost analytics
                     </p>
                   </div>

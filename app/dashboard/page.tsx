@@ -262,20 +262,20 @@ export default function DashboardPage() {
                     <div key={analysis.id} className="flex items-center justify-between py-3 border-b border-[#a4a4a4]/30 last:border-b-0">
                       <div className="flex items-center space-x-3">
                         <div className="flex-shrink-0">
-                          <FileText className="h-5 w-5 text-[#a4a4a4]" />
+                          <FileText className="h-5 w-5 text-cream-glow/70" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-white">
+                          <p className="text-sm font-medium text-cream-glow">
                             {analysis.provider} - {analysis.model}
                           </p>
-                          <p className="text-xs text-[#a4a4a4]">
+                          <p className="text-xs text-cream-glow/70">
                             {new Date(analysis.created_at).toLocaleString()}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
                         {analysis.used_owner_key && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#c2995f]/20 text-[#c2995f]">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sunset-gold/20 text-sunset-gold">
                             Owner Key
                           </span>
                         )}
@@ -296,10 +296,10 @@ export default function DashboardPage() {
                     <div className="w-3 h-3 bg-[#c2995f] rounded-full"></div>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-white">
+                    <p className="text-sm font-medium text-cream-glow">
                       System Access Enabled
                     </p>
-                    <p className="text-xs text-[#a4a4a4]">
+                    <p className="text-xs text-cream-glow/70">
                       Free analysis using system keys
                     </p>
                   </div>
