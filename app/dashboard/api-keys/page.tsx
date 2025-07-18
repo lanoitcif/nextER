@@ -123,20 +123,38 @@ export default function ApiKeysPage() {
   }
 
   const handleAddApiKey = async () => {
+    console.log('🔄 Starting API key addition...')
+    
     if (!newKey.apiKey.trim() || !newKey.provider) {
+      console.log('❌ Validation failed - missing API key or provider')
       setError('Please enter an API key and select a provider')
       return
     }
 
+    console.log('✅ Input validation passed')
     setAdding(true)
     setError('')
 
+    // Safety timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      console.log('⏰ API request timed out after 30 seconds')
+      setError('Request timed out. Please try again.')
+      setAdding(false)
+    }, 30000)
+
     try {
+      console.log('🔍 Checking session...')
       // Try to refresh the session first
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
       
+      console.log('Session data:', {
+        hasSession: !!sessionData.session,
+        hasError: !!sessionError,
+        error: sessionError
+      })
+      
       if (sessionError || !sessionData.session) {
-        console.error('Session error:', sessionError)
+        console.error('❌ Session error:', sessionError)
         setError('Your session has expired. Please sign in again.')
         setSessionExpired(true)
         setAdding(false)
@@ -147,32 +165,43 @@ export default function ApiKeysPage() {
         return
       }
 
+      console.log('✅ Session is valid, making API request...')
+
+      const requestBody = {
+        provider: newKey.provider,
+        apiKey: newKey.apiKey,
+        nickname: newKey.nickname || null,
+        defaultModel: newKey.defaultModel
+      }
+      
+      console.log('📤 Making API request with body:', requestBody)
+
       const response = await fetch('/api/user-api-keys', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${sessionData.session.access_token}`
         },
-        body: JSON.stringify({
-          provider: newKey.provider,
-          apiKey: newKey.apiKey,
-          nickname: newKey.nickname || null,
-          defaultModel: newKey.defaultModel
-        })
+        body: JSON.stringify(requestBody)
       })
 
+      console.log('📥 API response status:', response.status)
+
       const text = await response.text()
+      console.log('📥 API response body:', text)
+      
       let result = {}
       
       try {
         result = text ? JSON.parse(text) : {}
       } catch (parseError) {
-        console.error('JSON parse error:', parseError, 'Response:', text)
+        console.error('❌ JSON parse error:', parseError, 'Response:', text)
         setError('Invalid response from server')
         return
       }
 
       if (!response.ok) {
+        console.error('❌ API request failed:', result)
         // Check if it's an auth error
         if (response.status === 401) {
           setError('Your session has expired. Please sign in again.')
@@ -185,13 +214,16 @@ export default function ApiKeysPage() {
         return
       }
 
+      console.log('✅ API request successful:', result)
+      
       // Reset form and refresh list
       setNewKey({ provider: 'openai', apiKey: '', nickname: '', defaultModel: 'gpt-4.1-mini' })
       setShowAddForm(false)
       await fetchApiKeys()
     } catch (error: any) {
-      console.error('Add API key error:', error)
+      console.error('❌ Exception in API key addition:', error)
       if (error.message?.includes('Invalid Refresh Token') || error.message?.includes('Refresh Token Not Found')) {
+        console.log('🔄 Detected refresh token error, redirecting to login')
         setError('Your session has expired. Please sign in again.')
         setTimeout(() => {
           router.push('/auth/login')
@@ -200,6 +232,8 @@ export default function ApiKeysPage() {
         setError(error.message || 'An error occurred')
       }
     } finally {
+      console.log('🔄 Setting adding to false')
+      clearTimeout(timeoutId)
       setAdding(false)
     }
   }
