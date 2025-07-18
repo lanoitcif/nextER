@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/lib/auth/AuthContext'
+import { useAuth, isAdvanced } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
@@ -62,7 +62,10 @@ export default function ApiKeysPage() {
     if (!loading && !user) {
       router.push('/auth/login')
     }
-  }, [user, loading, router])
+    if (!loading && user && !isAdvanced(profile)) {
+      router.push('/dashboard')
+    }
+  }, [user, loading, profile, router])
 
   useEffect(() => {
     if (user) {
@@ -221,13 +224,15 @@ export default function ApiKeysPage() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="btn-primary flex items-center space-x-2"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Add API Key</span>
-            </button>
+            {isAdvanced(profile) && (
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="btn-primary flex items-center space-x-2"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Add API Key</span>
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -256,7 +261,7 @@ export default function ApiKeysPage() {
           )}
 
           {/* Add API Key Form */}
-          {showAddForm && (
+          {showAddForm && isAdvanced(profile) && (
             <div className="card mb-6">
               <div className="card-header">
                 <h3 className="card-title">Add New API Key</h3>

@@ -10,8 +10,16 @@ type UserProfile = Database['public']['Tables']['user_profiles']['Row']
 // Helper function to check if a user profile has admin privileges
 export function isAdmin(profile: UserProfile | null): boolean {
   if (!profile) return false
-  // Check for is_admin column (with fallback to can_use_owner_key for backwards compatibility)
-  return (profile as any).is_admin === true || profile.can_use_owner_key || false
+  return (
+    (profile as any).access_level === 'admin' ||
+    (profile as any).is_admin === true
+  )
+}
+
+export function isAdvanced(profile: UserProfile | null): boolean {
+  if (!profile) return false
+  const level = (profile as any).access_level
+  return level === 'advanced' || level === 'admin'
 }
 
 interface AuthContextType {

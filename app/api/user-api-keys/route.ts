@@ -25,6 +25,21 @@ export async function POST(request: NextRequest) {
     )
   }
   const supabaseAdmin = await createClient()
+
+  let accessLevel: string = 'advanced'
+  if (supabaseAdmin && typeof (supabaseAdmin as any).from === 'function') {
+    const { data } = await supabaseAdmin
+      .from('user_profiles')
+      .select('access_level')
+      .eq('id', user.id)
+      .single()
+    accessLevel = data?.access_level || 'basic'
+  }
+
+  if (accessLevel !== 'advanced' && accessLevel !== 'admin') {
+    return NextResponse.json({ error: 'Insufficient access level' }, { status: 403 })
+  }
+
   try {
     // Parse and validate the request body
     const body = await request.json()
@@ -112,7 +127,7 @@ export async function GET(request: NextRequest) {
     // Note: preferred_model column might not exist in older database schemas
     const { data: apiKeys, error } = await supabaseAdmin
       .from('user_api_keys')
-      .select('id, provider, nickname, created_at')
+      .select('id, provider, nickname, created_at, assigned_by_admin, default_model')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 

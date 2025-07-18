@@ -21,11 +21,11 @@ export async function GET(request: NextRequest) {
 
     const { data: userProfile, error: profileError } = await supabaseAdmin
       .from('user_profiles')
-      .select('*')
+      .select('access_level')
       .eq('id', user.id)
       .single()
 
-    if (profileError || !userProfile?.can_use_owner_key) {
+    if (profileError || userProfile?.access_level !== 'admin') {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
 
