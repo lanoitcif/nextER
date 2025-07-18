@@ -4,7 +4,6 @@ import { useAuth } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, useReducer } from 'react'
 import { marked } from 'marked'
-import htmlDocx from 'html-docx-js'
 import { supabase } from '@/lib/supabase/client'
 import { Upload, FileText, Send, ArrowLeft, Settings, Key, Download, Copy, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
@@ -770,11 +769,13 @@ export default function AnalyzePage() {
         </html>
       `
 
-      const docxBlob = htmlDocx.asBlob(htmlContent) as Blob
-      const url = URL.createObjectURL(docxBlob)
+      const blob = new Blob([htmlContent], { 
+        type: 'text/html' 
+      })
+      const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `analysis-${state.selectedCompany?.ticker}-${new Date().toISOString().split('T')[0]}.docx`
+      link.download = `analysis-${state.selectedCompany?.ticker}-${new Date().toISOString().split('T')[0]}.html`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)

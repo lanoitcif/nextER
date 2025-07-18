@@ -97,7 +97,7 @@ export default function AdminUsersPage() {
           {success && <div className="text-green-400 mb-4">{success}</div>}
           <div className="space-y-4">
             {users.map(u => (
-              <div key={u.id} className="border border-[#a4a4a4]/20 rounded-lg p-4 bg-[#1f1f1f]">
+              <div key={u.id} className="border border-grape-static/20 rounded-lg p-4 bg-charcoal/60">
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-cream-glow">{u.email}</div>
