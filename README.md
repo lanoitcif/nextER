@@ -294,6 +294,7 @@ npm test
 - Integration with meeting platforms
 - Mobile applications
 - Advanced analytics dashboard
+- **Permission-based Dashboard Navigation**: Update dashboard menu to only show options that are usable by the user based on their access level (basic/advanced/admin). For example, hide "API Keys" menu item for basic users, "Admin" section for non-admin users.
 
 ## 📄 License
 
