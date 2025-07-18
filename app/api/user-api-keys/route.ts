@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: validation.error.format() }, { status: 400 })
     }
 
-    const { provider, apiKey, nickname, preferredModel } = validation.data
+    const { provider, apiKey, nickname, defaultModel } = validation.data
 
     // Check if user already has a key with this provider/nickname combination
     const { data: existingKey, error: checkError } = await supabaseAdmin
@@ -82,9 +82,10 @@ export async function POST(request: NextRequest) {
         provider,
         encrypted_api_key: encrypted,
         encryption_iv: iv,
-        nickname: nickname || null
+        nickname: nickname || null,
+        default_model: defaultModel || null
       })
-      .select('id, provider, nickname, created_at')
+      .select('id, provider, nickname, created_at, default_model')
       .single()
 
     if (error) {

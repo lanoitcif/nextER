@@ -51,18 +51,18 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: validation.error.format() }, { status: 400 })
     }
 
-    const { nickname, preferredModel } = validation.data
+    const { nickname, defaultModel } = validation.data
 
     // Update the API key
     const { data, error } = await supabaseAdmin
       .from('user_api_keys')
       .update({
         nickname: nickname,
-        // preferred_model: preferredModel // Add this column to your database if needed
+        default_model: defaultModel
       })
       .eq('id', apiKeyId)
       .eq('user_id', user.id)
-      .select('id, provider, nickname, created_at')
+      .select('id, provider, nickname, created_at, default_model')
       .single()
 
     if (error) {

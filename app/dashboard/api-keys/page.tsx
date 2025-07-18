@@ -38,7 +38,7 @@ interface UserApiKey {
   id: string
   provider: string
   nickname: string
-  preferred_model?: string
+  default_model?: string
   created_at: string
 }
 
@@ -52,7 +52,7 @@ export default function ApiKeysPage() {
     provider: 'openai' as 'openai' | 'anthropic' | 'google' | 'cohere',
     apiKey: '',
     nickname: '',
-    preferredModel: 'gpt-4.1-mini'
+    defaultModel: 'gpt-4.1-mini'
   })
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState('')
@@ -73,11 +73,11 @@ export default function ApiKeysPage() {
     }
   }, [user])
 
-  // Update preferred model when provider changes
+  // Update default model when provider changes
   useEffect(() => {
     setNewKey(prev => ({
       ...prev,
-      preferredModel: DEFAULT_MODELS[prev.provider]
+      defaultModel: DEFAULT_MODELS[prev.provider]
     }))
   }, [newKey.provider])
 
@@ -134,7 +134,7 @@ export default function ApiKeysPage() {
           provider: newKey.provider,
           apiKey: newKey.apiKey,
           nickname: newKey.nickname || null,
-          preferredModel: newKey.preferredModel
+          defaultModel: newKey.defaultModel
         })
       })
 
@@ -155,7 +155,7 @@ export default function ApiKeysPage() {
       }
 
       // Reset form and refresh list
-      setNewKey({ provider: 'openai', apiKey: '', nickname: '', preferredModel: 'gpt-4.1-mini' })
+      setNewKey({ provider: 'openai', apiKey: '', nickname: '', defaultModel: 'gpt-4.1-mini' })
       setShowAddForm(false)
       await fetchApiKeys()
     } catch (error: any) {
@@ -276,83 +276,83 @@ export default function ApiKeysPage() {
                   )}
 
                   <div>
-                  <label className="block text-sm font-medium text-cream-glow mb-2">
-                    Provider
-                  </label>
-                  <select
-                    value={newKey.provider}
-                    onChange={(e) => setNewKey(prev => ({ ...prev, provider: e.target.value as any }))}
-                    className="w-full p-2 bg-charcoal border border-grape-static text-cream-glow rounded-md focus:ring-electric-green focus:border-electric-green"
-                    disabled={adding}
-                  >
-                    <option value="openai">OpenAI</option>
-                    <option value="anthropic">Anthropic</option>
-                    <option value="google">Google</option>
-                    <option value="cohere">Cohere</option>
-                  </select>
-                </div>
+                    <label className="block text-sm font-medium text-cream-glow mb-2">
+                      Provider
+                    </label>
+                    <select
+                      value={newKey.provider}
+                      onChange={(e) => setNewKey(prev => ({ ...prev, provider: e.target.value as any }))}
+                      className="w-full p-2 bg-charcoal border border-grape-static text-cream-glow rounded-md focus:ring-electric-green focus:border-electric-green"
+                      disabled={adding}
+                    >
+                      <option value="openai">OpenAI</option>
+                      <option value="anthropic">Anthropic</option>
+                      <option value="google">Google</option>
+                      <option value="cohere">Cohere</option>
+                    </select>
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-cream-glow mb-2">
-                    Preferred Model
-                  </label>
-                  <select
-                    value={newKey.preferredModel}
-                    onChange={(e) => setNewKey(prev => ({ ...prev, preferredModel: e.target.value }))}
-                    className="w-full p-2 bg-charcoal border border-grape-static text-cream-glow rounded-md focus:ring-electric-green focus:border-electric-green"
-                    disabled={adding}
-                  >
-                    {PROVIDER_MODELS[newKey.provider].map((model) => (
-                      <option key={model} value={model}>
-                        {model}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="text-xs text-cream-glow/60 mt-1">
-                    This will be used as the default model for this API key
-                  </p>
-                </div>
+                  <div>
+                    <label className="block text-sm font-medium text-cream-glow mb-2">
+                      Default Model
+                    </label>
+                    <select
+                      value={newKey.defaultModel}
+                      onChange={(e) => setNewKey(prev => ({ ...prev, defaultModel: e.target.value }))}
+                      className="w-full p-2 bg-charcoal border border-grape-static text-cream-glow rounded-md focus:ring-electric-green focus:border-electric-green"
+                      disabled={adding}
+                    >
+                      {PROVIDER_MODELS[newKey.provider].map((model) => (
+                        <option key={model} value={model}>
+                          {model}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-cream-glow/60 mt-1">
+                      This will be used as the default model for this API key
+                    </p>
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-cream-glow mb-2">
-                    API Key
-                  </label>
-                  <div className="relative">
+                  <div>
+                    <label className="block text-sm font-medium text-cream-glow mb-2">
+                      API Key
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showApiKey ? "text" : "password"}
+                        value={newKey.apiKey}
+                        onChange={(e) => setNewKey(prev => ({ ...prev, apiKey: e.target.value }))}
+                        placeholder="Enter your API key"
+                        className="w-full p-2 pr-10 bg-charcoal border border-grape-static text-cream-glow rounded-md focus:ring-electric-green focus:border-electric-green placeholder-cream-glow/40"
+                        disabled={adding}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowApiKey(!showApiKey)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      >
+                        {showApiKey ? (
+                          <EyeOff className="h-4 w-4 text-cream-glow/60" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-cream-glow/60" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-cream-glow mb-2">
+                      Nickname (Optional)
+                    </label>
                     <input
-                      type={showApiKey ? "text" : "password"}
-                      value={newKey.apiKey}
-                      onChange={(e) => setNewKey(prev => ({ ...prev, apiKey: e.target.value }))}
-                      placeholder="Enter your API key"
-                      className="w-full p-2 pr-10 bg-charcoal border border-grape-static text-cream-glow rounded-md focus:ring-electric-green focus:border-electric-green placeholder-cream-glow/40"
+                      type="text"
+                      value={newKey.nickname}
+                      onChange={(e) => setNewKey(prev => ({ ...prev, nickname: e.target.value }))}
+                      placeholder="Give this key a memorable name"
+                      className="w-full p-2 bg-charcoal border border-grape-static text-cream-glow rounded-md focus:ring-electric-green focus:border-electric-green placeholder-cream-glow/40"
                       disabled={adding}
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowApiKey(!showApiKey)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    >
-                      {showApiKey ? (
-                        <EyeOff className="h-4 w-4 text-cream-glow/60" />
-                      ) : (
-                        <Eye className="h-4 w-4 text-cream-glow/60" />
-                      )}
-                    </button>
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-cream-glow mb-2">
-                    Nickname (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={newKey.nickname}
-                    onChange={(e) => setNewKey(prev => ({ ...prev, nickname: e.target.value }))}
-                    placeholder="Give this key a memorable name"
-                    className="w-full p-2 bg-charcoal border border-grape-static text-cream-glow rounded-md focus:ring-electric-green focus:border-electric-green placeholder-cream-glow/40"
-                    disabled={adding}
-                  />
-                </div>
 
                   <div className="flex space-x-3">
                     <button
@@ -377,7 +377,7 @@ export default function ApiKeysPage() {
                       onClick={() => {
                         setShowAddForm(false)
                         setError('')
-                        setNewKey({ provider: 'openai', apiKey: '', nickname: '', preferredModel: 'gpt-4.1-mini' })
+                        setNewKey({ provider: 'openai', apiKey: '', nickname: '', defaultModel: 'gpt-4.1-mini' })
                       }}
                       className="btn-ghost"
                       disabled={adding}
@@ -417,7 +417,7 @@ export default function ApiKeysPage() {
                             {key.nickname || `${key.provider} API Key`}
                           </p>
                           <p className="text-xs text-cream-glow/60">
-                            {key.provider} • {(key as any).preferred_model || (key as any).default_model || DEFAULT_MODELS[key.provider as keyof typeof DEFAULT_MODELS]} • Added {new Date(key.created_at).toLocaleDateString()}
+                            {key.provider} • {key.default_model || DEFAULT_MODELS[key.provider as keyof typeof DEFAULT_MODELS]} • Added {new Date(key.created_at).toLocaleDateString()}
                           </p>
                         </div>
                       </div>

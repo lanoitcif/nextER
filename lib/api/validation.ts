@@ -15,14 +15,14 @@ export const addApiKeyRequestSchema = z.object({
   provider: z.enum(['openai', 'anthropic', 'google', 'cohere']),
   apiKey: z.string().min(1),
   nickname: z.string().optional(),
-  preferredModel: z.string().optional(),
+  defaultModel: z.string().optional(),
 });
 
 export const updateApiKeyRequestSchema = z
   .object({
     nickname: z.string().optional(),
-    preferredModel: z.string().optional(),
+    defaultModel: z.string().optional(),
   })
-  .refine((data) => data.nickname !== undefined || data.preferredModel !== undefined, {
+  .refine((data) => data.nickname !== undefined || data.defaultModel !== undefined, {
     message: 'At least one field must be provided',
   });
