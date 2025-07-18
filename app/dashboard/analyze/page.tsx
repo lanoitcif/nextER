@@ -3,6 +3,8 @@
 import { useAuth } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, useReducer } from 'react'
+import { marked } from 'marked'
+import htmlDocx from 'html-docx-js'
 import { supabase } from '@/lib/supabase/client'
 import { Upload, FileText, Send, ArrowLeft, Settings, Key, Download, Copy, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
@@ -768,14 +770,11 @@ export default function AnalyzePage() {
         </html>
       `
 
-      const blob = new Blob([htmlContent], { 
-        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
-      })
-      
-      const url = URL.createObjectURL(blob)
+      const docxBlob = htmlDocx.asBlob(htmlContent) as Blob
+      const url = URL.createObjectURL(docxBlob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `analysis-${state.selectedCompany?.ticker}-${new Date().toISOString().split('T')[0]}.doc`
+      link.download = `analysis-${state.selectedCompany?.ticker}-${new Date().toISOString().split('T')[0]}.docx`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -785,30 +784,13 @@ export default function AnalyzePage() {
     }
   }
 
-  // Simple markdown to HTML converter
+  // Simple markdown to HTML converter with table support
   const convertMarkdownToHtml = (markdown: string): string => {
-    return markdown
-      // Headers
-      .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-      .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-      .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-      // Bold
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      // Italic
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      // Lists (simple implementation)
-      .replace(/^\* (.*$)/gim, '<li>$1</li>')
-      .replace(/^- (.*$)/gim, '<li>$1</li>')
-      // Wrap consecutive list items in ul tags
-      .replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>')
-      // Line breaks
-      .replace(/\n\n/g, '</p><p>')
-      .replace(/\n/g, '<br>')
-      // Wrap in paragraphs
-      .replace(/^(?!<h|<ul|<li)(.+)$/gm, '<p>$1</p>')
-      // Clean up empty paragraphs
-      .replace(/<p><\/p>/g, '')
-      .replace(/<p><br><\/p>/g, '')
+    marked.setOptions({
+      gfm: true,
+      breaks: true
+    })
+    return marked.parse(markdown) as string
   }
 
   // Render markdown for display
