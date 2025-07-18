@@ -84,18 +84,8 @@ export default function ApiKeysPage() {
 
   const fetchApiKeys = async () => {
     try {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-      
-      if (sessionError || !sessionData.session) {
-        console.error('Session error in fetchApiKeys:', sessionError)
-        // Don't redirect here, just fail silently as this is called on page load
-        return
-      }
-
       const response = await fetch('/api/user-api-keys', {
-        headers: {
-          'Authorization': `Bearer ${sessionData.session.access_token}`
-        }
+        credentials: 'include' // Send cookies for server-side session handling
       })
 
       if (response.ok) {
@@ -143,40 +133,20 @@ export default function ApiKeysPage() {
     }, 60000)
 
     try {
-      console.log('🔍 Checking session...')
-      // Try to refresh the session first
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-      
-      console.log('Session data:', {
-        hasSession: !!sessionData.session,
-        hasError: !!sessionError,
-        error: sessionError
-      })
-      
-      if (sessionError || !sessionData.session) {
-        console.error('❌ Session error:', sessionError)
-        // Try to refresh the session before giving up
-        console.log('🔄 Attempting to refresh session...')
-        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession()
-        
-        if (refreshError || !refreshData.session) {
-          console.error('❌ Session refresh failed:', refreshError)
-          setError('Your session has expired. Please sign in again.')
-          setSessionExpired(true)
-          setAdding(false)
-          // Redirect to login after a short delay
-          setTimeout(() => {
-            router.push('/auth/login')
-          }, 2000)
-          return
-        }
-        
-        console.log('✅ Session refreshed successfully')
-        // Use the refreshed session
-        sessionData.session = refreshData.session
+      console.log('🔍 Using existing user context...')
+      // Skip the problematic getSession() call and use existing user from context
+      if (!user) {
+        console.error('❌ No user in context')
+        setError('Your session has expired. Please sign in again.')
+        setSessionExpired(true)
+        setAdding(false)
+        setTimeout(() => {
+          router.push('/auth/login')
+        }, 2000)
+        return
       }
 
-      console.log('✅ Session is valid, making API request...')
+      console.log('✅ User context found, making API request...')
 
       const requestBody = {
         provider: newKey.provider,
@@ -187,12 +157,14 @@ export default function ApiKeysPage() {
       
       console.log('📤 Making API request with body:', requestBody)
 
+      // Make the API call without explicitly getting session - let the server handle auth
       const response = await fetch('/api/user-api-keys', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${sessionData.session.access_token}`
+          // Send cookies for server-side session handling
         },
+        credentials: 'include',
         body: JSON.stringify(requestBody)
       })
 
@@ -255,20 +227,9 @@ export default function ApiKeysPage() {
     }
 
     try {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-      
-      if (sessionError || !sessionData.session) {
-        console.error('Session error in delete:', sessionError)
-        alert('Your session has expired. Please sign in again.')
-        router.push('/auth/login')
-        return
-      }
-
       const response = await fetch(`/api/user-api-keys/${keyId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${sessionData.session.access_token}`
-        }
+        credentials: 'include' // Send cookies for server-side session handling
       })
 
       if (response.ok) {
