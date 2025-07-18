@@ -18,6 +18,7 @@
 - [ADMIN_PAGE_FLOW.md](#admin_page_flow-md) - Admin dashboard workflow
 - [API_KEY_PAGE.md](#api_key_page-md) - API key workflow for each user type
 - [ANALYZE_PAGE_FLOW.md](#analyze_page_flow-md) - Analyze page workflow
+- [SUPABASE_CONNECTIONS.md](#supabase_connections-md) - Supabase connection workflow
 - [DOCUMENTATION_INDEX.md](#documentation_index-md) - This file
 
 ---
@@ -77,6 +78,11 @@
 - **Purpose**: Illustrates the Analyze page workflow for each user type
 - **Contains**: Mermaid diagram of authentication and key-selection logic
 - **Use Case**: For developers and stakeholders to understand user interactions
+
+#### **SUPABASE_CONNECTIONS.md**
+- **Purpose**: Overview of all application interactions with Supabase
+- **Contains**: Mermaid chart of API routes and direct client calls, connection types, and security considerations
+- **Use Case**: Helps developers understand data flow and optimize database access patterns.
 
 #### **DOCUMENTATION_INDEX.md**
 - **Purpose**: Navigation and reference system
