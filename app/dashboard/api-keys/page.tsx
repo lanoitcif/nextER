@@ -57,6 +57,7 @@ export default function ApiKeysPage() {
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState('')
   const [showApiKey, setShowApiKey] = useState(false)
+  const [sessionExpired, setSessionExpired] = useState(false)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -83,12 +84,17 @@ export default function ApiKeysPage() {
 
   const fetchApiKeys = async () => {
     try {
-      const { data } = await supabase.auth.getSession()
-      if (!data.session) return
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError || !sessionData.session) {
+        console.error('Session error in fetchApiKeys:', sessionError)
+        // Don't redirect here, just fail silently as this is called on page load
+        return
+      }
 
       const response = await fetch('/api/user-api-keys', {
         headers: {
-          'Authorization': `Bearer ${data.session.access_token}`
+          'Authorization': `Bearer ${sessionData.session.access_token}`
         }
       })
 
@@ -100,9 +106,17 @@ export default function ApiKeysPage() {
         } catch (parseError) {
           console.error('JSON parse error:', parseError, 'Response:', text)
         }
+      } else if (response.status === 401) {
+        // Session expired, redirect to login
+        console.error('Session expired while fetching API keys')
+        router.push('/auth/login')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching API keys:', error)
+      if (error.message?.includes('Invalid Refresh Token') || error.message?.includes('Refresh Token Not Found')) {
+        // Session expired, redirect to login
+        router.push('/auth/login')
+      }
     } finally {
       setLoadingKeys(false)
     }
@@ -118,9 +132,18 @@ export default function ApiKeysPage() {
     setError('')
 
     try {
-      const { data } = await supabase.auth.getSession()
-      if (!data.session) {
-        setError('Please sign in again')
+      // Try to refresh the session first
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError || !sessionData.session) {
+        console.error('Session error:', sessionError)
+        setError('Your session has expired. Please sign in again.')
+        setSessionExpired(true)
+        setAdding(false)
+        // Redirect to login after a short delay
+        setTimeout(() => {
+          router.push('/auth/login')
+        }, 2000)
         return
       }
 
@@ -128,7 +151,7 @@ export default function ApiKeysPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${data.session.access_token}`
+          'Authorization': `Bearer ${sessionData.session.access_token}`
         },
         body: JSON.stringify({
           provider: newKey.provider,
@@ -150,6 +173,14 @@ export default function ApiKeysPage() {
       }
 
       if (!response.ok) {
+        // Check if it's an auth error
+        if (response.status === 401) {
+          setError('Your session has expired. Please sign in again.')
+          setTimeout(() => {
+            router.push('/auth/login')
+          }, 2000)
+          return
+        }
         setError((result as any).error || 'Failed to add API key')
         return
       }
@@ -159,7 +190,15 @@ export default function ApiKeysPage() {
       setShowAddForm(false)
       await fetchApiKeys()
     } catch (error: any) {
-      setError(error.message || 'An error occurred')
+      console.error('Add API key error:', error)
+      if (error.message?.includes('Invalid Refresh Token') || error.message?.includes('Refresh Token Not Found')) {
+        setError('Your session has expired. Please sign in again.')
+        setTimeout(() => {
+          router.push('/auth/login')
+        }, 2000)
+      } else {
+        setError(error.message || 'An error occurred')
+      }
     } finally {
       setAdding(false)
     }
@@ -171,21 +210,34 @@ export default function ApiKeysPage() {
     }
 
     try {
-      const { data } = await supabase.auth.getSession()
-      if (!data.session) return
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError || !sessionData.session) {
+        console.error('Session error in delete:', sessionError)
+        alert('Your session has expired. Please sign in again.')
+        router.push('/auth/login')
+        return
+      }
 
       const response = await fetch(`/api/user-api-keys/${keyId}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${data.session.access_token}`
+          'Authorization': `Bearer ${sessionData.session.access_token}`
         }
       })
 
       if (response.ok) {
         await fetchApiKeys()
+      } else if (response.status === 401) {
+        alert('Your session has expired. Please sign in again.')
+        router.push('/auth/login')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting API key:', error)
+      if (error.message?.includes('Invalid Refresh Token') || error.message?.includes('Refresh Token Not Found')) {
+        alert('Your session has expired. Please sign in again.')
+        router.push('/auth/login')
+      }
     }
   }
 
@@ -239,6 +291,25 @@ export default function ApiKeysPage() {
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
+          {/* Session Expired Banner */}
+          {sessionExpired && (
+            <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-6">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-red-400">
+                    Session Expired
+                  </p>
+                  <p className="text-xs text-red-400/70">
+                    Your session has expired. Redirecting to login...
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Owner Key Status */}
           {profile.can_use_owner_key && (
             <div className="border border-grape-static/20 rounded-lg p-4 bg-charcoal/60 mb-6">
