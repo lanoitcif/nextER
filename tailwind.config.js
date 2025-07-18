@@ -16,6 +16,7 @@ module.exports = {
         'fuchsia-buzz': '#D881D4',
         'grape-static': '#8D8BE0',
         'charcoal': '#2C2C32',
+        'electric-green': '#00FF88',
         
         // shadcn/ui CSS variables (keeping for component compatibility)
         border: "hsl(var(--border))",

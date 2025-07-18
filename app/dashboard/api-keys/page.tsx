@@ -202,9 +202,9 @@ export default function ApiKeysPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-charcoal">
       {/* Header */}
-      <header className="bg-white shadow">
+      <header className="bg-charcoal shadow-lg border-b border-teal-mist/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
@@ -216,10 +216,10 @@ export default function ApiKeysPage() {
                 <span>Back to Dashboard</span>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-cream-glow">
                   NEaR API Keys
                 </h1>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-cream-glow/70 mt-1">
                   Manage your LLM provider API keys
                 </p>
               </div>
@@ -241,20 +241,18 @@ export default function ApiKeysPage() {
         <div className="px-4 py-6 sm:px-0">
           {/* Owner Key Status */}
           {profile.can_use_owner_key && (
-            <div className="card mb-6">
-              <div className="card-content">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900">
-                      Owner API Key Access Enabled
-                    </p>
-                    <p className="text-xs text-gray-600">
-                      You can use the system's API keys for free analysis. Personal API keys are optional.
-                    </p>
-                  </div>
+            <div className="border border-grape-static/20 rounded-lg p-4 bg-charcoal/60 mb-6">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="w-3 h-3 bg-electric-green rounded-full"></div>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-cream-glow">
+                    Owner API Key Access Enabled
+                  </p>
+                  <p className="text-xs text-cream-glow/70">
+                    You can use the system's API keys for free analysis. Personal API keys are optional.
+                  </p>
                 </div>
               </div>
             </div>
@@ -262,29 +260,29 @@ export default function ApiKeysPage() {
 
           {/* Add API Key Form */}
           {showAddForm && isAdvanced(profile) && (
-            <div className="card mb-6">
-              <div className="card-header">
-                <h3 className="card-title">Add New API Key</h3>
-                <p className="card-description">
+            <div className="border border-grape-static/20 rounded-lg p-4 bg-charcoal/60 mb-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-cream-glow">Add New API Key</h3>
+                <p className="text-sm text-cream-glow/70 mt-1">
                   Add your personal LLM provider API key
                 </p>
               </div>
-              <div className="card-content">
+              <div>
                 <form onSubmit={(e) => { e.preventDefault(); handleAddApiKey(); }} className="space-y-4">
                   {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-md p-4">
-                      <div className="text-sm text-red-700">{error}</div>
+                    <div className="bg-red-500/20 border border-red-500/30 rounded-md p-4">
+                      <div className="text-sm text-red-400">{error}</div>
                     </div>
                   )}
 
                   <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-cream-glow mb-2">
                     Provider
                   </label>
                   <select
                     value={newKey.provider}
                     onChange={(e) => setNewKey(prev => ({ ...prev, provider: e.target.value as any }))}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 bg-charcoal border border-grape-static text-cream-glow rounded-md focus:ring-electric-green focus:border-electric-green"
                     disabled={adding}
                   >
                     <option value="openai">OpenAI</option>
@@ -295,13 +293,13 @@ export default function ApiKeysPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-cream-glow mb-2">
                     Preferred Model
                   </label>
                   <select
                     value={newKey.preferredModel}
                     onChange={(e) => setNewKey(prev => ({ ...prev, preferredModel: e.target.value }))}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 bg-charcoal border border-grape-static text-cream-glow rounded-md focus:ring-electric-green focus:border-electric-green"
                     disabled={adding}
                   >
                     {PROVIDER_MODELS[newKey.provider].map((model) => (
@@ -310,13 +308,13 @@ export default function ApiKeysPage() {
                       </option>
                     ))}
                   </select>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-cream-glow/60 mt-1">
                     This will be used as the default model for this API key
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-cream-glow mb-2">
                     API Key
                   </label>
                   <div className="relative">
@@ -325,7 +323,7 @@ export default function ApiKeysPage() {
                       value={newKey.apiKey}
                       onChange={(e) => setNewKey(prev => ({ ...prev, apiKey: e.target.value }))}
                       placeholder="Enter your API key"
-                      className="w-full p-2 pr-10 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full p-2 pr-10 bg-charcoal border border-grape-static text-cream-glow rounded-md focus:ring-electric-green focus:border-electric-green placeholder-cream-glow/40"
                       disabled={adding}
                     />
                     <button
@@ -334,16 +332,16 @@ export default function ApiKeysPage() {
                       className="absolute inset-y-0 right-0 pr-3 flex items-center"
                     >
                       {showApiKey ? (
-                        <EyeOff className="h-4 w-4 text-gray-400" />
+                        <EyeOff className="h-4 w-4 text-cream-glow/60" />
                       ) : (
-                        <Eye className="h-4 w-4 text-gray-400" />
+                        <Eye className="h-4 w-4 text-cream-glow/60" />
                       )}
                     </button>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-cream-glow mb-2">
                     Nickname (Optional)
                   </label>
                   <input
@@ -351,7 +349,7 @@ export default function ApiKeysPage() {
                     value={newKey.nickname}
                     onChange={(e) => setNewKey(prev => ({ ...prev, nickname: e.target.value }))}
                     placeholder="Give this key a memorable name"
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 bg-charcoal border border-grape-static text-cream-glow rounded-md focus:ring-electric-green focus:border-electric-green placeholder-cream-glow/40"
                     disabled={adding}
                   />
                 </div>
@@ -393,39 +391,39 @@ export default function ApiKeysPage() {
           )}
 
           {/* API Keys List */}
-          <div className="card">
-            <div className="card-header">
-              <h3 className="card-title">Your API Keys</h3>
-              <p className="card-description">
+          <div className="border border-grape-static/20 rounded-lg p-4 bg-charcoal/60">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-cream-glow">Your API Keys</h3>
+              <p className="text-sm text-cream-glow/70 mt-1">
                 Manage your saved LLM provider API keys
               </p>
             </div>
-            <div className="card-content">
+            <div>
               {loadingKeys ? (
                 <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                  <p className="text-sm text-gray-600 mt-2">Loading API keys...</p>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-electric-green mx-auto"></div>
+                  <p className="text-sm text-cream-glow/70 mt-2">Loading API keys...</p>
                 </div>
               ) : apiKeys.length > 0 ? (
                 <div className="space-y-4">
                   {apiKeys.map((key) => (
-                    <div key={key.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                    <div key={key.id} className="flex items-center justify-between p-4 border border-grape-static/20 rounded-lg bg-charcoal/30">
                       <div className="flex items-center space-x-3">
                         <div className="flex-shrink-0">
-                          <Key className="h-6 w-6 text-gray-400" />
+                          <Key className="h-6 w-6 text-cream-glow/60" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-900">
+                          <p className="text-sm font-medium text-cream-glow">
                             {key.nickname || `${key.provider} API Key`}
                           </p>
-                          <p className="text-xs text-gray-500">
-                            {key.provider} • {key.preferred_model || DEFAULT_MODELS[key.provider as keyof typeof DEFAULT_MODELS]} • Added {new Date(key.created_at).toLocaleDateString()}
+                          <p className="text-xs text-cream-glow/60">
+                            {key.provider} • {(key as any).preferred_model || (key as any).default_model || DEFAULT_MODELS[key.provider as keyof typeof DEFAULT_MODELS]} • Added {new Date(key.created_at).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
                       <button
                         onClick={() => handleDeleteApiKey(key.id)}
-                        className="btn-ghost text-red-600 hover:text-red-700 flex items-center space-x-1"
+                        className="btn-ghost text-red-400 hover:text-red-300 flex items-center space-x-1"
                       >
                         <Trash2 className="h-4 w-4" />
                         <span>Delete</span>
@@ -435,11 +433,11 @@ export default function ApiKeysPage() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Key className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                  <p className="text-sm text-gray-600">No API keys added yet</p>
+                  <Key className="mx-auto h-12 w-12 text-cream-glow/60 mb-4" />
+                  <p className="text-sm text-cream-glow/70">No API keys added yet</p>
                   <button
                     onClick={() => setShowAddForm(true)}
-                    className="mt-2 text-blue-600 hover:text-blue-700 text-sm"
+                    className="mt-2 text-electric-green hover:text-electric-green/80 text-sm"
                   >
                     Add your first API key
                   </button>
