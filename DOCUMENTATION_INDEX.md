@@ -1,6 +1,6 @@
 # NEaR Project Documentation Index
 
-**Last Updated**: July 17, 2025  
+**Last Updated**: July 18, 2025  
 **Project**: NEaR (Next Earnings Release) - Earnings Call Analysis Platform  
 **Documentation Files**: 9 total
 
@@ -20,6 +20,7 @@
 - [ANALYZE_PAGE_FLOW.md](#analyze_page_flow-md) - Analyze page workflow
 - [SUPABASE_CONNECTIONS.md](#supabase_connections-md) - Supabase connection workflow
 - [DOCUMENTATION_INDEX.md](#documentation_index-md) - This file
+- [docs/BEST_PRACTICES.md](docs/BEST_PRACTICES.md) - Supabase & Vercel best practices
 
 ---
 
@@ -83,6 +84,11 @@
 - **Purpose**: Overview of all application interactions with Supabase
 - **Contains**: Mermaid chart of API routes and direct client calls, connection types, and security considerations
 - **Use Case**: Helps developers understand data flow and optimize database access patterns.
+
+#### **docs/BEST_PRACTICES.md**
+- **Purpose**: Supabase and Vercel deployment guidelines
+- **Contains**: Optimization tips for RLS, connection pooling, Core Web Vitals, caching, and security
+- **Use Case**: For developers deploying NEaR on Vercel with Supabase
 
 #### **DOCUMENTATION_INDEX.md**
 - **Purpose**: Navigation and reference system
