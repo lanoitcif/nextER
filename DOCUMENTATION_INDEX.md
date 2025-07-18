@@ -17,6 +17,7 @@
 - [DESIGN_SYSTEM.md](#design_system-md) - UI/UX design guidelines and component library
 - [ADMIN_PAGE_FLOW.md](#admin_page_flow-md) - Admin dashboard workflow
 - [API_KEY_PAGE.md](#api_key_page-md) - API key workflow for each user type
+- [ANALYZE_PAGE_FLOW.md](#analyze_page_flow-md) - Analyze page workflow
 - [DOCUMENTATION_INDEX.md](#documentation_index-md) - This file
 
 ---
@@ -71,6 +72,11 @@
 - **Purpose**: Explain API key management workflow for each user type
 - **Contains**: Mermaid diagram of page logic and brief behavior overview
 - **Use Case**: For contributors to understand access controls and API flows when updating key management features.
+
+#### **ANALYZE_PAGE_FLOW.md**
+- **Purpose**: Illustrates the Analyze page workflow for each user type
+- **Contains**: Mermaid diagram of authentication and key-selection logic
+- **Use Case**: For developers and stakeholders to understand user interactions
 
 #### **DOCUMENTATION_INDEX.md**
 - **Purpose**: Navigation and reference system
