@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 
 const ALGORITHM = 'aes-256-gcm'
+const IV_LENGTH = 12
 const SECRET_KEY = process.env.USER_API_KEY_ENCRYPTION_SECRET!
 
 if (!SECRET_KEY || SECRET_KEY.length !== 32) {
@@ -17,17 +18,15 @@ export interface EncryptedData {
  * Encrypts an API key using AES-256-GCM
  */
 export function encryptApiKey(apiKey: string): EncryptedData {
-  const iv = crypto.randomBytes(16)
-  const cipher = crypto.createCipher(ALGORITHM, SECRET_KEY)
+  const iv = crypto.randomBytes(IV_LENGTH)
+  const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(SECRET_KEY), iv)
   cipher.setAAD(Buffer.from('api-key'))
-  
-  let encrypted = cipher.update(apiKey, 'utf8', 'hex')
-  encrypted += cipher.final('hex')
-  
+
+  const encrypted = Buffer.concat([cipher.update(apiKey, 'utf8'), cipher.final()])
   const authTag = cipher.getAuthTag()
-  
+
   return {
-    encryptedData: encrypted,
+    encryptedData: encrypted.toString('hex'),
     iv: iv.toString('hex'),
     authTag: authTag.toString('hex')
   }
@@ -37,14 +36,20 @@ export function encryptApiKey(apiKey: string): EncryptedData {
  * Decrypts an API key using AES-256-GCM
  */
 export function decryptApiKey(encryptedData: string, iv: string, authTag: string): string {
-  const decipher = crypto.createDecipher(ALGORITHM, SECRET_KEY)
+  const decipher = crypto.createDecipheriv(
+    ALGORITHM,
+    Buffer.from(SECRET_KEY),
+    Buffer.from(iv, 'hex')
+  )
   decipher.setAAD(Buffer.from('api-key'))
   decipher.setAuthTag(Buffer.from(authTag, 'hex'))
-  
-  let decrypted = decipher.update(encryptedData, 'hex', 'utf8')
-  decrypted += decipher.final('utf8')
-  
-  return decrypted
+
+  const decrypted = Buffer.concat([
+    decipher.update(Buffer.from(encryptedData, 'hex')),
+    decipher.final()
+  ])
+
+  return decrypted.toString('utf8')
 }
 
 /**
@@ -52,15 +57,13 @@ export function decryptApiKey(encryptedData: string, iv: string, authTag: string
  * Combines encrypted data, IV, and auth tag into a single string
  */
 export function encryptForStorage(apiKey: string): { encrypted: string; iv: string } {
-  const iv = crypto.randomBytes(16)
-  const cipher = crypto.createCipher(ALGORITHM, SECRET_KEY)
-  
-  let encrypted = cipher.update(apiKey, 'utf8', 'hex')
-  encrypted += cipher.final('hex')
-  
+  const iv = crypto.randomBytes(IV_LENGTH)
+  const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(SECRET_KEY), iv)
+
+  const encrypted = Buffer.concat([cipher.update(apiKey, 'utf8'), cipher.final()])
   const authTag = cipher.getAuthTag()
-  const combined = encrypted + ':' + authTag.toString('hex')
-  
+  const combined = `${encrypted.toString('hex')}:${authTag.toString('hex')}`
+
   return {
     encrypted: combined,
     iv: iv.toString('hex')
@@ -71,15 +74,21 @@ export function encryptForStorage(apiKey: string): { encrypted: string; iv: stri
  * Simplified decryption from database storage
  */
 export function decryptFromStorage(encryptedCombined: string, iv: string): string {
-  const [encrypted, authTag] = encryptedCombined.split(':')
-  
-  const decipher = crypto.createDecipher(ALGORITHM, SECRET_KEY)
-  decipher.setAuthTag(Buffer.from(authTag, 'hex'))
-  
-  let decrypted = decipher.update(encrypted, 'hex', 'utf8')
-  decrypted += decipher.final('utf8')
-  
-  return decrypted
+  const [encryptedHex, authTagHex] = encryptedCombined.split(':')
+
+  const decipher = crypto.createDecipheriv(
+    ALGORITHM,
+    Buffer.from(SECRET_KEY),
+    Buffer.from(iv, 'hex')
+  )
+  decipher.setAuthTag(Buffer.from(authTagHex, 'hex'))
+
+  const decrypted = Buffer.concat([
+    decipher.update(Buffer.from(encryptedHex, 'hex')),
+    decipher.final()
+  ])
+
+  return decrypted.toString('utf8')
 }
 
 /**
