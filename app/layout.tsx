@@ -6,7 +6,7 @@ import { AuthProvider } from '@/lib/auth/AuthContext'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'NEaR - Next Earnings Release',
+  title: 'NEaR - Professional Earnings Analysis',
   description: 'Professional AI-powered earnings call transcript analysis platform',
 }
 

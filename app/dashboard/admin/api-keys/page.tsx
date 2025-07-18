@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { ArrowLeft, Plus, Key, User, Settings, Trash2, Edit } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 // Model mappings for each provider
 const PROVIDER_MODELS = {
@@ -219,8 +220,8 @@ export default function AdminApiKeysPage() {
 
   if (loading || loadingUsers) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-charcoal">
+        <div className="text-lg text-cream-glow">Loading...</div>
       </div>
     )
   }
@@ -243,13 +244,22 @@ export default function AdminApiKeysPage() {
                 <ArrowLeft className="h-4 w-4" />
                 <span>Back to Admin</span>
               </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-cream-glow">
-                  API Key Management
-                </h1>
-                <p className="text-sm text-cream-glow/80 mt-1">
-                  Assign and manage user API keys
-                </p>
+              <div className="flex items-center space-x-3">
+                <Image 
+                  src="/near-logo.png" 
+                  alt="NEaR" 
+                  width={32} 
+                  height={32} 
+                  className="h-8 w-8"
+                />
+                <div>
+                  <h1 className="text-2xl font-bold text-cream-glow">
+                    API Key Management
+                  </h1>
+                  <p className="text-sm text-cream-glow/80 mt-1">
+                    Assign and manage user API keys
+                  </p>
+                </div>
               </div>
             </div>
             <button
@@ -415,7 +425,7 @@ export default function AdminApiKeysPage() {
                   {userApiKeys.map((key: any) => (
                     <div
                       key={key.id}
-                      className="border border-[#a4a4a4]/20 rounded-lg p-4 hover:bg-[#2a2a2a] bg-[#1f1f1f]"
+                      className="border border-grape-static/20 rounded-lg p-4 hover:bg-charcoal/80 bg-charcoal/60"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">

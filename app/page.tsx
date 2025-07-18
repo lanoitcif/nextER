@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth/AuthContext'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Activity, ArrowRight } from 'lucide-react'
 
 export default function HomePage() {
@@ -35,7 +36,13 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
-              <Activity className="h-8 w-8 text-teal-mist" />
+              <Image 
+                src="/near-logo.png" 
+                alt="NEaR" 
+                width={40} 
+                height={40} 
+                className="h-10 w-10"
+              />
               <span className="ml-2 text-xl font-bold text-teal-mist">
                 NEaR
               </span>
@@ -61,10 +68,15 @@ export default function HomePage() {
       {/* Hero Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-cream-glow mb-6">
-            Next Earnings
-            <span className="text-sunset-gold block">Release</span>
-          </h1>
+          <div className="flex justify-center mb-6">
+            <Image 
+              src="/near-logo.png" 
+              alt="NEaR" 
+              width={200} 
+              height={200} 
+              className="h-48 w-48 md:h-64 md:w-64"
+            />
+          </div>
           
           <p className="text-xl text-cream-glow/80 mb-8 max-w-2xl mx-auto">
             Professional earnings analysis platform.
@@ -94,7 +106,13 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-center">
             <div className="flex items-center">
-              <Activity className="h-6 w-6 text-teal-mist" />
+              <Image 
+                src="/near-logo.png" 
+                alt="NEaR" 
+                width={32} 
+                height={32} 
+                className="h-8 w-8"
+              />
               <span className="ml-2 text-lg font-bold text-teal-mist">
                 NEaR
               </span>

@@ -44,7 +44,9 @@
       "Bash(git stash:*)",
       "mcp__fetch__fetch",
       "Bash(git branch:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(git merge:*)",
+      "Bash(cp:*)"
     ],
     "deny": []
   },

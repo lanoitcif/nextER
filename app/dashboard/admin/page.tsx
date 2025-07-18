@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { Users, Key, BarChart3, Settings, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface AdminStats {
   totalUsers: number
@@ -76,8 +77,8 @@ export default function AdminPage() {
 
   if (loading || loadingStats) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-charcoal">
+        <div className="text-lg text-cream-glow">Loading...</div>
       </div>
     )
   }
@@ -100,13 +101,22 @@ export default function AdminPage() {
                 <ArrowLeft className="h-4 w-4" />
                 <span>Back to Dashboard</span>
               </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-cream-glow">
-                  Admin Dashboard
-                </h1>
-                <p className="text-sm text-cream-glow/80 mt-1">
-                  System administration and user management
-                </p>
+              <div className="flex items-center space-x-3">
+                <Image 
+                  src="/near-logo.png" 
+                  alt="NEaR" 
+                  width={32} 
+                  height={32} 
+                  className="h-8 w-8"
+                />
+                <div>
+                  <h1 className="text-2xl font-bold text-cream-glow">
+                    Admin Dashboard
+                  </h1>
+                  <p className="text-sm text-cream-glow/80 mt-1">
+                    System administration and user management
+                  </p>
+                </div>
               </div>
             </div>
           </div>

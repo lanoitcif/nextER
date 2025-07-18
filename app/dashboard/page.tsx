@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { LogOut, FileText, Key, Settings, BarChart3, Shield } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface DashboardStats {
   totalAnalyses: number
@@ -102,13 +103,22 @@ export default function DashboardPage() {
       <header className="bg-charcoal border-b border-teal-mist/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-teal-mist">
-                NEaR
-              </h1>
-              <p className="text-sm text-cream-glow/80 mt-1">
-                {profile.full_name || profile.email}
-              </p>
+            <div className="flex items-center space-x-3">
+              <Image 
+                src="/near-logo.png" 
+                alt="NEaR" 
+                width={40} 
+                height={40} 
+                className="h-10 w-10"
+              />
+              <div>
+                <h1 className="text-3xl font-bold text-teal-mist">
+                  NEaR
+                </h1>
+                <p className="text-sm text-cream-glow/80 mt-1">
+                  {profile.full_name || profile.email}
+                </p>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               {profile.can_use_owner_key && (
