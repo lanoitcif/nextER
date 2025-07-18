@@ -24,24 +24,9 @@ export async function POST(request: NextRequest) {
       { status: 401 }
     )
   }
-  const supabaseAdmin = await createClient()
-
-  let accessLevel: string = 'advanced'
-  if (supabaseAdmin && typeof (supabaseAdmin as any).from === 'function') {
-    const { data } = await supabaseAdmin
-      .from('user_profiles')
-      .select('access_level')
-      .eq('id', user.id)
-      .single()
-    accessLevel = data?.access_level || 'basic'
-  }
-
-  if (accessLevel !== 'advanced' && accessLevel !== 'admin') {
-    return NextResponse.json({ error: 'Insufficient access level' }, { status: 403 })
-  }
 
   try {
-    // Parse and validate the request body
+    // Parse and validate the request body early
     const body = await request.json()
     const validation = addApiKeyRequestSchema.safeParse(body)
 
@@ -51,20 +36,34 @@ export async function POST(request: NextRequest) {
 
     const { provider, apiKey, nickname, defaultModel } = validation.data
 
-    // Check if user already has a key with this provider/nickname combination
-    const { data: existingKey, error: checkError } = await supabaseAdmin
-      .from('user_api_keys')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('provider', provider)
-      .eq('nickname', nickname || null)
-      .maybeSingle()
+    // Combine user profile and existing key check into a single query for efficiency
+    const [profileResult, existingKeyResult] = await Promise.all([
+      supabase
+        .from('user_profiles')
+        .select('access_level')
+        .eq('id', user.id)
+        .single(),
+      supabase
+        .from('user_api_keys')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('provider', provider)
+        .eq('nickname', nickname || null)
+        .maybeSingle()
+    ])
 
-    if (checkError && checkError.code !== 'PGRST116') {
-      return handleError(checkError)
+    // Check access level
+    const accessLevel = profileResult.data?.access_level || 'basic'
+    if (accessLevel !== 'advanced' && accessLevel !== 'admin') {
+      return NextResponse.json({ error: 'Insufficient access level' }, { status: 403 })
     }
 
-    if (existingKey) {
+    // Check for existing key
+    if (existingKeyResult.error && existingKeyResult.error.code !== 'PGRST116') {
+      return handleError(existingKeyResult.error)
+    }
+
+    if (existingKeyResult.data) {
       return NextResponse.json(
         { error: 'You already have an API key with this provider and nickname' },
         { status: 409 }
@@ -75,7 +74,7 @@ export async function POST(request: NextRequest) {
     const { encrypted, iv } = encryptForStorage(apiKey)
 
     // Save the encrypted API key
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('user_api_keys')
       .insert({
         user_id: user.id,
@@ -122,11 +121,10 @@ export async function GET(request: NextRequest) {
       { status: 401 }
     )
   }
-  const supabaseAdmin = await createClient()
+
   try {
     // Get user's API keys (without the actual encrypted keys)
-    // Note: preferred_model column might not exist in older database schemas
-    const { data: apiKeys, error } = await supabaseAdmin
+    const { data: apiKeys, error } = await supabase
       .from('user_api_keys')
       .select('id, provider, nickname, created_at, assigned_by_admin, default_model')
       .eq('user_id', user.id)

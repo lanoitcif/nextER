@@ -137,10 +137,10 @@ export default function ApiKeysPage() {
 
     // Safety timeout to prevent infinite loading
     const timeoutId = setTimeout(() => {
-      console.log('⏰ API request timed out after 30 seconds')
+      console.log('⏰ API request timed out after 60 seconds')
       setError('Request timed out. Please try again.')
       setAdding(false)
-    }, 30000)
+    }, 60000)
 
     try {
       console.log('🔍 Checking session...')
@@ -155,14 +155,25 @@ export default function ApiKeysPage() {
       
       if (sessionError || !sessionData.session) {
         console.error('❌ Session error:', sessionError)
-        setError('Your session has expired. Please sign in again.')
-        setSessionExpired(true)
-        setAdding(false)
-        // Redirect to login after a short delay
-        setTimeout(() => {
-          router.push('/auth/login')
-        }, 2000)
-        return
+        // Try to refresh the session before giving up
+        console.log('🔄 Attempting to refresh session...')
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession()
+        
+        if (refreshError || !refreshData.session) {
+          console.error('❌ Session refresh failed:', refreshError)
+          setError('Your session has expired. Please sign in again.')
+          setSessionExpired(true)
+          setAdding(false)
+          // Redirect to login after a short delay
+          setTimeout(() => {
+            router.push('/auth/login')
+          }, 2000)
+          return
+        }
+        
+        console.log('✅ Session refreshed successfully')
+        // Use the refreshed session
+        sessionData.session = refreshData.session
       }
 
       console.log('✅ Session is valid, making API request...')
