@@ -420,8 +420,8 @@ export function createLLMClient(provider: LLMProvider, config: any): LLMClient {
 -- Always use migrations for schema changes
 -- Example: Add new column to existing table
 
-ALTER TABLE user_profiles 
-ADD COLUMN new_field TEXT DEFAULT NULL;
+ALTER TABLE user_profiles
+ADD COLUMN access_level TEXT NOT NULL DEFAULT 'basic' CHECK (access_level IN ('basic','advanced','admin'));
 
 -- Update RLS policy if needed
 DROP POLICY IF EXISTS "Users can view own profile" ON user_profiles;

@@ -167,30 +167,23 @@ Compatible with Netlify, Railway, Render, AWS Amplify, or self-hosted.
 
 ## 👥 User Management
 
-### Standard Users
-- Use their own API keys
-- Access all analysis features
-- View personal usage statistics
+### Access Levels
+Users now have an `access_level`:
 
-### Owner Key Users
-Grant access via database:
+- **basic** – can use admin assigned keys but cannot manage their own
+  keys.
+- **advanced** – may add personal API keys in addition to any assigned
+  by an admin.
+- **admin** – full administrative privileges.
+
+Change a user's level via the admin dashboard or SQL:
 ```sql
-UPDATE user_profiles 
-SET can_use_owner_key = true 
+UPDATE user_profiles
+SET access_level = 'advanced'
 WHERE email = 'user@company.com';
 ```
 
-### Admins
-- Can assign API keys to users with specific providers and default models.
-- Default "General Analysis" company type is always available as fallback.
-- Admin dashboard provides user management and usage analytics.
-- Can delete admin-assigned API keys but not user-created ones.
-Grant access via database:
-```sql
-UPDATE user_profiles
-SET role = 'admin'
-WHERE email = 'admin@example.com';
-```
+Admins can assign API keys directly to users and manage system settings.
 
 ## 🔧 Customization
 

@@ -24,6 +24,21 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     )
   }
   const supabaseAdmin = await createClient()
+
+  let accessLevel: string = 'advanced'
+  if (supabaseAdmin && typeof (supabaseAdmin as any).from === 'function') {
+    const { data } = await supabaseAdmin
+      .from('user_profiles')
+      .select('access_level')
+      .eq('id', user.id)
+      .single()
+    accessLevel = data?.access_level || 'advanced'
+  }
+
+  if (accessLevel !== 'advanced' && accessLevel !== 'admin') {
+    return NextResponse.json({ error: 'Insufficient access level' }, { status: 403 })
+  }
+
   try {
     const resolvedParams = await params
     const apiKeyId = resolvedParams.id
@@ -91,6 +106,21 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     )
   }
   const supabaseAdmin = await createClient()
+
+  let accessLevel: string = 'advanced'
+  if (supabaseAdmin && typeof (supabaseAdmin as any).from === 'function') {
+    const { data } = await supabaseAdmin
+      .from('user_profiles')
+      .select('access_level')
+      .eq('id', user.id)
+      .single()
+    accessLevel = data?.access_level || 'advanced'
+  }
+
+  if (accessLevel !== 'advanced' && accessLevel !== 'admin') {
+    return NextResponse.json({ error: 'Insufficient access level' }, { status: 403 })
+  }
+
   try {
     const resolvedParams = await params
     const apiKeyId = resolvedParams.id

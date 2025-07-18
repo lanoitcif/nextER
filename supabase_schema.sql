@@ -12,6 +12,7 @@ CREATE TABLE public.user_profiles (
   full_name TEXT,
   can_use_owner_key BOOLEAN DEFAULT FALSE,
   is_admin BOOLEAN DEFAULT FALSE,
+  access_level TEXT NOT NULL DEFAULT 'basic' CHECK (access_level IN ('basic', 'advanced', 'admin')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -78,7 +79,8 @@ CREATE POLICY "Users can view their own profile" ON public.user_profiles
 CREATE POLICY "Admins can view all profiles" ON public.user_profiles
   FOR SELECT TO authenticated
   USING (
-    (SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true
+    (SELECT access_level FROM public.user_profiles WHERE id = auth.uid()) = 'admin'
+      OR (SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true
   );
 
 CREATE POLICY "Users can update their own profile" ON public.user_profiles
@@ -87,7 +89,8 @@ CREATE POLICY "Users can update their own profile" ON public.user_profiles
 CREATE POLICY "Admins can update any profile" ON public.user_profiles
   FOR UPDATE TO authenticated
   USING (
-    (SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true
+    (SELECT access_level FROM public.user_profiles WHERE id = auth.uid()) = 'admin'
+      OR (SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true
   );
 
 CREATE POLICY "Users can insert their own profile" ON public.user_profiles
@@ -99,7 +102,8 @@ CREATE POLICY "Users can delete their own profile" ON public.user_profiles
 CREATE POLICY "Admins can delete any profile" ON public.user_profiles
   FOR DELETE TO authenticated
   USING (
-    (SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true
+    (SELECT access_level FROM public.user_profiles WHERE id = auth.uid()) = 'admin'
+      OR (SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true
   );
 
 
@@ -110,7 +114,8 @@ CREATE POLICY "Users can manage their own API keys" ON public.user_api_keys
 CREATE POLICY "Admins can manage all API keys" ON public.user_api_keys
   FOR ALL TO authenticated
   USING (
-    (SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true
+    (SELECT access_level FROM public.user_profiles WHERE id = auth.uid()) = 'admin'
+      OR (SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true
   );
 
 -- RLS Policies for prompts (read-only for users, admin manages via service role)
@@ -124,7 +129,8 @@ CREATE POLICY "Users can view their own usage logs" ON public.usage_logs
 CREATE POLICY "Admins can view all usage logs" ON public.usage_logs
   FOR SELECT TO authenticated
   USING (
-    (SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true
+    (SELECT access_level FROM public.user_profiles WHERE id = auth.uid()) = 'admin'
+      OR (SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true
   );
 
 CREATE POLICY "System can insert usage logs" ON public.usage_logs
@@ -803,7 +809,10 @@ ALTER TABLE public.system_settings ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for system_settings (admin-only access)
 CREATE POLICY "Admins can manage system settings" ON public.system_settings
-  FOR ALL USING ((SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true);
+  FOR ALL USING (
+    (SELECT access_level FROM public.user_profiles WHERE id = auth.uid()) = 'admin'
+      OR (SELECT is_admin FROM public.user_profiles WHERE id = auth.uid()) = true
+  );
 
 -- Insert default system settings
 INSERT INTO public.system_settings (key, value, description) VALUES

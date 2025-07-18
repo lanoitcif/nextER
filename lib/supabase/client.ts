@@ -44,6 +44,8 @@ export interface Database {
           email: string
           full_name: string | null
           can_use_owner_key: boolean
+          is_admin: boolean
+          access_level: 'basic' | 'advanced' | 'admin'
           created_at: string
           updated_at: string
         }
@@ -52,6 +54,8 @@ export interface Database {
           email: string
           full_name?: string | null
           can_use_owner_key?: boolean
+          is_admin?: boolean
+          access_level?: 'basic' | 'advanced' | 'admin'
           created_at?: string
           updated_at?: string
         }
@@ -60,6 +64,8 @@ export interface Database {
           email?: string
           full_name?: string | null
           can_use_owner_key?: boolean
+          is_admin?: boolean
+          access_level?: 'basic' | 'advanced' | 'admin'
           created_at?: string
           updated_at?: string
         }
