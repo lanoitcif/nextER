@@ -123,6 +123,14 @@ The application can also be deployed to other platforms like Netlify, Railway, R
 -   `npm test`: Run Jest tests.
 -   `npm run db:types`: Generate TypeScript types from the Supabase schema.
 
+### AI Agent Knowledge Graph
+
+For AI agents and automated systems working with this project, see the structured operational knowledge in:
+- [AI_KNOWLEDGE_GRAPH.yaml](../AI_KNOWLEDGE_GRAPH.yaml) - Machine-readable workflows, configurations, and procedures
+- [AI_KNOWLEDGE_STRUCTURE.md](../AI_KNOWLEDGE_STRUCTURE.md) - Visual Mermaid chart of the knowledge organization
+
+This enables automated tools to understand project structure, security requirements, and operational procedures without parsing human-focused documentation.
+
 ## 7. Collaboration Framework
 
 This project utilizes the TRIPOD framework for collaborative debugging and development, leveraging multiple AI perspectives through an asynchronous, file-based system.

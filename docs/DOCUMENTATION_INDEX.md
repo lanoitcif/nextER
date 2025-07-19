@@ -24,6 +24,7 @@ This document serves as the central index for all project documentation.
 ## AI Agent Documentation
 
 -   [**AI_KNOWLEDGE_GRAPH.yaml**](../AI_KNOWLEDGE_GRAPH.yaml): Structured operational knowledge for AI agents and knowledge graphs
+-   [**AI_KNOWLEDGE_STRUCTURE.md**](../AI_KNOWLEDGE_STRUCTURE.md): Visual Mermaid chart showing YAML organization and navigation guide
 -   [**CLAUDE_WAKEUP.md**](../CLAUDE_WAKEUP.md): Context and memory for AI agent sessions
 -   [**DOCUMENTATION_STRATEGY.md**](../DOCUMENTATION_STRATEGY.md): Human vs AI documentation architecture and guidelines
 
