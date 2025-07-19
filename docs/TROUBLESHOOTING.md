@@ -307,23 +307,22 @@ This guide provides solutions to common issues encountered in the NEaR (Next Ear
 - Dashboard queries taking several seconds
 
 **Causes:**
-- ✅ **FIXED (July 2025)**: RLS policies causing `auth.uid()` re-evaluation per row
+- RLS policies causing `auth.uid()` re-evaluation per row (optimization attempted but incompatible)
 - Missing database indexes
 - Large result sets without pagination
 - Poor connection pooling
 
 **Solutions:**
-1. **✅ Performance Optimized**: RLS policies now use `(SELECT auth.uid())` subqueries
-2. **Check Supabase metrics** - Look for slow queries
-3. **Add database indexes** - For frequently queried columns
-4. **Implement pagination** - Don't load all data at once
-5. **Use connection pooling** - For high traffic
+1. **Check Supabase metrics** - Look for slow queries
+2. **Add database indexes** - For frequently queried columns  
+3. **Implement pagination** - Don't load all data at once
+4. **Use connection pooling** - For high traffic
+5. **Application-level caching** - Cache frequently accessed data
 
-**Technical Details:**
-- Fixed in commit 8dbacc6 by optimizing all RLS policies
-- `auth.uid()` now evaluated once per query instead of per row
-- Can improve performance from seconds to microseconds on large tables
-- All user_profiles, user_api_keys, usage_logs, and system_settings policies optimized
+**Technical Notes:**
+- RLS subquery optimization `(SELECT auth.uid())` attempted but caused 500 errors
+- Rolled back to original policies in July 2025 for stability
+- Performance improvements should focus on indexing and caching instead
 
 ## Pull Request and Development Issues
 
