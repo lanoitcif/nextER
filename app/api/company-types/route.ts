@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   
   if (authError || !user) {
+    console.error('🔐 Authentication error in company-types API:', authError)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -15,7 +16,10 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const companyId = searchParams.get('companyId')
     
+    console.log('🏢 Company-types API called for companyId:', companyId)
+    
     if (!companyId) {
+      console.error('❌ No companyId provided')
       return NextResponse.json({ error: 'Company ID is required' }, { status: 400 })
     }
 
@@ -28,13 +32,19 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (companyError) {
-      console.error('Error fetching company:', companyError)
+      console.error('❌ Error fetching company:', companyError)
       return NextResponse.json({ error: 'Company not found' }, { status: 404 })
     }
 
     if (!company) {
+      console.error('❌ Company not found for ID:', companyId)
       return NextResponse.json({ error: 'Company not found' }, { status: 404 })
     }
+
+    console.log('✅ Company found:', {
+      primaryTypeId: company.primary_company_type_id,
+      additionalTypes: company.additional_company_types
+    })
 
     // Build the list of company type IDs
     const additionalTypes = Array.isArray(company.additional_company_types) 
@@ -56,9 +66,12 @@ export async function GET(request: NextRequest) {
       .order('name')
 
     if (typesError) {
-      console.error('Error fetching company types:', typesError)
+      console.error('❌ Error fetching company types:', typesError)
       return NextResponse.json({ error: 'Failed to fetch company types' }, { status: 500 })
     }
+
+    console.log('✅ Fetched company types:', companyTypes?.length, 'types')
+    console.log('📋 Company types:', companyTypes?.map(ct => ({ id: ct.id, name: ct.name })))
 
     return NextResponse.json({ 
       companyTypes: companyTypes || [],

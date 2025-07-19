@@ -395,14 +395,22 @@ export default function AnalyzePage() {
 
   const fetchCompanyTypes = async (company: Company) => {
     try {
-      console.log('Fetching company types for company:', company.ticker)
+      console.log('🔄 Fetching company types for company:', company.ticker, 'ID:', company.id)
+      
+      if (!company.id) {
+        console.error('❌ No company ID provided')
+        dispatch({ type: 'SET_ERROR', payload: 'Invalid company data' })
+        return
+      }
       
       const { data: sessionData } = await supabase.auth.getSession()
       if (!sessionData.session) {
+        console.error('❌ No session found')
         dispatch({ type: 'SET_ERROR', payload: 'Authentication required' })
         return
       }
 
+      console.log('📡 Making API request to /api/company-types')
       const response = await fetch(`/api/company-types?companyId=${company.id}`, {
         headers: {
           'Authorization': `Bearer ${sessionData.session.access_token}`,
@@ -412,7 +420,7 @@ export default function AnalyzePage() {
 
       if (!response.ok) {
         const errorResult = await response.json()
-        console.error('Error fetching company types:', errorResult)
+        console.error('❌ Error fetching company types:', response.status, response.statusText, errorResult)
         
         // Fallback to default type only
         const fallbackType = {
@@ -433,8 +441,9 @@ export default function AnalyzePage() {
       const result = await response.json()
       const { companyTypes, primaryTypeId } = result
 
-      console.log('Successfully fetched company types:', companyTypes?.length)
-      console.log('Company types data:', companyTypes)
+      console.log('✅ Successfully fetched company types:', companyTypes?.length)
+      console.log('📋 Company types data:', companyTypes)
+      console.log('🏢 Primary type ID:', primaryTypeId)
       
       // Ensure we have valid data before dispatching
       if (!companyTypes || companyTypes.length === 0) {
