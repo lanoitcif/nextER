@@ -17,3 +17,4 @@ This document serves as the central index for all project documentation.
 -   [**DESIGN.md**](./DESIGN.md): The project's design system, including color palette, typography, and component styles.
 -   [**TROUBLESHOOTING.md**](./TROUBLESHOOTING.md): A guide to common issues and their solutions.
 -   [**COLLABORATION.md**](./COLLABORATION.md): The multi-AI collaboration framework used in this project.
+-   [**AGENT-MCP.md**](./AGENT-MCP.md): ⚠️ **DEPRECATED** - Multi-Agent Collaboration Protocol (no longer in use as of July 2025).

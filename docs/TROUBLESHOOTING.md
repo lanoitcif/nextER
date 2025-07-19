@@ -157,7 +157,30 @@ This guide provides solutions to common issues encountered in the NEaR (Next Ear
 2. **Try a known ticker** - Type "DAL" or "AXP" to test
 3. **Check console for errors** - Look for database query failures
 
-### Analysis Types Not Loading
+### Analysis Types Not Loading After Alt-Tab
+
+**Symptoms:**
+- Analysis type dropdown becomes empty after alt-tabbing away and back
+- "Select analysis type..." shows but no options available
+- Company was selected but types disappeared on page focus change
+- Console shows "User object changed, re-fetching data..." repeatedly
+
+**Causes:**
+- ✅ **FIXED (July 2025)**: Auth context refresh triggering unnecessary data resets
+- Page focus events causing auth object reference changes
+- Duplicate API calls clearing analysis types
+
+**Solutions:**
+1. **✅ Current Version**: Fixed with user ID tracking to prevent unnecessary refetches
+2. **Refresh the page** - If using older version, this reloads data
+3. **Avoid frequent alt-tabbing** - While fixed, minimize if using cached older deployment
+
+**Technical Details:**
+- Fixed in commit 6fb78ac by adding user ID tracking to prevent data clearing
+- Auth context now only refetches when user ID actually changes, not object reference
+- Maintains analysis state across page focus changes without security compromise
+
+### Analysis Types Not Loading (General)
 
 **Symptoms:**
 - "No analysis types available for this company" message
@@ -281,12 +304,26 @@ This guide provides solutions to common issues encountered in the NEaR (Next Ear
 - Features take long to load
 - Timeouts on data fetching
 - Spinners everywhere
+- Dashboard queries taking several seconds
+
+**Causes:**
+- ✅ **FIXED (July 2025)**: RLS policies causing `auth.uid()` re-evaluation per row
+- Missing database indexes
+- Large result sets without pagination
+- Poor connection pooling
 
 **Solutions:**
-1. **Check Supabase metrics** - Look for slow queries
-2. **Add database indexes** - For frequently queried columns
-3. **Implement pagination** - Don't load all data at once
-4. **Use connection pooling** - For high traffic
+1. **✅ Performance Optimized**: RLS policies now use `(SELECT auth.uid())` subqueries
+2. **Check Supabase metrics** - Look for slow queries
+3. **Add database indexes** - For frequently queried columns
+4. **Implement pagination** - Don't load all data at once
+5. **Use connection pooling** - For high traffic
+
+**Technical Details:**
+- Fixed in commit 8dbacc6 by optimizing all RLS policies
+- `auth.uid()` now evaluated once per query instead of per row
+- Can improve performance from seconds to microseconds on large tables
+- All user_profiles, user_api_keys, usage_logs, and system_settings policies optimized
 
 ## Pull Request and Development Issues
 
