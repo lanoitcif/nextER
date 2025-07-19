@@ -14,8 +14,26 @@ Authorization: Bearer <your_jwt_token>
 
 ```
 Development: http://localhost:3000/api
-Production: https://your-domain.com/api
+Production: https://lanoitcif.com/api
 ```
+
+## Supported Models
+
+### OpenAI
+- **Default**: `gpt-4.1-mini` (cost-effective)
+- Available: `gpt-4.1`, `gpt-4.1-mini`, `gpt-4.1-nano`, `o3`, `o3-pro`, `o4-mini`, `o4-mini-high`, `gpt-4o`, `gpt-4o-mini`, `gpt-4o-audio`, `gpt-4-turbo`, `gpt-4`, `gpt-3.5-turbo`
+
+### Anthropic
+- **Default**: `claude-4-sonnet` (balanced performance)
+- Available: `claude-4-opus`, `claude-4-sonnet`, `claude-3.7-sonnet`, `claude-3-5-sonnet-20241022`, `claude-3-5-haiku-20241022`, `claude-3-opus-20240229`, `claude-3-sonnet-20240229`, `claude-3-haiku-20240307`
+
+### Google
+- **Default**: `gemini-2.5-flash` (cost-effective)
+- Available: `gemini-2.5-flash`, `gemini-2.5-pro`, `gemini-2.5-flash-lite`, `gemini-2.0-flash`, `gemini-2.0-flash-lite`, `gemini-1.5-pro`, `gemini-1.5-flash`, `gemini-1.5-flash-8b`
+
+### Cohere
+- **Default**: `command-a-03-2025` (most performant)
+- Available: `command-a-03-2025`, `command-r-plus-08-2024`, `command-r-08-2024`, `command-r7b`, `command-r-plus`, `command-r`, `command`
 
 ## Endpoints
 
@@ -49,7 +67,7 @@ curl -X POST "http://localhost:3000/api/analyze" \
     "companyId": "123e4567-e89b-12d3-a456-426614174000",
     "companyTypeId": "general_analysis",
     "provider": "openai",
-    "model": "gpt-4o-mini",
+    "model": "gpt-4.1-mini",
     "keySource": "owner"
   }'
 ```

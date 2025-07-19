@@ -226,6 +226,7 @@ VALUES ('TICK', 'Company Name', 'industry_id', ARRAY['additional_type']);
 
 ## 🧪 Development
 
+### Traditional Development
 ```bash
 # Type checking
 npm run type-check
@@ -239,6 +240,12 @@ npm run build
 # Testing
 npm test
 ```
+
+### ⚠️ Deprecated: Multi-Agent Development
+
+**Note**: The Agent-MCP multi-agent development framework has been deprecated as of July 2025. This section is kept for historical reference only.
+
+For development, use standard single-agent workflows with Claude Code or similar tools.
 
 ## 📄 License
 
