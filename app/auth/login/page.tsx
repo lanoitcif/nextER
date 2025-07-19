@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth, isAdmin } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -56,7 +57,7 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
