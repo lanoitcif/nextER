@@ -16,6 +16,7 @@
 - [DEVELOPMENT_LOG.md](#development_log-md) - Historical development sessions and achievements
 - [DESIGN_SYSTEM.md](#design_system-md) - UI/UX design guidelines and component library
 - [ADMIN_PAGE_FLOW.md](#admin_page_flow-md) - Admin dashboard workflow
+- [API_KEY_PAGE.md](#api_key_page-md) - API key workflow for each user type
 - [DOCUMENTATION_INDEX.md](#documentation_index-md) - This file
 
 ---
@@ -65,6 +66,11 @@
 - **Purpose**: Overview of admin dashboard behavior
 - **Contains**: Mermaid diagram showing access control and available actions
 - **Use Case**: For developers and administrators to understand how the admin page functions for each user type.
+
+#### **API_KEY_PAGE.md**
+- **Purpose**: Explain API key management workflow for each user type
+- **Contains**: Mermaid diagram of page logic and brief behavior overview
+- **Use Case**: For contributors to understand access controls and API flows when updating key management features.
 
 #### **DOCUMENTATION_INDEX.md**
 - **Purpose**: Navigation and reference system
