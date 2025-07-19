@@ -28,19 +28,17 @@ Analyzes a transcript using the specified LLM provider and prompt. Can automatic
 ```typescript
 interface AnalyzeRequest {
   transcript: string;           // The transcript text to analyze
-  promptId?: string;           // ID of the analysis prompt to use (optional if ticker provided)
-  ticker?: string;             // Company ticker symbol (e.g., "DAL", "AXP") - auto-selects analysis type
-  companyTypeId?: string;      // Specific company type ID to use
+  companyId: string;            // ID of the selected company
+  companyTypeId: string;        // ID of the selected company analysis type
   provider: 'openai' | 'anthropic' | 'google' | 'cohere';
   model?: string;              // Optional specific model (uses default if not provided)
   keySource: 'owner' | 'user_saved' | 'user_temporary';
   userApiKeyId?: string;       // Required if keySource is 'user_saved'
   temporaryApiKey?: string;    // Required if keySource is 'user_temporary'
-  analysisRole?: string;       // Role for template substitution (default: "Expert Financial Analyst")
 }
 ```
 
-#### Example Request (Traditional)
+#### Example Request
 
 ```bash
 curl -X POST "http://localhost:3000/api/analyze" \
@@ -48,43 +46,28 @@ curl -X POST "http://localhost:3000/api/analyze" \
   -H "Authorization: Bearer <your_jwt_token>" \
   -d '{
     "transcript": "Meeting started at 9 AM. John discussed the Q3 budget...",
-    "promptId": "meeting_summary",
+    "companyId": "123e4567-e89b-12d3-a456-426614174000",
+    "companyTypeId": "general_analysis",
     "provider": "openai",
     "model": "gpt-4o-mini",
     "keySource": "owner"
   }'
 ```
 
-#### Example Request (Ticker-based)
-
-```bash
-curl -X POST "http://localhost:3000/api/analyze" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_jwt_token>" \
-  -d '{
-    "transcript": "Q3 earnings call transcript for Delta Air Lines...",
-    "ticker": "DAL",
-    "provider": "anthropic",
-    "keySource": "owner",
-    "analysisRole": "Senior Aviation Industry Analyst"
-  }'
-```
 
 #### Response
 
 ```typescript
 interface AnalyzeResponse {
-  analysis: string;            // The AI-generated analysis
-  provider: string;           // Provider used
-  model: string;              // Model used
-  tokensUsed: number;         // Total tokens consumed
-  estimatedCost: number;      // Estimated cost in USD
-  processingTime: number;     // Processing time in milliseconds
-  companyInfo?: {            // Only present for ticker-based requests
-    ticker: string;
-    companyName: string;
-    analysisType: string;
+  success: boolean;           // Indicates if the analysis was successful
+  analysis: string;           // The AI-generated analysis
+  usage: {                    // Token usage information
+    totalTokens: number;
+    promptTokens: number;
+    completionTokens: number;
   };
+  model: string;              // Model used for the analysis
+  provider: string;           // Provider used for the analysis
 }
 ```
 
@@ -92,12 +75,15 @@ interface AnalyzeResponse {
 
 ```json
 {
+  "success": true,
   "analysis": "## Meeting Summary\n\n### Key Points\n- Q3 budget discussion led by John...",
-  "provider": "openai",
+  "usage": {
+    "totalTokens": 1234,
+    "promptTokens": 1000,
+    "completionTokens": 234
+  },
   "model": "gpt-4o-mini",
-  "tokensUsed": 1234,
-  "estimatedCost": 0.0185,
-  "processingTime": 2340
+  "provider": "openai"
 }
 ```
 
@@ -219,9 +205,12 @@ interface UserApiKey {
   nickname: string;
   created_at: string;
   last_used?: string;
+  assigned_by_admin?: boolean;
+  default_model?: string;
 }
 
 interface GetApiKeysResponse {
+  success: boolean;
   keys: UserApiKey[];
 }
 ```
@@ -254,7 +243,8 @@ Adds a new encrypted API key for the user.
 interface AddApiKeyRequest {
   provider: 'openai' | 'anthropic' | 'google' | 'cohere';
   apiKey: string;              // Will be encrypted before storage
-  nickname: string;            // User-friendly name for the key
+  nickname?: string;           // User-friendly name for the key
+  defaultModel?: string;       // Default model to use with this key
 }
 ```
 
@@ -275,8 +265,14 @@ curl -X POST "http://localhost:3000/api/user-api-keys" \
 
 ```typescript
 interface AddApiKeyResponse {
-  id: string;
-  message: string;
+  success: boolean;
+  apiKey: {
+    id: string;
+    provider: string;
+    nickname: string;
+    created_at: string;
+    default_model?: string;
+  };
 }
 ```
 
@@ -289,23 +285,7 @@ interface AddApiKeyResponse {
 }
 ```
 
----
 
-### GET /api/user-api-keys/[id]
-
-Retrieves metadata for a specific API key.
-
-#### Response
-
-```typescript
-interface ApiKeyDetails {
-  id: string;
-  provider: string;
-  nickname: string;
-  created_at: string;
-  last_used?: string;
-}
-```
 
 ---
 
@@ -317,7 +297,8 @@ Updates the nickname for an existing API key.
 
 ```typescript
 interface UpdateApiKeyRequest {
-  nickname: string;
+  nickname?: string;
+  defaultModel?: string;
 }
 ```
 
@@ -325,7 +306,14 @@ interface UpdateApiKeyRequest {
 
 ```json
 {
-  "message": "API key updated successfully"
+  "success": true,
+  "apiKey": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "provider": "openai",
+    "nickname": "My Updated OpenAI Key",
+    "created_at": "2025-01-15T10:30:00Z",
+    "default_model": "gpt-4.1-mini"
+  }
 }
 ```
 
@@ -339,6 +327,7 @@ Deletes an API key permanently.
 
 ```json
 {
+  "success": true,
   "message": "API key deleted successfully"
 }
 ```
