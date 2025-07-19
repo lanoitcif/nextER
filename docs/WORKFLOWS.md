@@ -56,7 +56,7 @@ flowchart TD
 
 ## Analyze Page Step-by-Step Workflow
 
-This diagram details the step-by-step workflow on the analyze page.
+This diagram details the step-by-step workflow on the analyze page with the new company-types API endpoint.
 
 ```mermaid
 flowchart TD
@@ -64,24 +64,42 @@ flowchart TD
   B[Ticker Input]
   C[Search Button]
   B --> C
-  C --> D{Filtered Companies}
+  C --> D{Companies API Response}
   D -->|Select| E[Selected Company]
-  E --> F[Fetch Company Types]
-  F --> G[Analysis Type Dropdown]
+  E --> F[GET /api/company-types?companyId=X]
+  F -->|Success| G[Analysis Type Dropdown Populated]
+  F -->|Error| GF[Fallback to General Analysis]
   G --> H[Provider Selection]
-  H --> I[Model Dropdown]
-  H --> J[API Key Source]
-  J --> K[Saved API Key Dropdown]
-  J --> L[Temporary API Key]
-  K --> M[Analyze Button]
-  L --> M
-  I --> M
-  M --> N[/api/analyze POST]
-  N --> O[Result Display]
-  O --> P[Copy Button]
-  O --> Q[Download Word]
-  O --> R[View Toggle]
-  O --> S[Error Messages]
+  GF --> H
+  H --> I[Model Dropdown Auto-Updated]
+  H --> J[API Key Source Selection]
+  J -->|user_saved| K[Saved API Key Dropdown]
+  J -->|user_temporary| L[Temporary API Key Input]
+  J -->|owner| M[Use System Keys]
+  K --> N{API Key Available?}
+  N -->|Yes| O[Analyze Button Enabled]
+  N -->|No| P[Show "Add API Key" Link]
+  L --> O
+  M --> O
+  I --> O
+  O --> Q[POST /api/analyze]
+  Q -->|Success| R[Result Display]
+  Q -->|Error| S[Error Messages]
+  R --> T[Copy Button]
+  R --> U[Download Word]
+  R --> V[View Toggle: Rendered/Markdown]
+  
+  subgraph Fallback["Error Handling"]
+    GF
+    P
+    S
+  end
+  
+  style F fill:#e1f5fe
+  style Q fill:#e8f5e8
+  style GF fill:#ffebee
+  style P fill:#fff3e0
+  style S fill:#ffebee
 ```
 
 ## API Key Page Workflow
@@ -109,7 +127,7 @@ flowchart TD
 
 ## Supabase Connection Workflow
 
-This diagram maps how the application communicates with Supabase.
+This diagram maps how the application communicates with Supabase, including the new company-types endpoint.
 
 ```mermaid
 graph TD
@@ -120,6 +138,7 @@ graph TD
   subgraph API Routes
     C[/api/analyze]
     D[/api/companies]
+    CT[/api/company-types]
     E[/api/user-api-keys]
     F[/api/user-api-keys/[id]]
     subgraph Admin
@@ -129,22 +148,35 @@ graph TD
       J[/api/admin/stats]
     end
   end
-  A -->|auth & queries| B
-  B -->|anon key| K[(Supabase)]
-  A -->|fetch| C
-  A -->|fetch| D
-  A -->|fetch| E
-  A -->|fetch| F
-  A -->|fetch| G
-  A -->|fetch| H
-  A -->|fetch| I
-  A -->|fetch| J
+  A -->|auth & session| B
+  B -->|anon key + RLS| K[(Supabase)]
+  A -->|fetch + JWT| C
+  A -->|fetch + JWT| D
+  A -->|fetch + JWT| CT
+  A -->|fetch + JWT| E
+  A -->|fetch + JWT| F
+  A -->|fetch + JWT| G
+  A -->|fetch + JWT| H
+  A -->|fetch + JWT| I
+  A -->|fetch + JWT| J
   C -->|service role| K
   D -->|service role| K
+  CT -->|service role| K
   E -->|service role| K
   F -->|service role| K
   G -->|service role| K
   H -->|service role| K
   I -->|service role| K
   J -->|service role| K
+  
+  subgraph Tables
+    K --> T1[companies]
+    K --> T2[company_types]
+    K --> T3[user_api_keys]
+    K --> T4[user_profiles]
+    K --> T5[usage_logs]
+  end
+  
+  style CT fill:#e1f5fe
+  style T2 fill:#e1f5fe
 ```

@@ -62,6 +62,30 @@ This guide provides solutions to common issues encountered in the NEaR (Next Ear
 2. **Check if key is assigned by admin** - Admin-assigned keys cannot be deleted by users
 3. **Verify session is active** - Log out and back in if needed
 
+### "No Saved [Provider] API Keys Found"
+
+**Symptoms:**
+- Message shows "No saved google API keys found. Add one here"
+- Selected "Use saved API key" but no keys available for chosen provider
+- Analysis button disabled due to missing key
+
+**Causes:**
+- User hasn't added API keys for the selected provider
+- User switched providers without adding keys
+- Keys were deleted or expired
+
+**Solutions:**
+1. **Add API key for provider** - Click "Add one here" link to go to `/dashboard/api-keys`
+2. **Switch to different provider** - Choose a provider where you have saved keys
+3. **Use temporary API key** - Select "Use temporary API key" and enter key directly
+4. **Switch to owner keys** - If available, select "Use system API keys (free)" option
+5. **Check admin assignment** - Admin may need to assign keys for basic users
+
+**Technical Details:**
+- Each provider (OpenAI, Google, Anthropic, Cohere) requires separate API keys
+- Keys are encrypted using AES-256-GCM before database storage
+- Users can only see their own keys (RLS policy enforcement)
+
 ## Session and Authentication Issues
 
 ### "Session Check Timeout" Errors
@@ -136,19 +160,28 @@ This guide provides solutions to common issues encountered in the NEaR (Next Ear
 ### Analysis Types Not Loading
 
 **Symptoms:**
-- "Select a company first..." persists after selection
-- Analysis type dropdown empty
-- Spinner loads indefinitely
+- "No analysis types available for this company" message
+- Analysis type dropdown shows "Select a company first..."
+- Console shows company types query errors
 
 **Causes:**
-- Alt-tab state reset bug (fixed)
-- Database query timeout
-- Missing company type associations
+- ✅ **FIXED**: Client-side database queries causing RLS/authentication issues
+- Network connectivity problems
+- Server-side API endpoint failures
+- Company missing required type associations
 
 **Solutions:**
-1. **Don't alt-tab** during selection (issue fixed in latest version)
-2. **Select company again** - Sometimes requires re-selection
-3. **Use ticker search** instead of company name
+1. **✅ New Architecture (July 2025)**: Company types now loaded via secure `/api/company-types` endpoint
+2. **Refresh the page** - Reloads data with new API endpoint
+3. **Check console errors** - Look for specific API errors
+4. **Try different company** - Test with known working ticker like "PEB" or "DAL"
+5. **Fallback system** - App automatically falls back to "General Analysis" if specific types fail
+
+**Technical Details:**
+- Fixed by creating `/api/company-types` endpoint that handles authentication server-side
+- Removed unreliable client-side Supabase queries
+- Added comprehensive error handling and fallback systems
+- Company types now loaded reliably for all companies with proper RLS policies
 
 ### Analysis Hanging
 

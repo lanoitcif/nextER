@@ -158,7 +158,15 @@ interface GetCompaniesResponse {
 
 ### GET /api/company-types
 
-Retrieves available company analysis types.
+Retrieves available company analysis types for a specific company. This endpoint returns the analysis types that are applicable to the selected company based on its primary and additional company types.
+
+#### Query Parameters
+
+```typescript
+interface CompanyTypesQuery {
+  companyId: string;  // Required: UUID of the company to get analysis types for
+}
+```
 
 #### Response
 
@@ -167,12 +175,20 @@ interface CompanyType {
   id: string;
   name: string;
   description: string;
-  isActive: boolean;
+  system_prompt_template: string;
 }
 
 interface GetCompanyTypesResponse {
   companyTypes: CompanyType[];
+  primaryTypeId: string;  // The primary company type ID for this company
 }
+```
+
+#### Example Request
+
+```bash
+curl -X GET "http://localhost:3000/api/company-types?companyId=123e4567-e89b-12d3-a456-426614174000" \
+  -H "Authorization: Bearer <your_jwt_token>"
 ```
 
 #### Example Response
@@ -181,12 +197,44 @@ interface GetCompanyTypesResponse {
 {
   "companyTypes": [
     {
-      "id": "airline",
-      "name": "Airline",
-      "description": "Analysis template for airline companies",
-      "isActive": true
+      "id": "hospitality_reit",
+      "name": "Hospitality REIT",
+      "description": "Analysis template for hospitality real estate investment trusts",
+      "system_prompt_template": "You are analyzing a hospitality REIT..."
+    },
+    {
+      "id": "earnings_analyst", 
+      "name": "Earnings Analyst",
+      "description": "Narrative analysis format for earnings calls",
+      "system_prompt_template": "You are providing earnings analysis..."
+    },
+    {
+      "id": "general_analysis",
+      "name": "General Analysis", 
+      "description": "Default general financial analysis template suitable for all company types",
+      "system_prompt_template": "You are a financial analyst providing comprehensive earnings analysis."
     }
-  ]
+  ],
+  "primaryTypeId": "hospitality_reit"
+}
+```
+
+#### Error Responses
+
+```typescript
+// Missing Company ID
+{
+  "error": "Company ID is required"
+}
+
+// Company Not Found
+{
+  "error": "Company not found"
+}
+
+// Authentication Error
+{
+  "error": "Unauthorized"
 }
 ```
 

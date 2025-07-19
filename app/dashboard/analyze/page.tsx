@@ -397,62 +397,23 @@ export default function AnalyzePage() {
     try {
       console.log('Fetching company types for company:', company.ticker)
       
-      // Get all possible company types for this company
-      const additionalTypes = Array.isArray(company.additional_company_types) 
-        ? company.additional_company_types 
-        : []
-      const allCompanyTypeIds = [company.primary_company_type_id, ...additionalTypes]
-      
-      // Always include the default general analysis type
-      if (!allCompanyTypeIds.includes('general_analysis')) {
-        allCompanyTypeIds.push('general_analysis')
+      const { data: sessionData } = await supabase.auth.getSession()
+      if (!sessionData.session) {
+        dispatch({ type: 'SET_ERROR', payload: 'Authentication required' })
+        return
       }
-      
-      console.log('Company type IDs to fetch:', allCompanyTypeIds)
-      
-      // Check current session state
-      const { data: sessionCheck } = await supabase.auth.getSession()
-      console.log('Session check before company types query:', {
-        hasSession: !!sessionCheck.session,
-        hasUser: !!sessionCheck.session?.user,
-        userId: sessionCheck.session?.user?.id
-      })
-      
-      // Check if supabase client is properly initialized
-      console.log('Supabase client check:', {
-        hasClient: !!supabase,
-        hasFrom: typeof supabase?.from === 'function',
-        hasAuth: !!supabase?.auth
-      })
-      
-      console.log('🔍 STARTING company types database query...')
-      const startTime = performance.now()
-      
-      // Create and execute the query directly without timeout wrapper
-      const { data, error } = await supabase
-        .from('company_types')
-        .select('id, name, description, system_prompt_template')
-        .in('id', allCompanyTypeIds)
-        .eq('is_active', true)
-      
-      const queryTime = performance.now() - startTime
-      console.log('🔍 COMPLETED company types query in', queryTime.toFixed(0), 'ms')
-      console.log('Company types query result:', { 
-        data, 
-        error, 
-        queryIds: allCompanyTypeIds,
-        dataLength: data?.length || 0,
-        errorMessage: error?.message 
+
+      const response = await fetch(`/api/company-types?companyId=${company.id}`, {
+        headers: {
+          'Authorization': `Bearer ${sessionData.session.access_token}`,
+          'Accept': 'application/json'
+        }
       })
 
-      if (error) {
-        console.error('Error fetching company types:', error)
-        console.error('Error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        })
+      if (!response.ok) {
+        const errorResult = await response.json()
+        console.error('Error fetching company types:', errorResult)
+        
         // Fallback to default type only
         const fallbackType = {
           id: 'general_analysis',
@@ -469,12 +430,15 @@ export default function AnalyzePage() {
         return
       }
 
-      console.log('Successfully fetched company types:', data?.length)
-      console.log('Company types data:', data)
+      const result = await response.json()
+      const { companyTypes, primaryTypeId } = result
+
+      console.log('Successfully fetched company types:', companyTypes?.length)
+      console.log('Company types data:', companyTypes)
       
       // Ensure we have valid data before dispatching
-      if (!data || data.length === 0) {
-        console.warn('No company types returned from query, using fallback')
+      if (!companyTypes || companyTypes.length === 0) {
+        console.warn('No company types returned from API, using fallback')
         const fallbackType = {
           id: 'general_analysis',
           name: 'General Analysis',
@@ -486,12 +450,12 @@ export default function AnalyzePage() {
         return
       }
       
-      dispatch({ type: 'SET_AVAILABLE_COMPANY_TYPES', payload: data })
+      dispatch({ type: 'SET_AVAILABLE_COMPANY_TYPES', payload: companyTypes })
       
       // Auto-select primary company type, or default to general analysis
-      const primaryType = data?.find((ct: CompanyType) => ct.id === company.primary_company_type_id)
-      const defaultType = data?.find((ct: CompanyType) => ct.id === 'general_analysis')
-      const selectedType = primaryType || defaultType || data?.[0]
+      const primaryType = companyTypes?.find((ct: CompanyType) => ct.id === primaryTypeId)
+      const defaultType = companyTypes?.find((ct: CompanyType) => ct.id === 'general_analysis')
+      const selectedType = primaryType || defaultType || companyTypes?.[0]
       
       if (selectedType) {
         dispatch({ type: 'SET_SELECTED_COMPANY_TYPE', payload: selectedType })
