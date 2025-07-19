@@ -1,64 +1,33 @@
 # Design System
 
-## 1. Design Philosophy and Aesthetic Guidelines
-The NEaR application features a clean, retro-inspired design leveraging a palette of soft, muted tones with vibrant accents. It aims for a functional yet nostalgic feel, reminiscent of vintage computing interfaces but with modern usability.
+## 1. Design Philosophy
+The application uses a high-contrast, dark-themed design inspired by retro CRT monitors. The aesthetic is functional and nostalgic, prioritizing legibility and a clean user interface. The entire color and component system is built on a themeable foundation using CSS variables.
 
-## 2. Color Palette and Typography
+## 2. Color Palette and Theming
+The application uses a dark theme by default, defined in `app/globals.css`. Colors are managed via CSS variables to ensure consistency.
 
-### Color Palette
-| Color Name               | Hex       | Tailwind Class    |
-| ------------------------ | --------- | ----------------- |
-| **Cream Pixel Glow**     | `#FAF3E3` | `cream-glow`      |
-| **Sunbleached Coral**    | `#F7797D` | `coral`           |
-| **Retro Sunset Gold**    | `#F4B860` | `sunset-gold`     |
-| **Pacific Teal Mist**    | `#59C9A5` | `teal-mist`       |
-| **Pastel Fuchsia Buzz**  | `#D881D4` | `fuchsia-buzz`    |
-| **Cool Grape Static**    | `#8D8BE0` | `grape-static`    |
-| **Shadow Grid Charcoal** | `#2C2C32` | `charcoal`        |
+### Core Theme Colors (`.dark` theme)
+| Variable | HSL Value | Description |
+|---|---|---|
+| `--background` | `240 6% 10%` | Near Black, main page background |
+| `--foreground` | `44 50% 94%` | Cream Pixel Glow, primary text color |
+| `--card` | `240 6% 13%` | Darker Charcoal, card backgrounds |
+| `--primary` | `358 85% 72%` | Sunbleached Coral, for primary buttons and accents |
+| `--primary-foreground` | `240 6% 10%` | Near Black, text on primary elements |
+| `--secondary` | `158 51% 58%` | Pacific Teal Mist, for secondary buttons |
+| `--secondary-foreground` | `240 6% 10%` | Near Black, text on secondary elements |
+| `--muted-foreground` | `44 50% 80%` | Lighter Cream, for descriptions and subtitles |
+| `--border` | `240 6% 20%` | Charcoal Border, for borders and inputs |
+| `--ring` | `358 85% 72%` | Sunbleached Coral, for focus rings |
 
-### Typography
-- **Body Text on Dark**: Cream Pixel Glow (`#FAF3E3`)
-- **Text in Light Sections**: Shadow Grid Charcoal (`#2C2C32`)
-- **Placeholder Text**: Shadow Grid Charcoal at 60% opacity
-- **Headings**: Bold, high contrast using primary text colors
+## 3. Component Library
+Components are styled globally in `app/globals.css` and use the CSS theme variables.
 
-## 3. Component Library and Usage Guidelines
+- **Buttons (`.btn`, `.btn-primary`, etc.):** Styled with theme colors for high contrast. They use `bg-primary` for the background and `text-primary-foreground` for the text.
+- **Cards (`.card`):** Use `bg-card` and `text-card-foreground`.
+- **Forms (`.input`, `.select`, `.textarea`):** Styled with `border-input` and transparent backgrounds to blend with their container.
 
-### Global Layout (`app/layout.tsx`)
-- **Background**: Main body background color
-- **Font**: Global font configuration
-- **Meta tags**: Theme colors for mobile browsers
-
-### Landing Page (`app/page.tsx`)
-- **Hero Section**: Background gradient, heading and subtitle text colors, CTA button styling.
-- **Features Section**: Feature card backgrounds, icon colors, text colors.
-- **Footer**: Background color, link colors.
-
-### Authentication Pages (`app/auth/login/page.tsx`, `app/auth/signup/page.tsx`)
-- **Form Container**: Card background, headers, form elements, buttons, links, error messages.
-
-### Dashboard Components (`app/dashboard/*`)
-- **Header**: Background color, borders, logo/title color, user profile text, navigation buttons.
-- **Stats Cards**: Card backgrounds, icon colors, number display colors, label text colors.
-- **Action Cards**: "Analyze" and "API Keys" card styling, icon colors, hover states.
-- **Recent Activity Section**: List item backgrounds, file icons, provider/model text, timestamp colors, "Owner Key" badges.
-- **Owner Key Status**: Status indicator dot, text colors.
-
-## 4. Responsive Design Patterns
-- **Mobile (`sm:`)**: Navigation collapse, card layout adjustments, form field sizing, button sizing.
-- **Tablet (`md:`)**: Grid layout changes, sidebar visibility, content spacing.
-- **Desktop (`lg:`, `xl:`)**: Full layout, maximum content widths, expanded navigation.
-
-## 5. Accessibility Standards
-- **Color Contrast**: All text/background combinations meet WCAG AA standards.
-- **Focus Indicators**: Clear, visible focus rings on all interactive elements.
-- **Color Dependencies**: Never rely solely on color to convey information.
-- **Interactive Sizing**: Touch targets minimum 44px for mobile.
-
-## 6. Brand Voice and Messaging
-The visual design should feel:
-- **Nostalgic but functional**
-- **Warm and approachable**
-- **Professional yet creative**
-- **Technically sophisticated**
-- **Distinctly "NEaR"**
+## 4. Accessibility
+The new theme was designed with accessibility as a priority.
+- **Color Contrast:** All default text and background combinations meet WCAG AA standards. The primary and secondary button styles now use dark text on lighter backgrounds to ensure legibility.
+- **Focus Indicators:** All interactive elements have clear, visible focus rings using the `--ring` variable.
