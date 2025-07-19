@@ -21,12 +21,28 @@ This document serves as the central index for all project documentation.
 
 -   [**rls_performance_analysis.md**](../rls_performance_analysis.md): Analysis of Row Level Security performance optimization attempts and current Supabase warnings
 
-## Documentation Consolidation (January 2025)
+## AI Agent Documentation
 
-**Recent Changes:**
+-   [**AI_KNOWLEDGE_GRAPH.yaml**](../AI_KNOWLEDGE_GRAPH.yaml): Structured operational knowledge for AI agents and knowledge graphs
+-   [**CLAUDE_WAKEUP.md**](../CLAUDE_WAKEUP.md): Context and memory for AI agent sessions
+-   [**DOCUMENTATION_STRATEGY.md**](../DOCUMENTATION_STRATEGY.md): Human vs AI documentation architecture and guidelines
+
+## Documentation Evolution (January 2025)
+
+### Phase 1: Consolidation ✅
 - **Merged** `DESIGN.md` content into `GUIDE.md` Section 8
 - **Merged** `COLLABORATION.md` content into `GUIDE.md` Section 7  
 - **Removed** deprecated `AGENT-MCP.md` (multi-agent framework no longer used)
-- **Updated** all documentation with authentication lessons learned and current performance warnings
+- **Reduced** from 9 to 6 human-focused documentation files
 
-This consolidation reduces documentation files from 9 to 6 while maintaining comprehensive coverage and improving navigation.
+### Phase 2: AI-Human Separation ✅
+- **Created** `AI_KNOWLEDGE_GRAPH.yaml` for structured AI agent operational knowledge
+- **Enhanced** `CLAUDE_WAKEUP.md` for AI session context and memory
+- **Established** clear separation between human conceptual docs and AI operational instructions
+- **Documented** strategy in `DOCUMENTATION_STRATEGY.md` for future maintenance
+
+### Benefits
+- **Human docs** focus on understanding, rationale, and strategic context
+- **AI docs** provide structured operational instructions and automation workflows  
+- **Knowledge graphs** can directly ingest YAML for semantic search and agent coordination
+- **Maintenance efficiency** through appropriate format for each audience type

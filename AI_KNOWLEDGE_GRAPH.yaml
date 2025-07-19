@@ -1,0 +1,236 @@
+# AI Agent Knowledge Graph for NEaR Project
+# Format: Structured YAML for knowledge graphs and AI agent configuration
+# Last Updated: January 19, 2025
+
+project:
+  name: "NEaR (Next Earnings Release)"
+  type: "LLM-powered earnings call analysis platform"
+  tech_stack: "Next.js 15, Supabase, TypeScript, Tailwind CSS"
+  deployment: "Vercel auto-deploy from main branch"
+  
+environment:
+  project_id: "xorjwzniopfuosadwvfu"
+  supabase_url: "https://xorjwzniopfuosadwvfu.supabase.co"
+  dashboard_url: "https://supabase.com/dashboard/project/xorjwzniopfuosadwvfu/database/linter"
+  
+  critical_env_vars:
+    - name: "NEXT_PUBLIC_SUPABASE_URL"
+      value: "https://xorjwzniopfuosadwvfu.supabase.co"
+      context: "Public client configuration"
+    - name: "NEXT_PUBLIC_SUPABASE_ANON_KEY" 
+      context: "Client-side only, never server-side"
+      security_note: "Using in server.ts causes production authentication failures"
+    - name: "SUPABASE_SERVICE_ROLE_KEY"
+      context: "Server-side operations only"
+      critical: true
+      security_note: "MUST be used in lib/supabase/server.ts"
+    - name: "USER_API_KEY_ENCRYPTION_SECRET"
+      format: "32-character base64 string"
+      generation_cmd: "node -e \"console.log(require('crypto').randomBytes(32).toString('base64').slice(0, 32))\""
+
+workflows:
+  development:
+    setup:
+      - cmd: "npm install"
+      - cmd: "cp .env.example .env.local"
+      - action: "Configure environment variables"
+    
+    daily_workflow:
+      - cmd: "npm run dev"
+        purpose: "Start development server"
+      - cmd: "npm run type-check"
+        when: "Before any deployment"
+        critical: true
+        note: "Next.js 15 requires explicit types on all callbacks"
+      - cmd: "npm run lint"
+        when: "Before committing"
+      
+    deployment_process:
+      - step: "Type checking"
+        cmd: "npm run type-check"
+        required: true
+        failure_impact: "Vercel build fails"
+      - step: "Linting"
+        cmd: "npm run lint"
+        recommended: true
+      - step: "Commit and push"
+        note: "Vercel auto-deploys from main branch"
+      - step: "Post-deploy verification"
+        actions: ["Test authentication", "Verify basic functionality"]
+
+  database_administration:
+    setup:
+      - cmd: "export SUPABASE_PROJECT_REF=\"xorjwzniopfuosadwvfu\""
+      - cmd: "export SUPABASE_URL=\"https://xorjwzniopfuosadwvfu.supabase.co\""
+    
+    health_checks:
+      - name: "Cache hit rate"
+        cmd: "supabase db inspect cache-hit --project-ref $SUPABASE_PROJECT_REF"
+        threshold: "> 99%"
+        frequency: "weekly"
+      - name: "Slow queries"
+        cmd: "supabase db inspect outliers --project-ref $SUPABASE_PROJECT_REF"
+        frequency: "weekly"
+      - name: "Long running queries"
+        cmd: "supabase db inspect long-running-queries --project-ref $SUPABASE_PROJECT_REF"
+        frequency: "daily"
+    
+    performance_optimization:
+      immediate_fixes:
+        - sql: "CREATE INDEX idx_prompts_company_type_id ON prompts(company_type_id);"
+          priority: "high"
+          impact: "Foreign key performance"
+        - sql: "CREATE INDEX idx_usage_logs_prompt_id ON usage_logs(prompt_id);"
+          priority: "high"
+          impact: "Foreign key performance"  
+        - sql: "CREATE INDEX idx_user_api_keys_admin_assigned_by ON user_api_keys(admin_assigned_by);"
+          priority: "high"
+          impact: "Foreign key performance"
+      
+      cleanup_tasks:
+        - sql: "DROP INDEX IF EXISTS idx_user_api_keys_provider;"
+          condition: "After confirming unused"
+          impact: "Storage savings"
+        - sql: "DROP INDEX IF EXISTS idx_companies_primary_type;"
+          condition: "After confirming unused"
+          impact: "Storage savings"
+
+critical_files:
+  authentication:
+    - path: "lib/supabase/server.ts"
+      line: 9
+      requirement: "MUST use SUPABASE_SERVICE_ROLE_KEY"
+      anti_pattern: "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+      verification_cmd: "grep -n 'SUPABASE_SERVICE_ROLE_KEY' lib/supabase/server.ts"
+    - path: "lib/supabase/client.ts"
+      purpose: "Client-side Supabase configuration"
+      uses: "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+
+  documentation:
+    - path: "CLAUDE_WAKEUP.md"
+      purpose: "AI agent memory and context"
+    - path: "docs/TROUBLESHOOTING.md"
+      purpose: "Current issue solutions"
+    - path: "rls_performance_analysis.md"
+      purpose: "Performance optimization lessons learned"
+    - path: "docs/DATABASE_ADMIN.md"
+      purpose: "Supabase CLI administration guide"
+
+security_critical_patterns:
+  never_do:
+    - pattern: "Using NEXT_PUBLIC_SUPABASE_ANON_KEY in server-side clients"
+      consequence: "Complete production authentication failure"
+      detection_cmd: "grep 'NEXT_PUBLIC_SUPABASE_ANON_KEY' lib/supabase/server.ts"
+      should_return: "empty"
+    - pattern: "Applying RLS changes directly to production"
+      consequence: "500 errors across all endpoints"
+      requirement: "Always test in development first"
+    - pattern: "Deploying without type-checking"
+      consequence: "Vercel build failures"
+      prevention_cmd: "npm run type-check"
+
+  always_do:
+    - pattern: "Use service role key for server-side operations"
+      file: "lib/supabase/server.ts"
+      required_env: "SUPABASE_SERVICE_ROLE_KEY"
+    - pattern: "Add explicit TypeScript types to all callbacks"
+      context: "Next.js 15 requirement"
+      example: "(event: React.FormEvent<HTMLFormElement>) => {}"
+
+known_issues:
+  resolved:
+    - issue: "Production authentication failures"
+      cause: "Server client using anon key instead of service role key"
+      fix: "lib/supabase/server.ts line 9 corrected"
+      commit: "a9fa4a8"
+      date: "January 19, 2025"
+    
+    - issue: "Analysis type dropdown clearing on alt-tab"
+      cause: "Auth context refresh triggering data resets"
+      fix: "User ID tracking to prevent unnecessary refetches"
+      commit: "6fb78ac"
+  
+  ongoing:
+    - issue: "RLS performance warnings"
+      count: 16
+      type: "auth.uid() re-evaluation per row"
+      status: "Subquery optimization failed, duplicate policies need cleanup first"
+    
+    - issue: "Multiple permissive policies"
+      count: 44
+      type: "Duplicate RLS policies"
+      impact: "Performance degradation"
+      priority: "Medium - cleanup before attempting auth optimization"
+
+error_handling:
+  authentication_failures:
+    symptoms: ["500 errors", "401 unauthorized", "Login failures"]
+    first_check: "lib/supabase/server.ts key configuration"
+    diagnostic_cmd: "grep 'NEXT_PUBLIC_SUPABASE_ANON_KEY' lib/supabase/server.ts"
+    resolution: "Should return empty, if found this is the problem"
+  
+  build_failures:
+    primary_cause: "Missing TypeScript types in Next.js 15"
+    solution: "Add explicit types to all callback functions"
+    verification: "npm run type-check"
+  
+  api_key_management_hanging:
+    common_causes: ["Session timeout", "Browser extensions"]
+    user_solutions: ["Page refresh", "Incognito mode testing"]
+
+tool_usage_matrix:
+  mcp_supabase_tools:
+    use_for: ["Application logic queries", "Migration application", "Project configuration"]
+    dont_use_for: ["Performance analysis", "Database administration", "Health monitoring"]
+  
+  supabase_cli:
+    use_for: ["Performance analysis", "Database administration", "Health monitoring", "Index optimization"]
+    dont_use_for: ["Application queries", "User data operations"]
+  
+  standard_dev_tools:
+    use_for: ["Code changes", "TypeScript checking", "Git operations", "Documentation updates"]
+
+automation_opportunities:
+  health_monitoring:
+    frequency: "weekly"
+    commands:
+      - "supabase db inspect cache-hit --project-ref $SUPABASE_PROJECT_REF"
+      - "supabase db inspect long-running-queries --project-ref $SUPABASE_PROJECT_REF"
+      - "supabase db inspect unused-indexes --project-ref $SUPABASE_PROJECT_REF"
+  
+  performance_analysis:
+    frequency: "monthly"
+    sql_queries:
+      - name: "Cache hit rates"
+        sql: "SELECT 'index hit rate' as name, (sum(idx_blks_hit)) / nullif(sum(idx_blks_hit + idx_blks_read),0) * 100 as ratio FROM pg_statio_user_indexes"
+      - name: "Slowest queries"
+        sql: "SELECT query, calls, total_exec_time, total_exec_time / calls as avg_exec_time FROM pg_stat_statements ORDER BY total_exec_time DESC LIMIT 10"
+
+context_requirements:
+  before_database_changes:
+    - "Check current Supabase warnings via linter dashboard"
+    - "Verify cache hit rate > 99%"
+    - "Confirm no active long-running queries"
+    - "Review recent commits for related changes"
+  
+  before_authentication_fixes:
+    - "Verify which Supabase client is affected (server vs client)"
+    - "Check environment variable configuration"
+    - "Review recent authentication-related commits"
+    - "Test in development environment first"
+  
+  before_performance_optimizations:
+    - "Review rls_performance_analysis.md for previous failures"
+    - "Use Supabase CLI inspection tools for current metrics"
+    - "Focus on safe improvements (indexing) before risky ones (RLS optimization)"
+    - "Clean up duplicate policies before attempting subquery optimizations"
+
+knowledge_graph_tags:
+  - "nextjs-15"
+  - "supabase-authentication"
+  - "database-performance"
+  - "rls-optimization"
+  - "typescript-strict"
+  - "vercel-deployment"
+  - "ai-agent-workflows"
+  - "production-critical"
