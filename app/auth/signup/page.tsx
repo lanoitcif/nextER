@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
@@ -72,6 +73,7 @@ export default function SignUpPage() {
             width={64} 
             height={64} 
             className="mx-auto h-16 w-auto"
+            priority
           />
           <h2 className="mt-6 text-center text-3xl font-extrabold">
             Create a new account
@@ -83,10 +85,22 @@ export default function SignUpPage() {
             </Link>
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSignUp}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && <p className="text-center text-sm text-destructive">{error}</p>}
-          {message && <p className="text-center text-sm text-secondary">{message}</p>}
           <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <input
+                id="full-name"
+                name="fullName"
+                type="text"
+                autoComplete="name"
+                required
+                className="input rounded-t-md"
+                placeholder="Full name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+              />
+            </div>
             <div>
               <input
                 id="email-address"
@@ -94,7 +108,7 @@ export default function SignUpPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="input rounded-t-md"
+                className="input"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

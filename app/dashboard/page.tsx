@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/lib/auth/AuthContext'
+import { useAuth, isAdmin, isAdvanced } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
@@ -189,21 +189,21 @@ export default function DashboardPage() {
                 </p>
               </div>
               <div className="card-content">
-                {loadingRecent && (
+                {loadingStats && (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                     <p className="text-sm text-muted-foreground mt-2">Loading recent activity...</p>
                   </div>
                 )}
-                {!loadingRecent && recentActivity.length === 0 && (
+                {!loadingStats && (!stats?.recentAnalyses || stats.recentAnalyses.length === 0) && (
                   <div className="text-center py-8">
                     <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                     <p className="text-sm text-muted-foreground">No recent activity found</p>
                   </div>
                 )}
-                {!loadingRecent && recentActivity.length > 0 && (
+                {!loadingStats && stats?.recentAnalyses && stats.recentAnalyses.length > 0 && (
                   <div className="space-y-4">
-                    {recentActivity.map((activity) => (
+                    {stats.recentAnalyses.map((activity) => (
                       <div key={activity.id} className="flex items-center justify-between p-4 border rounded-lg bg-background/30">
                         <div className="flex items-center space-x-3">
                           <div className="flex-shrink-0">
