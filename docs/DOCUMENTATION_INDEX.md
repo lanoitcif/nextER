@@ -15,6 +15,7 @@ This document serves as the central index for all project documentation.
 
 -   [**WORKFLOWS.md**](WORKFLOWS.md): Visual diagrams of user and system workflows
 -   [**TROUBLESHOOTING.md**](TROUBLESHOOTING.md): A guide to common issues and their solutions, including recent authentication fixes
+-   [**DATABASE_ADMIN.md**](DATABASE_ADMIN.md): Comprehensive database administration using Supabase CLI tools and inspection commands
 
 ## Technical Analysis
 

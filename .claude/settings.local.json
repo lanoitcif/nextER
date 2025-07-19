@@ -49,7 +49,8 @@
       "Bash(cp:*)",
       "mcp__supabase__apply_migration",
       "Bash(npx tsc:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "WebFetch(domain:supabase.com)"
     ],
     "deny": []
   },

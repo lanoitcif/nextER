@@ -318,21 +318,28 @@ This guide provides solutions to common issues encountered in the NEaR (Next Ear
 
 **Causes:**
 - RLS policies causing `auth.uid()` re-evaluation per row (optimization attempted but incompatible)
-- Missing database indexes
+- Missing database indexes (foreign keys without covering indexes)
 - Large result sets without pagination
 - Poor connection pooling
+- Unused indexes wasting resources
 
 **Solutions:**
-1. **Check Supabase metrics** - Look for slow queries
-2. **Add database indexes** - For frequently queried columns  
-3. **Implement pagination** - Don't load all data at once
-4. **Use connection pooling** - For high traffic
-5. **Application-level caching** - Cache frequently accessed data
+1. **Use Supabase CLI inspection tools** - See [DATABASE_ADMIN.md](DATABASE_ADMIN.md) for comprehensive tools
+2. **Add missing foreign key indexes** - `prompts.company_type_id`, `usage_logs.prompt_id`, `user_api_keys.admin_assigned_by`
+3. **Remove unused indexes** - `idx_user_api_keys_provider`, `idx_companies_primary_type`  
+4. **Implement pagination** - Don't load all data at once
+5. **Use connection pooling** - For high traffic
+6. **Application-level caching** - Cache frequently accessed data
+
+**Database Administration:**
+- **Tool**: Use `supabase db inspect` commands instead of MCP server for admin tasks
+- **Monitoring**: Check cache hit rates (should be > 99%)
+- **Analysis**: Run `supabase db inspect outliers` to find slow queries
 
 **Technical Notes:**
 - RLS subquery optimization `(SELECT auth.uid())` attempted but caused 500 errors
-- Rolled back to original policies in July 2025 for stability
-- Performance improvements should focus on indexing and caching instead
+- Current strategy focuses on indexing and duplicate policy cleanup first
+- See [rls_performance_analysis.md](../rls_performance_analysis.md) for detailed optimization plan
 
 ## Pull Request and Development Issues
 

@@ -52,13 +52,48 @@ After the rollback, Supabase still shows multiple performance warnings:
 - **Impact**: Each policy executes for every query, degrading performance
 - **Root Cause**: Historical policy additions without cleanup
 
-## Alternative Approaches
-For future performance optimization:
-1. **Database indexing**: Add indexes on frequently queried columns
-2. **RLS policy consolidation**: Remove duplicate policies before attempting subquery optimization
-3. **Query optimization**: Optimize application-level queries instead of RLS
-4. **Connection pooling**: Implement proper connection pooling for better performance
-5. **Caching layer**: Add Redis or similar caching for frequently accessed data
+### 3. Unindexed Foreign Keys (January 2025)
+- **Issue**: Foreign key constraints without covering indexes cause suboptimal performance
+- **Affected Tables**:
+  - `prompts.company_type_id` → needs index on `company_type_id`
+  - `usage_logs.prompt_id` → needs index on `prompt_id`
+  - `user_api_keys.admin_assigned_by` → needs index on `admin_assigned_by`
+- **Impact**: Slow JOIN queries and foreign key constraint checking
+- **Priority**: High - these are actively used in queries
+
+### 4. Unused Indexes
+- **Issue**: Indexes that have never been used, wasting storage and update performance
+- **Candidates for Removal**:
+  - `idx_user_api_keys_provider` on `user_api_keys.provider`
+  - `idx_companies_primary_type` on `companies.primary_company_type_id`
+- **Impact**: Minor storage savings, slight improvement to INSERT/UPDATE performance
+- **Priority**: Low - cleanup when other optimizations are complete
+
+## Performance Optimization Strategy
+
+### Phase 1: Low-Risk Improvements (Immediate)
+1. **Add Missing Foreign Key Indexes**:
+   ```sql
+   CREATE INDEX idx_prompts_company_type_id ON prompts(company_type_id);
+   CREATE INDEX idx_usage_logs_prompt_id ON usage_logs(prompt_id);
+   CREATE INDEX idx_user_api_keys_admin_assigned_by ON user_api_keys(admin_assigned_by);
+   ```
+
+2. **Remove Unused Indexes** (after confirming no usage):
+   ```sql
+   DROP INDEX IF EXISTS idx_user_api_keys_provider;
+   DROP INDEX IF EXISTS idx_companies_primary_type;
+   ```
+
+### Phase 2: Medium-Risk Improvements (Requires Testing)
+1. **RLS Policy Consolidation**: Remove duplicate policies
+2. **Query optimization**: Optimize application-level queries instead of RLS
+3. **Connection pooling**: Implement proper connection pooling for better performance
+
+### Phase 3: High-Risk Improvements (Development Environment First)
+1. **Auth RLS Subquery Optimization**: Replace `auth.uid()` with `(SELECT auth.uid())`
+2. **Advanced indexing**: Composite indexes based on query patterns
+3. **Caching layer**: Add Redis or similar caching for frequently accessed data
 
 ## Hypothesis: Why Subquery Optimization Failed
 Based on the current warnings, our hypothesis for why `(SELECT auth.uid())` caused 500 errors:
