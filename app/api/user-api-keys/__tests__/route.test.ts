@@ -10,6 +10,16 @@ jest.mock('@/lib/supabase/server', () => ({
 describe('/api/user-api-keys', () => {
   describe('POST', () => {
     it('should return 401 if no token is provided', async () => {
+      const supabase = {
+        auth: {
+          getUser: jest.fn().mockResolvedValue({
+            data: { user: null },
+            error: new Error('Invalid token'),
+          }),
+        },
+      };
+      (createClient as jest.Mock).mockReturnValue(supabase);
+
       const request = new NextRequest('http://localhost/api/user-api-keys', {
         method: 'POST',
         headers: new Headers(),
@@ -67,6 +77,16 @@ describe('/api/user-api-keys', () => {
 
   describe('GET', () => {
     it('should return 401 if no token is provided', async () => {
+      const supabase = {
+        auth: {
+          getUser: jest.fn().mockResolvedValue({
+            data: { user: null },
+            error: new Error('Invalid token'),
+          }),
+        },
+      };
+      (createClient as jest.Mock).mockReturnValue(supabase);
+
       const request = new NextRequest('http://localhost/api/user-api-keys', {
         method: 'GET',
         headers: new Headers(),

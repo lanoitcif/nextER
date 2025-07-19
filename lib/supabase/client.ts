@@ -1,4 +1,7 @@
-import { createClient } from '@supabase/supabase-js'
+// Use the SSR helpers so the auth state is persisted in cookies. This allows
+// our API routes to read the session created on the client side.
+import { createBrowserClient } from '@supabase/ssr'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -16,8 +19,9 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error(`Missing Supabase environment variables. URL: ${!!supabaseUrl}, Key: ${!!supabaseAnonKey}`)
 }
 
-// Client-side Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Client-side Supabase client that stores the auth session in cookies so that
+// it can be accessed by the server via `createServerClient`.
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey)
 
 // Server-side Supabase client with service role (for API routes)
 export const supabaseAdmin = (() => {
@@ -26,7 +30,9 @@ export const supabaseAdmin = (() => {
     // Return a dummy client for client-side usage (service role key not available in browser)
     return null
   }
-  return createClient(supabaseUrl, serviceRoleKey, {
+  // Admin client is only used server-side. We fall back to the standard
+  // supabase-js client here as it does not need to persist any auth state.
+  return createSupabaseClient(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false
