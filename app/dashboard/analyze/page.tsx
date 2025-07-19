@@ -265,17 +265,22 @@ export default function AnalyzePage() {
     }
   }, [user, loading, router])
 
+  // Track user ID to prevent unnecessary refetches on object reference changes
+  const [lastUserId, setLastUserId] = useState<string | null>(null)
+
   useEffect(() => {
-    if (user) {
-      console.log('User object changed, re-fetching data...', user);
+    if (user && user.id !== lastUserId) {
+      console.log('User ID changed, re-fetching data...', user.id);
+      setLastUserId(user.id)
       // Load preferences first, then fetch data to avoid provider conflicts
       loadUserPreferences()
       fetchCompanies()
       fetchUserApiKeys()
+    } else if (user && user.id === lastUserId) {
+      console.log('User object reference changed but same user ID, skipping refetch');
     }
-    // Fixed: Removed isVisible dependency to prevent refetch on alt-tab
-    // Combined user-dependent effects to prevent race conditions
-  }, [user])
+    // Only refetch when user ID actually changes, not on every object reference change
+  }, [user, lastUserId])
 
   // Set default model when provider changes
   useEffect(() => {
