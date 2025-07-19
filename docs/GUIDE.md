@@ -122,3 +122,82 @@ The application can also be deployed to other platforms like Netlify, Railway, R
 -   `npm run type-check`: Run TypeScript type checking.
 -   `npm test`: Run Jest tests.
 -   `npm run db:types`: Generate TypeScript types from the Supabase schema.
+
+## 7. Collaboration Framework
+
+This project utilizes the TRIPOD framework for collaborative debugging and development, leveraging multiple AI perspectives through an asynchronous, file-based system.
+
+### File-Based Async Communication
+
+-   **C2G.md**: Claude to Gemini communication
+-   **G2C.md**: Gemini to Claude response
+
+### Multi-AI Communication Protocols
+
+#### Problem Initiation
+
+-   Brief overview of the problem
+-   Core problem statement and observable symptoms
+-   Relevant code, logs, and architecture
+-   Approaches attempted and current hypothesis
+-   Specific questions and deliverables
+
+#### Analysis Response
+
+-   Primary theory with detailed reasoning
+-   Step-by-step failure sequence
+-   Point-by-point responses to questions
+-   Technical explanations and alternatives
+-   Step-by-step implementation plan
+-   Concrete code examples and debugging techniques
+
+### Session Management
+
+-   **Wake-Up Briefing**: A briefing to re-orient an AI to the current collaboration and project status.
+-   **Project Context**: An overview of the project and its core functionality.
+-   **Last Known State & Recent Activity**: A summary of the last significant interaction.
+-   **Current Focus / Pending Tasks**: A list of immediate next steps.
+
+### API Key Management Review
+
+A review of the API key management system concluded the following:
+
+-   AES-256-GCM encryption is used for user API keys.
+-   Environment variables store encryption secrets and provider owner keys.
+-   API routes never return plaintext keys.
+-   Admin API allows assigning encrypted keys to users.
+-   Jest tests mock Supabase to validate authentication error responses.
+
+## 8. Design System
+
+### Design Philosophy
+The application uses a high-contrast, dark-themed design inspired by retro CRT monitors. The aesthetic is functional and nostalgic, prioritizing legibility and a clean user interface. The entire color and component system is built on a themeable foundation using CSS variables.
+
+### Color Palette and Theming
+The application uses a dark theme by default, defined in `app/globals.css`. Colors are managed via CSS variables to ensure consistency.
+
+#### Core Theme Colors (`.dark` theme)
+| Variable | HSL Value | Description |
+|---|---|---|
+| `--background` | `240 6% 10%` | Near Black, main page background |
+| `--foreground` | `44 50% 94%` | Cream Pixel Glow, primary text color |
+| `--card` | `240 6% 13%` | Darker Charcoal, card backgrounds |
+| `--primary` | `358 85% 72%` | Sunbleached Coral, for primary buttons and accents |
+| `--primary-foreground` | `240 6% 10%` | Near Black, text on primary elements |
+| `--secondary` | `158 51% 58%` | Pacific Teal Mist, for secondary buttons |
+| `--secondary-foreground` | `240 6% 10%` | Near Black, text on secondary elements |
+| `--muted-foreground` | `44 50% 80%` | Lighter Cream, for descriptions and subtitles |
+| `--border` | `240 6% 20%` | Charcoal Border, for borders and inputs |
+| `--ring` | `358 85% 72%` | Sunbleached Coral, for focus rings |
+
+### Component Library
+Components are styled globally in `app/globals.css` and use the CSS theme variables.
+
+- **Buttons (`.btn`, `.btn-primary`, etc.):** Styled with theme colors for high contrast. They use `bg-primary` for the background and `text-primary-foreground` for the text.
+- **Cards (`.card`):** Use `bg-card` and `text-card-foreground`.
+- **Forms (`.input`, `.select`, `.textarea`):** Styled with `border-input` and transparent backgrounds to blend with their container.
+
+### Accessibility
+The new theme was designed with accessibility as a priority.
+- **Color Contrast:** All default text and background combinations meet WCAG AA standards. The primary and secondary button styles now use dark text on lighter backgrounds to ensure legibility.
+- **Focus Indicators:** All interactive elements have clear, visible focus rings using the `--ring` variable.

@@ -7,21 +7,25 @@ This document serves as the central index for all project documentation.
 ## Core Documentation
 
 -   [**README.md**](../README.md): Project overview, features, and setup instructions
--   [**GUIDE.md**](GUIDE.md): Comprehensive guide for developers, covering system architecture, development, deployment, and best practices
+-   [**GUIDE.md**](GUIDE.md): Comprehensive developer guide covering system architecture, development, deployment, design system, and collaboration framework
 -   [**PROJECT.md**](PROJECT.md): Project management documentation, including status, development history, and strategic roadmap
 -   [**API.md**](API.md): Detailed documentation for all API endpoints
 
 ## Specialized Documentation
 
 -   [**WORKFLOWS.md**](WORKFLOWS.md): Visual diagrams of user and system workflows
--   [**DESIGN.md**](DESIGN.md): The project's design system, including color palette, typography, and component styles
--   [**TROUBLESHOOTING.md**](TROUBLESHOOTING.md): A guide to common issues and their solutions
--   [**COLLABORATION.md**](COLLABORATION.md): The multi-AI collaboration framework used in this project
+-   [**TROUBLESHOOTING.md**](TROUBLESHOOTING.md): A guide to common issues and their solutions, including recent authentication fixes
 
 ## Technical Analysis
 
--   [**rls_performance_analysis.md**](../rls_performance_analysis.md): Analysis of Row Level Security performance optimization attempts
+-   [**rls_performance_analysis.md**](../rls_performance_analysis.md): Analysis of Row Level Security performance optimization attempts and current Supabase warnings
 
-## Deprecated Documentation
+## Documentation Consolidation (January 2025)
 
--   [**AGENT-MCP.md**](AGENT-MCP.md): ⚠️ **DEPRECATED** - Multi-Agent Collaboration Protocol (no longer in use as of July 2025)
+**Recent Changes:**
+- **Merged** `DESIGN.md` content into `GUIDE.md` Section 8
+- **Merged** `COLLABORATION.md` content into `GUIDE.md` Section 7  
+- **Removed** deprecated `AGENT-MCP.md` (multi-agent framework no longer used)
+- **Updated** all documentation with authentication lessons learned and current performance warnings
+
+This consolidation reduces documentation files from 9 to 6 while maintaining comprehensive coverage and improving navigation.

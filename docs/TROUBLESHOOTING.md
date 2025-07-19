@@ -127,16 +127,26 @@ This guide provides solutions to common issues encountered in the NEaR (Next Ear
 **Symptoms:**
 - API calls fail with 401 status
 - Features don't work despite being logged in
+- Production login completely fails
 
 **Causes:**
 - Missing environment variables
 - Session/cookie mismatch
 - Server configuration issue
+- **Incorrect Supabase client configuration** (critical)
 
 **Solutions:**
 1. **For developers**: Verify `SUPABASE_SERVICE_ROLE_KEY` is set
-2. **For users**: Clear cookies and log in again
-3. **Check deployment logs** in Vercel for configuration errors
+2. **Check server.ts configuration**: Ensure server-side client uses service role key, not anon key
+3. **For users**: Clear cookies and log in again
+4. **Check deployment logs** in Vercel for configuration errors
+
+**Critical Configuration Issue (July 2025):**
+- **Problem**: Server-side Supabase client in `lib/supabase/server.ts` was accidentally configured to use `NEXT_PUBLIC_SUPABASE_ANON_KEY` instead of `SUPABASE_SERVICE_ROLE_KEY`
+- **Impact**: Complete authentication failure in production - users cannot log in
+- **Root Cause**: The anon key lacks the elevated privileges needed for server-side operations like user session validation and RLS policy bypass
+- **Fix**: Always use `SUPABASE_SERVICE_ROLE_KEY` for server-side clients
+- **Prevention**: Code reviews must verify Supabase client configurations use appropriate keys for their context
 
 ## Company Search and Analysis Issues
 
