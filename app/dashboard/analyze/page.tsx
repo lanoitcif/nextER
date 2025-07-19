@@ -812,9 +812,9 @@ export default function AnalyzePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#161616]">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-[#1f1f1f] shadow-lg border-b border-[#a4a4a4]/20">
+      <header className="shadow-lg border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
@@ -826,10 +826,10 @@ export default function AnalyzePage() {
                 <span>Back to Dashboard</span>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-white">
+                <h1 className="text-2xl font-bold">
                   NEaR Analyze
                 </h1>
-                <p className="text-sm text-[#a4a4a4] mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   AI-powered earnings analysis
                 </p>
               </div>
@@ -871,7 +871,7 @@ export default function AnalyzePage() {
                 <div className="card-content space-y-4">
                   {/* Ticker Input */}
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">
+                    <label className="block text-sm font-medium mb-2">
                       Ticker Symbol
                     </label>
                     <div className="relative company-dropdown-container">
@@ -911,15 +911,15 @@ export default function AnalyzePage() {
                       
                       {/* Company Dropdown */}
                       {state.showDropdown && state.filteredCompanies.length > 0 && (
-                        <div className="absolute z-10 w-full mt-1 bg-[#1f1f1f] border border-[#a4a4a4]/30 rounded-md shadow-lg max-h-60 overflow-auto">
+                        <div className="absolute z-10 w-full mt-1 bg-card border rounded-md shadow-lg max-h-60 overflow-auto">
                           {state.filteredCompanies.map((company) => (
                             <button
                               key={company.id}
                               onClick={() => handleCompanySelect(company)}
-                              className="w-full text-left px-4 py-2 hover:bg-[#2a2a2a] focus:bg-[#2a2a2a] focus:outline-none"
+                              className="w-full text-left px-4 py-2 hover:bg-accent/50 focus:bg-accent/50 focus:outline-none"
                             >
-                              <div className="font-medium text-white">{company.ticker}</div>
-                              <div className="text-sm text-[#a4a4a4]">{company.name}</div>
+                              <div className="font-medium">{company.ticker}</div>
+                              <div className="text-sm text-muted-foreground">{company.name}</div>
                             </button>
                           ))}
                         </div>
@@ -928,22 +928,22 @@ export default function AnalyzePage() {
                   </div>
 
                   {/* Selected Company Display */}
-                  <div className="bg-[#2a3d2a] border border-[#4ade80]/30 rounded-md p-4">
-                    <h4 className="text-sm font-medium text-[#4ade80] mb-1">
+                  <div className="bg-secondary/10 border border-secondary/20 rounded-md p-4">
+                    <h4 className="text-sm font-medium text-secondary mb-1">
                       Selected Company
                     </h4>
-                    <p className="text-sm text-white">
+                    <p className="text-sm">
                       {state.selectedCompany ? (
                         <><strong>{state.selectedCompany.ticker}</strong> - {state.selectedCompany.name}</>
                       ) : (
-                        <span className="text-[#a4a4a4]">No company selected</span>
+                        <span className="text-muted-foreground">No company selected</span>
                       )}
                     </p>
                   </div>
 
                   {/* Analysis Type Selection */}
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">
+                    <label className="block text-sm font-medium mb-2">
                       Analysis Type
                     </label>
                     <select
@@ -968,12 +968,12 @@ export default function AnalyzePage() {
                       ))}
                     </select>
                     {state.selectedCompanyType && (
-                      <p className="text-xs text-charcoal/70 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         {state.selectedCompanyType.description}
                       </p>
                     )}
                     {state.availableCompanyTypes.length === 0 && state.selectedCompany && (
-                      <p className="text-xs text-red-400 mt-1">
+                      <p className="text-xs text-destructive mt-1">
                         No analysis types available for this company. Check database configuration.
                       </p>
                     )}
@@ -989,7 +989,7 @@ export default function AnalyzePage() {
 
                   {/* API Key Source */}
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">
+                    <label className="block text-sm font-medium mb-2">
                       API Key Source
                     </label>
                     <div className="space-y-2">
@@ -1038,40 +1038,40 @@ export default function AnalyzePage() {
 
                   {/* Provider Selection */}
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">
+                    <label className="block text-sm font-medium mb-2">
                       LLM Provider
                     </label>
                     <select
                       value={state.provider}
                       onChange={(e) => dispatch({ type: 'SET_PROVIDER', payload: e.target.value as any })}
-                      className="w-full p-2 border border-grape-static rounded-md bg-cream-glow text-charcoal focus:ring-2 focus:ring-coral focus:border-coral"
+                      className="select w-full"
                       disabled={state.analyzing}
                     >
-                      <option value="openai" className="bg-[#1f1f1f] text-white">OpenAI</option>
-                      <option value="anthropic" className="bg-[#1f1f1f] text-white">Anthropic</option>
-                      <option value="google" className="bg-[#1f1f1f] text-white">Google</option>
-                      <option value="cohere" className="bg-[#1f1f1f] text-white">Cohere</option>
+                      <option value="openai">OpenAI</option>
+                      <option value="anthropic">Anthropic</option>
+                      <option value="google">Google</option>
+                      <option value="cohere">Cohere</option>
                     </select>
                   </div>
 
                   {/* Model Selection */}
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">
+                    <label className="block text-sm font-medium mb-2">
                       Model
                     </label>
                     <select
                       value={state.selectedModel}
                       onChange={(e) => dispatch({ type: 'SET_SELECTED_MODEL', payload: e.target.value })}
-                      className="w-full p-2 border border-grape-static rounded-md bg-cream-glow text-charcoal focus:ring-2 focus:ring-coral focus:border-coral"
+                      className="select w-full"
                       disabled={state.analyzing}
                     >
                       {PROVIDER_MODELS[state.provider].map((model) => (
-                        <option key={model} value={model} className="bg-[#1f1f1f] text-white">
+                        <option key={model} value={model}>
                           {model}
                         </option>
                       ))}
                     </select>
-                    <p className="text-xs text-[#a4a4a4] mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Default: {DEFAULT_MODELS[state.provider]}
                     </p>
                   </div>
@@ -1079,29 +1079,29 @@ export default function AnalyzePage() {
                   {/* Saved API Key Selection */}
                   {state.keySource === 'user_saved' && (
                     <div>
-                      <label className="block text-sm font-medium text-white mb-2">
+                      <label className="block text-sm font-medium mb-2">
                         Saved API Key
                       </label>
                       {state.userApiKeys.filter(key => key.provider === state.provider).length > 0 ? (
                         <select
                           value={state.selectedApiKey}
                           onChange={(e) => dispatch({ type: 'SET_SELECTED_API_KEY', payload: e.target.value })}
-                          className="w-full p-2 border border-grape-static rounded-md bg-cream-glow text-charcoal focus:ring-2 focus:ring-coral focus:border-coral"
+                          className="select w-full"
                           disabled={state.analyzing}
                         >
-                          <option value="" className="bg-cream-glow text-charcoal">Select an API key</option>
+                          <option value="">Select an API key</option>
                           {state.userApiKeys
                             .filter(key => key.provider === state.provider)
                             .map((key) => (
-                              <option key={key.id} value={key.id} className="bg-[#1f1f1f] text-white">
+                              <option key={key.id} value={key.id}>
                                 {key.nickname || `${key.provider} key`}
                               </option>
                             ))}
                         </select>
                       ) : (
-                        <div className="text-sm text-[#a4a4a4]">
+                        <div className="text-sm text-muted-foreground">
                           No saved {state.provider} API keys found.{' '}
-                          <Link href="/dashboard/api-keys" className="text-[#c2995f] hover:underline">
+                          <Link href="/dashboard/api-keys" className="text-primary hover:underline">
                             Add one here
                           </Link>
                         </div>
@@ -1112,7 +1112,7 @@ export default function AnalyzePage() {
                   {/* Temporary API Key Input */}
                   {state.keySource === 'user_temporary' && (
                     <div>
-                      <label className="block text-sm font-medium text-white mb-2">
+                      <label className="block text-sm font-medium mb-2">
                         Temporary API Key
                       </label>
                       <input
@@ -1123,7 +1123,7 @@ export default function AnalyzePage() {
                         className="input w-full"
                         disabled={state.analyzing}
                       />
-                      <p className="text-xs text-charcoal/70 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         This key will not be saved
                       </p>
                     </div>
@@ -1137,7 +1137,7 @@ export default function AnalyzePage() {
                   >
                     {state.analyzing ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
                         <span>Analyzing...</span>
                       </>
                     ) : (
@@ -1168,8 +1168,8 @@ export default function AnalyzePage() {
                           onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: 'rendered' })}
                           className={`px-3 py-1 text-sm rounded-l-lg ${
                             state.viewMode === 'rendered' 
-                              ? 'bg-blue-600 text-white' 
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              ? 'bg-primary text-primary-foreground' 
+                              : 'bg-muted text-muted-foreground hover:bg-muted/80'
                           }`}
                         >
                           <Eye className="h-4 w-4 mr-1 inline" />
@@ -1179,8 +1179,8 @@ export default function AnalyzePage() {
                           onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: 'markdown' })}
                           className={`px-3 py-1 text-sm rounded-r-lg ${
                             state.viewMode === 'markdown' 
-                              ? 'bg-blue-600 text-white' 
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              ? 'bg-primary text-primary-foreground' 
+                              : 'bg-muted text-muted-foreground hover:bg-muted/80'
                           }`}
                         >
                           <EyeOff className="h-4 w-4 mr-1 inline" />
@@ -1207,7 +1207,7 @@ export default function AnalyzePage() {
                   )}
                 </div>
                 {state.analysisMetadata && (
-                  <div className="mt-2 text-xs text-[#a4a4a4] bg-[#1f1f1f] px-3 py-2 rounded-md border border-[#a4a4a4]/20">
+                  <div className="mt-2 text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-md border">
                     <strong>Analysis Details:</strong> {state.analysisMetadata.provider} • {state.analysisMetadata.model}
                     {state.analysisMetadata.usage?.totalTokens && (
                       <> • {state.analysisMetadata.usage.totalTokens.toLocaleString()} tokens</>
@@ -1217,8 +1217,8 @@ export default function AnalyzePage() {
               </div>
               <div className="card-content">
                 {state.error && (
-                  <div className="bg-red-900/20 border border-red-500/30 rounded-md p-4 mb-4">
-                    <div className="text-sm text-red-400">{state.error}</div>
+                  <div className="bg-destructive/20 border border-destructive/30 rounded-md p-4 mb-4">
+                    <div className="text-sm text-destructive">{state.error}</div>
                   </div>
                 )}
                 
@@ -1226,18 +1226,18 @@ export default function AnalyzePage() {
                   <div className="max-w-none">
                     {state.viewMode === 'rendered' ? (
                       <div 
-                        className="prose prose-sm max-w-none prose-headings:text-white prose-p:text-[#a4a4a4] prose-strong:text-white prose-ul:text-[#a4a4a4] prose-li:text-[#a4a4a4] prose-code:text-[#c2995f] prose-code:bg-[#1f1f1f]"
+                        className="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-ul:text-muted-foreground prose-li:text-muted-foreground prose-code:text-primary prose-code:bg-muted"
                         dangerouslySetInnerHTML={{ __html: renderMarkdown(state.result) }}
                       />
                     ) : (
-                      <pre className="whitespace-pre-wrap text-sm bg-[#1f1f1f] text-[#a4a4a4] p-4 rounded-md border border-[#a4a4a4]/30 font-mono">
+                      <pre className="whitespace-pre-wrap text-sm bg-muted text-muted-foreground p-4 rounded-md border font-mono">
                         {state.result}
                       </pre>
                     )}
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-[#a4a4a4]">
-                    <FileText className="mx-auto h-12 w-12 text-[#a4a4a4]/60 mb-4" />
+                  <div className="text-center py-12 text-muted-foreground">
+                    <FileText className="mx-auto h-12 w-12 text-muted-foreground/60 mb-4" />
                     <p>Analysis results will appear here after processing</p>
                   </div>
                 )}

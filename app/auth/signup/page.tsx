@@ -63,76 +63,52 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-charcoal py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="max-w-md w-full space-y-8 p-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-cream-glow">
-            Create Account
+          <Image 
+            src="/near-logo.png" 
+            alt="NEaR" 
+            width={64} 
+            height={64} 
+            className="mx-auto h-16 w-auto"
+          />
+          <h2 className="mt-6 text-center text-3xl font-extrabold">
+            Create a new account
           </h2>
-          <p className="mt-2 text-center text-sm text-cream-glow/80">
-            <Link
-              href="/auth/login"
-              className="font-medium text-sunset-gold hover:text-coral transition-colors"
-            >
-              Sign in
+          <p className="mt-2 text-center text-sm text-muted-foreground">
+            Or{' '}
+            <Link href="/auth/login" className="font-medium text-primary hover:text-primary/90">
+              sign in to your existing account
             </Link>
           </p>
         </div>
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="rounded-md bg-coral/20 border border-coral/50 p-4">
-              <div className="text-sm text-coral">{error}</div>
-            </div>
-          )}
-          
-          <div className="space-y-4">
+        <form className="mt-8 space-y-6" onSubmit={handleSignUp}>
+          {error && <p className="text-center text-sm text-destructive">{error}</p>}
+          {message && <p className="text-center text-sm text-secondary">{message}</p>}
+          <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="full-name" className="block text-sm font-medium text-cream-glow">
-                Full Name
-              </label>
-              <input
-                id="full-name"
-                name="fullName"
-                type="text"
-                autoComplete="name"
-                required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-grape-static bg-cream-glow text-charcoal placeholder-charcoal/60 rounded-md focus:outline-none focus:ring-2 focus:ring-coral focus:border-coral sm:text-sm"
-                placeholder="Enter your full name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="email-address" className="block text-sm font-medium text-cream-glow">
-                Email Address
-              </label>
               <input
                 id="email-address"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-grape-static bg-cream-glow text-charcoal placeholder-charcoal/60 rounded-md focus:outline-none focus:ring-2 focus:ring-coral focus:border-coral sm:text-sm"
-                placeholder="Enter your email address"
+                className="input rounded-t-md"
+                placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-            
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-cream-glow">
-                Password
-              </label>
               <input
                 id="password"
                 name="password"
                 type="password"
                 autoComplete="new-password"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-grape-static bg-cream-glow text-charcoal placeholder-charcoal/60 rounded-md focus:outline-none focus:ring-2 focus:ring-coral focus:border-coral sm:text-sm"
-                placeholder="Choose a strong password"
+                className="input rounded-b-md"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -142,8 +118,8 @@ export default function SignUpPage() {
           <div>
             <button
               type="submit"
+              className="btn-primary w-full"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-coral hover:bg-fuchsia-buzz transition-all duration-200 hover:scale-105 shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-coral disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating account...' : 'Create account'}
             </button>

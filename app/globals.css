@@ -4,50 +4,50 @@
 
 @layer base {
   :root {
-    /* Retro CRT Color Palette */
-    --background: 44 50% 94%;        /* Cream Pixel Glow */
-    --foreground: 240 6% 19%;        /* Shadow Grid Charcoal */
-    --card: 44 50% 94%;              /* Cream Pixel Glow */
-    --card-foreground: 240 6% 19%;   /* Shadow Grid Charcoal */
-    --popover: 44 50% 94%;           /* Cream Pixel Glow */
-    --popover-foreground: 240 6% 19%; /* Shadow Grid Charcoal */
-    --primary: 42 85% 67%;           /* Retro Sunset Gold */
-    --primary-foreground: 240 6% 19%; /* Shadow Grid Charcoal */
-    --secondary: 158 51% 58%;        /* Pacific Teal Mist */
-    --secondary-foreground: 240 6% 19%; /* Shadow Grid Charcoal */
-    --muted: 44 50% 94%;             /* Cream Pixel Glow */
-    --muted-foreground: 240 6% 19%;   /* Shadow Grid Charcoal */
-    --accent: 302 57% 68%;           /* Pastel Fuchsia Buzz */
-    --accent-foreground: 240 6% 19%; /* Shadow Grid Charcoal */
-    --destructive: 358 85% 72%;      /* Sunbleached Coral */
-    --destructive-foreground: 44 50% 94%; /* Cream Pixel Glow */
-    --border: 240 6% 19%;            /* Shadow Grid Charcoal */
-    --input: 44 50% 94%;             /* Cream Pixel Glow */
-    --ring: 242 59% 69%;             /* Cool Grape Static */
+    /* Define light theme variables */
+    --background: 240 10% 96%;      /* Light Gray */
+    --foreground: 240 10% 3.9%;     /* Dark Gray */
+    --card: 240 10% 96%;            /* Light Gray */
+    --card-foreground: 240 10% 3.9%; /* Dark Gray */
+    --popover: 240 10% 96%;         /* Light Gray */
+    --popover-foreground: 240 10% 3.9%; /* Dark Gray */
+    --primary: 358 85% 72%;         /* Sunbleached Coral */
+    --primary-foreground: 240 10% 3.9%; /* Dark Gray */
+    --secondary: 158 51% 58%;      /* Pacific Teal Mist */
+    --secondary-foreground: 240 10% 3.9%; /* Dark Gray */
+    --muted: 240 5% 90%;            /* Lighter Gray */
+    --muted-foreground: 240 5% 65%;  /* Medium Gray */
+    --accent: 242 59% 69%;          /* Cool Grape Static */
+    --accent-foreground: 240 10% 3.9%; /* Dark Gray */
+    --destructive: 358 85% 72%;    /* Sunbleached Coral */
+    --destructive-foreground: 240 10% 96%; /* Light Gray */
+    --border: 240 5% 85%;           /* Gray Border */
+    --input: 240 5% 85%;            /* Gray Border */
+    --ring: 358 85% 72%;            /* Sunbleached Coral */
     --radius: 0.5rem;
   }
 
   .dark {
-    /* Dark mode using same retro palette but inverted */
-    --background: 240 6% 19%;        /* Shadow Grid Charcoal */
+    /* Dark theme using retro palette */
+    --background: 240 6% 10%;        /* Near Black */
     --foreground: 44 50% 94%;        /* Cream Pixel Glow */
-    --card: 240 6% 19%;              /* Shadow Grid Charcoal */
+    --card: 240 6% 13%;              /* Darker Charcoal */
     --card-foreground: 44 50% 94%;   /* Cream Pixel Glow */
-    --popover: 240 6% 19%;           /* Shadow Grid Charcoal */
+    --popover: 240 6% 10%;           /* Near Black */
     --popover-foreground: 44 50% 94%; /* Cream Pixel Glow */
-    --primary: 42 85% 67%;           /* Retro Sunset Gold */
-    --primary-foreground: 240 6% 19%; /* Shadow Grid Charcoal */
+    --primary: 358 85% 72%;         /* Sunbleached Coral */
+    --primary-foreground: 240 6% 10%; /* Near Black */
     --secondary: 158 51% 58%;        /* Pacific Teal Mist */
-    --secondary-foreground: 240 6% 19%; /* Shadow Grid Charcoal */
-    --muted: 240 6% 19%;             /* Shadow Grid Charcoal */
-    --muted-foreground: 44 50% 94%;   /* Cream Pixel Glow */
-    --accent: 302 57% 68%;           /* Pastel Fuchsia Buzz */
-    --accent-foreground: 240 6% 19%; /* Shadow Grid Charcoal */
+    --secondary-foreground: 240 6% 10%; /* Near Black */
+    --muted: 240 6% 13%;             /* Darker Charcoal */
+    --muted-foreground: 44 50% 80%;  /* Lighter Cream */
+    --accent: 242 59% 69%;          /* Cool Grape Static */
+    --accent-foreground: 240 6% 10%; /* Near Black */
     --destructive: 358 85% 72%;      /* Sunbleached Coral */
-    --destructive-foreground: 44 50% 94%; /* Cream Pixel Glow */
-    --border: 44 50% 94%;            /* Cream Pixel Glow */
-    --input: 240 6% 19%;             /* Shadow Grid Charcoal */
-    --ring: 242 59% 69%;             /* Cool Grape Static */
+    --destructive-foreground: 240 6% 10%; /* Near Black */
+    --border: 240 6% 20%;            /* Charcoal Border */
+    --input: 240 6% 20%;             /* Charcoal Border */
+    --ring: 358 85% 72%;             /* Sunbleached Coral */
   }
 }
 
@@ -62,39 +62,39 @@
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-all duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
 
   .btn-primary {
-    @apply btn bg-coral text-white hover:bg-fuchsia-buzz shadow-lg h-10 px-4 py-2;
+    @apply btn bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg h-10 px-4 py-2;
   }
 
   .btn-secondary {
-    @apply btn bg-teal-mist text-white hover:bg-grape-static shadow-lg h-10 px-4 py-2;
+    @apply btn bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-lg h-10 px-4 py-2;
   }
 
   .btn-destructive {
-    @apply btn bg-coral text-white hover:bg-coral/90 shadow-lg h-10 px-4 py-2;
+    @apply btn bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-lg h-10 px-4 py-2;
   }
 
   .btn-outline {
-    @apply btn border border-grape-static bg-transparent text-charcoal hover:bg-grape-static hover:text-cream-glow h-10 px-4 py-2;
+    @apply btn border border-input bg-transparent hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2;
   }
 
   .btn-ghost {
-    @apply btn hover:bg-grape-static/20 hover:text-charcoal text-charcoal h-10 px-4 py-2;
+    @apply btn hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2;
   }
 
-  .input {
-    @apply flex h-10 w-full rounded-md border border-grape-static bg-cream-glow text-charcoal px-3 py-2 text-sm placeholder:text-charcoal/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral focus-visible:border-coral disabled:cursor-not-allowed disabled:opacity-50;
+  .input, .select, .textarea {
+    @apply flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
   }
-
+  
   .textarea {
-    @apply flex min-h-[80px] w-full rounded-md border border-grape-static bg-cream-glow text-charcoal px-3 py-2 text-sm placeholder:text-charcoal/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral focus-visible:border-coral disabled:cursor-not-allowed disabled:opacity-50 resize-y;
+    @apply min-h-[80px] resize-y;
   }
 
   .card {
-    @apply rounded-lg border border-charcoal bg-cream-glow text-charcoal shadow-lg;
+    @apply rounded-lg border bg-card text-card-foreground shadow-lg;
   }
 
   .card-header {
@@ -102,11 +102,11 @@
   }
 
   .card-title {
-    @apply text-2xl font-semibold leading-none tracking-tight text-charcoal;
+    @apply text-2xl font-semibold leading-none tracking-tight;
   }
 
   .card-description {
-    @apply text-sm text-charcoal/70;
+    @apply text-sm text-muted-foreground;
   }
 
   .card-content {
@@ -120,7 +120,7 @@
   /* Custom scrollbar styling */
   .scrollbar-retro {
     scrollbar-width: thin;
-    scrollbar-color: theme('colors.teal-mist') theme('colors.charcoal');
+    scrollbar-color: var(--secondary) var(--background);
   }
   
   .scrollbar-retro::-webkit-scrollbar {
@@ -128,16 +128,16 @@
   }
   
   .scrollbar-retro::-webkit-scrollbar-track {
-    background: theme('colors.charcoal');
+    background: var(--background);
     border-radius: 6px;
   }
   
   .scrollbar-retro::-webkit-scrollbar-thumb {
-    background: theme('colors.teal-mist');
+    background: var(--secondary);
     border-radius: 6px;
   }
   
   .scrollbar-retro::-webkit-scrollbar-thumb:hover {
-    background: theme('colors.coral');
+    background: var(--primary);
   }
 }

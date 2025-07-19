@@ -98,48 +98,41 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-charcoal">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-charcoal border-b border-teal-mist/30">
+      <header className="shadow-lg border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-3">
               <Image 
                 src="/near-logo.png" 
                 alt="NEaR" 
-                width={40} 
-                height={40} 
-                className="h-10 w-10"
+                width={32} 
+                height={32} 
+                className="h-8 w-8"
               />
               <div>
-                <h1 className="text-3xl font-bold text-teal-mist">
-                  NEaR
+                <h1 className="text-2xl font-bold">
+                  NEaR Dashboard
                 </h1>
-                <p className="text-sm text-cream-glow/80 mt-1">
-                  {profile.full_name || profile.email}
+                <p className="text-sm text-muted-foreground mt-1">
+                  Welcome back, {user.email}
                 </p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              {profile.can_use_owner_key && (
+              {isAdmin(profile) && (
                 <Link
                   href="/dashboard/admin"
-                  className="text-cream-glow hover:text-sunset-gold flex items-center space-x-2 px-3 py-2 rounded transition-colors"
+                  className="btn-ghost flex items-center space-x-2"
                 >
-                  <Shield className="h-4 w-4" />
+                  <Settings className="h-4 w-4" />
                   <span>Admin</span>
                 </Link>
               )}
-              <Link
-                href="/dashboard/settings"
-                className="text-cream-glow hover:text-sunset-gold flex items-center space-x-2 px-3 py-2 rounded transition-colors"
-              >
-                <Settings className="h-4 w-4" />
-                <span>Settings</span>
-              </Link>
               <button
                 onClick={handleSignOut}
-                className="text-red-400 hover:text-red-300 flex items-center space-x-2 px-3 py-2 rounded"
+                className="btn-ghost flex items-center space-x-2"
               >
                 <LogOut className="h-4 w-4" />
                 <span>Sign Out</span>
@@ -151,170 +144,92 @@ export default function DashboardPage() {
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          {/* Stats Cards */}
-          {!loadingStats && stats && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="card">
-                <div className="card-content">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <BarChart3 className="h-8 w-8 text-blue-600" />
-                    </div>
-                    <div className="ml-5 w-0 flex-1">
-                      <dl>
-                        <dt className="text-sm font-medium text-charcoal/70 truncate">
-                          Analyses
-                        </dt>
-                        <dd className="text-lg font-medium text-charcoal">
-                          {stats.totalAnalyses}
-                        </dd>
-                      </dl>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="card">
-                <div className="card-content">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <FileText className="h-8 w-8 text-green-600" />
-                    </div>
-                    <div className="ml-5 w-0 flex-1">
-                      <dl>
-                        <dt className="text-sm font-medium text-charcoal/70 truncate">
-                          Tokens Used
-                        </dt>
-                        <dd className="text-lg font-medium text-charcoal">
-                          {stats.totalTokensUsed.toLocaleString()}
-                        </dd>
-                      </dl>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="card">
-                <div className="card-content">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <Key className="h-8 w-8 text-purple-600" />
-                    </div>
-                    <div className="ml-5 w-0 flex-1">
-                      <dl>
-                        <dt className="text-sm font-medium text-charcoal/70 truncate">
-                          Cost
-                        </dt>
-                        <dd className="text-lg font-medium text-charcoal">
-                          ${stats.totalCostEstimate.toFixed(4)}
-                        </dd>
-                      </dl>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Action Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <Link href="/dashboard/analyze" className="card hover:shadow-lg transition-shadow">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Action Cards */}
+            <Link href="/dashboard/analyze" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
               <div className="card-content">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <FileText className="h-12 w-12 text-blue-600" />
+                <div className="flex items-center space-x-4">
+                  <div className="bg-secondary/20 p-3 rounded-lg">
+                    <BarChart3 className="h-8 w-8 text-secondary" />
                   </div>
-                  <div className="ml-5">
-                    <h3 className="text-lg font-medium text-charcoal">
-                      Analyze
-                    </h3>
-                    <p className="text-sm text-charcoal/70">
-                      Earnings analysis
+                  <div>
+                    <h3 className="text-lg font-semibold">Analyze Transcript</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Analyze earnings call transcripts with AI
                     </p>
                   </div>
                 </div>
               </div>
             </Link>
 
-            <Link href="/dashboard/api-keys" className="card hover:shadow-lg transition-shadow">
-              <div className="card-content">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <Key className="h-12 w-12 text-green-600" />
-                  </div>
-                  <div className="ml-5">
-                    <h3 className="text-lg font-medium text-charcoal">
-                      API Keys
-                    </h3>
-                    <p className="text-sm text-charcoal/70">
-                      Provider keys
-                    </p>
+            {isAdvanced(profile) && (
+              <Link href="/dashboard/api-keys" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
+                <div className="card-content">
+                  <div className="flex items-center space-x-4">
+                    <div className="bg-primary/20 p-3 rounded-lg">
+                      <Key className="h-8 w-8 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold">Manage API Keys</h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Add and manage your personal API keys
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          </div>
+              </Link>
+            )}
 
-          {/* Recent Activity */}
-          {!loadingStats && stats && stats.recentAnalyses.length > 0 && (
-            <div className="card">
+            {/* Recent Activity */}
+            <div className="md:col-span-2 lg:col-span-3 card">
               <div className="card-header">
                 <h3 className="card-title">Recent Activity</h3>
                 <p className="card-description">
-                  Recent
+                  Your most recent transcript analyses
                 </p>
               </div>
               <div className="card-content">
-                <div className="space-y-4">
-                  {stats.recentAnalyses.map((analysis) => (
-                    <div key={analysis.id} className="flex items-center justify-between py-3 border-b border-[#a4a4a4]/30 last:border-b-0">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0">
-                          <FileText className="h-5 w-5 text-cream-glow/70" />
+                {loadingRecent && (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                    <p className="text-sm text-muted-foreground mt-2">Loading recent activity...</p>
+                  </div>
+                )}
+                {!loadingRecent && recentActivity.length === 0 && (
+                  <div className="text-center py-8">
+                    <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                    <p className="text-sm text-muted-foreground">No recent activity found</p>
+                  </div>
+                )}
+                {!loadingRecent && recentActivity.length > 0 && (
+                  <div className="space-y-4">
+                    {recentActivity.map((activity) => (
+                      <div key={activity.id} className="flex items-center justify-between p-4 border rounded-lg bg-background/30">
+                        <div className="flex items-center space-x-3">
+                          <div className="flex-shrink-0">
+                            <FileText className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">
+                              {activity.provider} - {activity.model}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(activity.created_at).toLocaleString()}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-cream-glow">
-                            {analysis.provider} - {analysis.model}
-                          </p>
-                          <p className="text-xs text-cream-glow/70">
-                            {new Date(analysis.created_at).toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        {analysis.used_owner_key && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sunset-gold/20 text-sunset-gold">
+                        {activity.used_owner_key && (
+                          <span className="text-xs font-semibold bg-secondary/20 text-secondary px-2 py-1 rounded-full">
                             Owner Key
                           </span>
                         )}
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-          )}
-
-          {/* Owner Key Status */}
-          {profile.can_use_owner_key && (
-            <div className="card mt-6">
-              <div className="card-content">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-3 h-3 bg-[#c2995f] rounded-full"></div>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-cream-glow">
-                      System Access Enabled
-                    </p>
-                    <p className="text-xs text-cream-glow/70">
-                      Free analysis using system keys
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       </main>
     </div>

@@ -88,9 +88,9 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-charcoal">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-charcoal shadow-lg border-b border-teal-mist/30">
+      <header className="shadow-lg border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
@@ -110,10 +110,10 @@ export default function AdminPage() {
                   className="h-8 w-8"
                 />
                 <div>
-                  <h1 className="text-2xl font-bold text-cream-glow">
+                  <h1 className="text-2xl font-bold">
                     Admin Dashboard
                   </h1>
-                  <p className="text-sm text-cream-glow/80 mt-1">
+                  <p className="text-sm text-muted-foreground mt-1">
                     System administration and user management
                   </p>
                 </div>
@@ -129,56 +129,56 @@ export default function AdminPage() {
           {stats && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <div className="card">
-                <div className="card-content">
+                <div className="card-content p-6">
                   <div className="flex items-center">
-                    <div className="bg-teal-mist/20 p-3 rounded-lg">
-                      <Users className="h-6 w-6 text-teal-mist" />
+                    <div className="bg-secondary/20 p-3 rounded-lg">
+                      <Users className="h-6 w-6 text-secondary" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-cream-glow">{stats.totalUsers}</h3>
-                      <p className="text-sm text-cream-glow/70">Total Users</p>
+                      <h3 className="text-lg font-semibold">{stats.totalUsers}</h3>
+                      <p className="text-sm text-muted-foreground">Total Users</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="card">
-                <div className="card-content">
+                <div className="card-content p-6">
                   <div className="flex items-center">
-                    <div className="bg-sunset-gold/20 p-3 rounded-lg">
-                      <Key className="h-6 w-6 text-sunset-gold" />
+                    <div className="bg-primary/20 p-3 rounded-lg">
+                      <Key className="h-6 w-6 text-primary" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-cream-glow">{stats.totalApiKeys}</h3>
-                      <p className="text-sm text-cream-glow/70">API Keys</p>
+                      <h3 className="text-lg font-semibold">{stats.totalApiKeys}</h3>
+                      <p className="text-sm text-muted-foreground">API Keys</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="card">
-                <div className="card-content">
+                <div className="card-content p-6">
                   <div className="flex items-center">
-                    <div className="bg-fuchsia-buzz/20 p-3 rounded-lg">
-                      <BarChart3 className="h-6 w-6 text-fuchsia-buzz" />
+                    <div className="bg-accent/20 p-3 rounded-lg">
+                      <BarChart3 className="h-6 w-6 text-accent" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-cream-glow">{stats.totalUsage}</h3>
-                      <p className="text-sm text-cream-glow/70">Total Analyses</p>
+                      <h3 className="text-lg font-semibold">{stats.totalUsage}</h3>
+                      <p className="text-sm text-muted-foreground">Total Analyses</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="card">
-                <div className="card-content">
+                <div className="card-content p-6">
                   <div className="flex items-center">
-                    <div className="bg-coral/20 p-3 rounded-lg">
-                      <BarChart3 className="h-6 w-6 text-coral" />
+                    <div className="bg-destructive/20 p-3 rounded-lg">
+                      <BarChart3 className="h-6 w-6 text-destructive" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-cream-glow">{stats.monthlyUsage}</h3>
-                      <p className="text-sm text-cream-glow/70">This Month</p>
+                      <h3 className="text-lg font-semibold">{stats.monthlyUsage}</h3>
+                      <p className="text-sm text-muted-foreground">This Month</p>
                     </div>
                   </div>
                 </div>
@@ -189,14 +189,14 @@ export default function AdminPage() {
           {/* Admin Actions */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Link href="/dashboard/admin/api-keys" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
-              <div className="card-content">
+              <div className="card-content p-6">
                 <div className="flex items-center space-x-4">
-                  <div className="bg-teal-mist/20 p-3 rounded-lg">
-                    <Key className="h-8 w-8 text-teal-mist" />
+                  <div className="bg-secondary/20 p-3 rounded-lg">
+                    <Key className="h-8 w-8 text-secondary" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-cream-glow">API Key Management</h3>
-                    <p className="text-sm text-cream-glow/70 mt-1">
+                    <h3 className="text-lg font-semibold">API Key Management</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
                       Assign and manage user API keys and default models
                     </p>
                   </div>
@@ -205,14 +205,14 @@ export default function AdminPage() {
             </Link>
 
             <Link href="/dashboard/admin/users" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
-              <div className="card-content">
+              <div className="card-content p-6">
                 <div className="flex items-center space-x-4">
-                  <div className="bg-sunset-gold/20 p-3 rounded-lg">
-                    <Users className="h-8 w-8 text-sunset-gold" />
+                  <div className="bg-primary/20 p-3 rounded-lg">
+                    <Users className="h-8 w-8 text-primary" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-cream-glow">User Management</h3>
-                    <p className="text-sm text-cream-glow/70 mt-1">
+                    <h3 className="text-lg font-semibold">User Management</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
                       View and manage user accounts and permissions
                     </p>
                   </div>
@@ -221,14 +221,14 @@ export default function AdminPage() {
             </Link>
 
             <Link href="/dashboard/admin/usage" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
-              <div className="card-content">
+              <div className="card-content p-6">
                 <div className="flex items-center space-x-4">
-                  <div className="bg-fuchsia-buzz/20 p-3 rounded-lg">
-                    <BarChart3 className="h-8 w-8 text-fuchsia-buzz" />
+                  <div className="bg-accent/20 p-3 rounded-lg">
+                    <BarChart3 className="h-8 w-8 text-accent" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-cream-glow">Usage Analytics</h3>
-                    <p className="text-sm text-cream-glow/70 mt-1">
+                    <h3 className="text-lg font-semibold">Usage Analytics</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
                       Monitor system usage and cost analytics
                     </p>
                   </div>
