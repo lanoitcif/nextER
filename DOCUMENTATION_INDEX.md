@@ -2,7 +2,7 @@
 
 **Last Updated**: July 17, 2025  
 **Project**: NEaR (Next Earnings Release) - Earnings Call Analysis Platform  
-**Documentation Files**: 8 total
+**Documentation Files**: 10 total
 
 ---
 
@@ -15,6 +15,8 @@
 - [COLLABORATION_FRAMEWORK.md](#collaboration_framework-md) - Multi-AI collaboration methodology and tools
 - [DEVELOPMENT_LOG.md](#development_log-md) - Historical development sessions and achievements
 - [DESIGN_SYSTEM.md](#design_system-md) - UI/UX design guidelines and component library
+- [ADMIN_PAGE_FLOW.md](#admin_page_flow-md) - Admin dashboard workflow
+- [REFACTORING_OPPORTUNITIES.md](#refactoring_opportunities-md) - Potential improvements
 - [DOCUMENTATION_INDEX.md](#documentation_index-md) - This file
 
 ---
@@ -59,6 +61,16 @@
 - **Purpose**: UI/UX design guidelines and component library
 - **Contains**: Design philosophy, color palette, typography, component library, responsive design patterns, accessibility standards, and brand voice.
 - **Use Case**: For designers and frontend developers to maintain a consistent and high-quality user experience.
+
+#### **ADMIN_PAGE_FLOW.md**
+- **Purpose**: Overview of admin dashboard behavior
+- **Contains**: Mermaid diagram showing access control and available actions
+- **Use Case**: For developers and administrators to understand how the admin page functions for each user type.
+
+#### **REFACTORING_OPPORTUNITIES.md**
+- **Purpose**: List of potential codebase improvements
+- **Contains**: Refactoring and optimization opportunities discovered during review
+- **Use Case**: For maintainers planning future code clean up and performance work.
 
 #### **DOCUMENTATION_INDEX.md**
 - **Purpose**: Navigation and reference system
