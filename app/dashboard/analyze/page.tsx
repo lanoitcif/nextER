@@ -138,6 +138,17 @@ interface AppState {
   
   // UI state
   viewMode: 'rendered' | 'markdown'
+
+  // Review state
+  reviewAnalysis: boolean
+  reviewProvider: 'openai' | 'anthropic' | 'google' | 'cohere'
+  reviewModel: string
+  reviewResult: string
+  reviewAnalysisMetadata: {
+    model?: string
+    provider?: string
+    usage?: any
+  } | null
 }
 
 type AppAction = 
@@ -162,6 +173,11 @@ type AppAction =
   | { type: 'SET_VIEW_MODE'; payload: 'rendered' | 'markdown' }
   | { type: 'RESET_COMPANY_SELECTION' }
   | { type: 'RESET_ANALYSIS' }
+  | { type: 'SET_REVIEW_ANALYSIS'; payload: boolean }
+  | { type: 'SET_REVIEW_PROVIDER'; payload: 'openai' | 'anthropic' | 'google' | 'cohere' }
+  | { type: 'SET_REVIEW_MODEL'; payload: string }
+  | { type: 'SET_REVIEW_RESULT'; payload: string }
+  | { type: 'SET_REVIEW_ANALYSIS_METADATA'; payload: any }
 
 const initialState: AppState = {
   ticker: '',
@@ -182,7 +198,12 @@ const initialState: AppState = {
   result: '',
   error: '',
   analysisMetadata: null,
-  viewMode: 'rendered'
+  viewMode: 'rendered',
+  reviewAnalysis: false,
+  reviewProvider: 'openai',
+  reviewModel: '',
+  reviewResult: '',
+  reviewAnalysisMetadata: null
 }
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -246,8 +267,20 @@ function appReducer(state: AppState, action: AppAction): AppState {
         result: '',
         error: '',
         analysisMetadata: null,
-        analyzing: false
+        analyzing: false,
+        reviewResult: '',
+        reviewAnalysisMetadata: null
       }
+    case 'SET_REVIEW_ANALYSIS':
+      return { ...state, reviewAnalysis: action.payload }
+    case 'SET_REVIEW_PROVIDER':
+      return { ...state, reviewProvider: action.payload }
+    case 'SET_REVIEW_MODEL':
+      return { ...state, reviewModel: action.payload }
+    case 'SET_REVIEW_RESULT':
+      return { ...state, reviewResult: action.payload }
+    case 'SET_REVIEW_ANALYSIS_METADATA':
+      return { ...state, reviewAnalysisMetadata: action.payload }
     default:
       return state
   }
@@ -588,7 +621,12 @@ export default function AnalyzePage() {
         provider: state.provider,
         model: state.selectedModel || DEFAULT_MODELS[state.provider],
         ...(state.keySource === 'user_saved' && { userApiKeyId: state.selectedApiKey }),
-        ...(state.keySource === 'user_temporary' && { temporaryApiKey: state.temporaryApiKey })
+        ...(state.keySource === 'user_temporary' && { temporaryApiKey: state.temporaryApiKey }),
+        reviewAnalysis: state.reviewAnalysis,
+        ...(state.reviewAnalysis && {
+          reviewProvider: state.reviewProvider,
+          reviewModel: state.reviewModel || DEFAULT_MODELS[state.reviewProvider]
+        })
       }
 
       console.log('Request body prepared:', {
@@ -632,6 +670,16 @@ export default function AnalyzePage() {
         provider: result.provider,
         usage: result.usage
       }})
+
+      if (result.review) {
+        dispatch({ type: 'SET_REVIEW_RESULT', payload: result.review })
+        dispatch({ type: 'SET_REVIEW_ANALYSIS_METADATA', payload: {
+          model: result.reviewModel,
+          provider: result.reviewProvider,
+          usage: result.reviewUsage
+        }})
+      }
+
     } catch (error: any) {
       console.error('Analysis error:', error)
       dispatch({ type: 'SET_ERROR', payload: error.message || 'An error occurred during analysis' })
@@ -1107,6 +1155,64 @@ export default function AnalyzePage() {
                     </div>
                   )}
 
+                  {/* Review Analysis Switch */}
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm font-medium">
+                      Review Analysis
+                    </label>
+                    <input
+                      type="checkbox"
+                      checked={state.reviewAnalysis}
+                      onChange={(e) => dispatch({ type: 'SET_REVIEW_ANALYSIS', payload: e.target.checked })}
+                      className="toggle"
+                      disabled={state.analyzing}
+                    />
+                  </div>
+
+                  {state.reviewAnalysis && (
+                    <div className="space-y-4 border-t pt-4">
+                      {/* Review Provider Selection */}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Review LLM Provider
+                        </label>
+                        <select
+                          value={state.reviewProvider}
+                          onChange={(e) => dispatch({ type: 'SET_REVIEW_PROVIDER', payload: e.target.value as any })}
+                          className="select w-full"
+                          disabled={state.analyzing}
+                        >
+                          <option value="openai">OpenAI</option>
+                          <option value="anthropic">Anthropic</option>
+                          <option value="google">Google</option>
+                          <option value="cohere">Cohere</option>
+                        </select>
+                      </div>
+
+                      {/* Review Model Selection */}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Review Model
+                        </label>
+                        <select
+                          value={state.reviewModel}
+                          onChange={(e) => dispatch({ type: 'SET_REVIEW_MODEL', payload: e.target.value })}
+                          className="select w-full"
+                          disabled={state.analyzing}
+                        >
+                          {PROVIDER_MODELS[state.reviewProvider].map((model) => (
+                            <option key={model} value={model}>
+                              {model}
+                            </option>
+                          ))}
+                        </select>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Default: {DEFAULT_MODELS[state.reviewProvider]}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Analyze Button */}
                   <button
                     onClick={handleAnalyze}
@@ -1130,96 +1236,128 @@ export default function AnalyzePage() {
             </div>
 
             {/* Results Section */}
-            <div className="card">
-              <div className="card-header">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="card-title">Analysis Results</h3>
-                    <p className="card-description">
-                      AI analysis results will appear here
-                    </p>
-                  </div>
-                  {state.result && (
-                    <div className="flex items-center space-x-2">
-                      <div className="flex items-center border rounded-lg">
+            <div className="space-y-6">
+              <div className="card">
+                <div className="card-header">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="card-title">Analysis Results</h3>
+                      <p className="card-description">
+                        AI analysis results will appear here
+                      </p>
+                    </div>
+                    {state.result && (
+                      <div className="flex items-center space-x-2">
+                        <div className="flex items-center border rounded-lg">
+                          <button
+                            onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: 'rendered' })}
+                            className={`px-3 py-1 text-sm rounded-l-lg ${
+                              state.viewMode === 'rendered'
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                            }`}
+                          >
+                            <Eye className="h-4 w-4 mr-1 inline" />
+                            Formatted
+                          </button>
+                          <button
+                            onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: 'markdown' })}
+                            className={`px-3 py-1 text-sm rounded-r-lg ${
+                              state.viewM === 'markdown'
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                            }`}
+                          >
+                            <EyeOff className="h-4 w-4 mr-1 inline" />
+                            Markdown
+                          </button>
+                        </div>
                         <button
-                          onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: 'rendered' })}
-                          className={`px-3 py-1 text-sm rounded-l-lg ${
-                            state.viewMode === 'rendered' 
-                              ? 'bg-primary text-primary-foreground' 
-                              : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                          }`}
+                          onClick={copyToClipboard}
+                          className="btn-secondary text-sm px-3 py-1"
+                          title="Copy to clipboard"
                         >
-                          <Eye className="h-4 w-4 mr-1 inline" />
-                          Formatted
+                          <Copy className="h-4 w-4 mr-1" />
+                          Copy
                         </button>
                         <button
-                          onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: 'markdown' })}
-                          className={`px-3 py-1 text-sm rounded-r-lg ${
-                            state.viewMode === 'markdown' 
-                              ? 'bg-primary text-primary-foreground' 
-                              : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                          }`}
+                          onClick={downloadAsWord}
+                          className="btn-primary text-sm px-3 py-1"
+                          title="Download as Word document"
                         >
-                          <EyeOff className="h-4 w-4 mr-1 inline" />
-                          Markdown
+                          <Download className="h-4 w-4 mr-1" />
+                          Word
                         </button>
                       </div>
-                      <button
-                        onClick={copyToClipboard}
-                        className="btn-secondary text-sm px-3 py-1"
-                        title="Copy to clipboard"
-                      >
-                        <Copy className="h-4 w-4 mr-1" />
-                        Copy
-                      </button>
-                      <button
-                        onClick={downloadAsWord}
-                        className="btn-primary text-sm px-3 py-1"
-                        title="Download as Word document"
-                      >
-                        <Download className="h-4 w-4 mr-1" />
-                        Word
-                      </button>
+                    )}
+                  </div>
+                  {state.analysisMetadata && (
+                    <div className="mt-2 text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-md border">
+                      <strong>Analysis Details:</strong> {state.analysisMetadata.provider} • {state.analysisMetadata.model}
+                      {state.analysisMetadata.usage?.totalTokens && (
+                        <> • {state.analysisMetadata.usage.totalTokens.toLocaleString()} tokens</>
+                      )}
                     </div>
                   )}
                 </div>
-                {state.analysisMetadata && (
-                  <div className="mt-2 text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-md border">
-                    <strong>Analysis Details:</strong> {state.analysisMetadata.provider} • {state.analysisMetadata.model}
-                    {state.analysisMetadata.usage?.totalTokens && (
-                      <> • {state.analysisMetadata.usage.totalTokens.toLocaleString()} tokens</>
+                <div className="card-content">
+                  {state.error && (
+                    <div className="bg-destructive/20 border border-destructive/30 rounded-md p-4 mb-4">
+                      <div className="text-sm text-destructive">{state.error}</div>
+                    </div>
+                  )}
+
+                  {state.result ? (
+                    <div className="max-w-none">
+                      {state.viewMode === 'rendered' ? (
+                        <div
+                          className="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-ul:text-muted-foreground prose-li:text-muted-foreground prose-code:text-primary prose-code:bg-muted"
+                          dangerouslySetInnerHTML={{ __html: renderMarkdown(state.result) }}
+                        />
+                      ) : (
+                        <pre className="whitespace-pre-wrap text-sm bg-muted text-muted-foreground p-4 rounded-md border font-mono">
+                          {state.result}
+                        </pre>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <FileText className="mx-auto h-12 w-12 text-muted-foreground/60 mb-4" />
+                      <p>Analysis results will appear here after processing</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {state.reviewAnalysis && state.reviewResult && (
+                <div className="card">
+                  <div className="card-header">
+                    <h3 className="card-title">Review Analysis</h3>
+                    {state.reviewAnalysisMetadata && (
+                      <div className="mt-2 text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-md border">
+                        <strong>Review Details:</strong> {state.reviewAnalysisMetadata.provider} • {state.reviewAnalysisMetadata.model}
+                        {state.reviewAnalysisMetadata.usage?.totalTokens && (
+                          <> • {state.reviewAnalysisMetadata.usage.totalTokens.toLocaleString()} tokens</>
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
-              </div>
-              <div className="card-content">
-                {state.error && (
-                  <div className="bg-destructive/20 border border-destructive/30 rounded-md p-4 mb-4">
-                    <div className="text-sm text-destructive">{state.error}</div>
+                  <div className="card-content">
+                    <div className="max-w-none">
+                      {state.viewMode === 'rendered' ? (
+                        <div
+                          className="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-ul:text-muted-foreground prose-li:text-muted-foreground prose-code:text-primary prose-code:bg-muted"
+                          dangerouslySetInnerHTML={{ __html: renderMarkdown(state.reviewResult) }}
+                        />
+                      ) : (
+                        <pre className="whitespace-pre-wrap text-sm bg-muted text-muted-foreground p-4 rounded-md border font-mono">
+                          {state.reviewResult}
+                        </pre>
+                      )}
+                    </div>
                   </div>
-                )}
-                
-                {state.result ? (
-                  <div className="max-w-none">
-                    {state.viewMode === 'rendered' ? (
-                      <div 
-                        className="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-ul:text-muted-foreground prose-li:text-muted-foreground prose-code:text-primary prose-code:bg-muted"
-                        dangerouslySetInnerHTML={{ __html: renderMarkdown(state.result) }}
-                      />
-                    ) : (
-                      <pre className="whitespace-pre-wrap text-sm bg-muted text-muted-foreground p-4 rounded-md border font-mono">
-                        {state.result}
-                      </pre>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <FileText className="mx-auto h-12 w-12 text-muted-foreground/60 mb-4" />
-                    <p>Analysis results will appear here after processing</p>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

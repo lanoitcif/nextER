@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: validation.error.format() }, { status: 400 })
     }
 
-    const { transcript, companyId, companyTypeId, keySource, userApiKeyId, temporaryApiKey, provider, model } = validation.data
+    const { transcript, companyId, companyTypeId, keySource, userApiKeyId, temporaryApiKey, provider, model, reviewAnalysis, reviewProvider, reviewModel } = validation.data
 
     console.log(`[${requestId}] Request details:`, {
       transcriptLength: transcript?.length || 0,
@@ -249,6 +249,40 @@ export async function POST(request: NextRequest) {
           used_owner_key: usedOwnerKey
         })
 
+      let reviewResponse: any
+      if (reviewAnalysis && reviewProvider && reviewModel) {
+        const reviewLlmClient = createLLMClient(reviewProvider, apiKey)
+        const reviewSystemPrompt = `You are a senior financial analyst tasked with reviewing an analysis from a junior analyst.
+The user will provide a transcript and the junior analyst's work.
+Your task is to review the original analysis for accuracy, missing information, and other notable exceptions.
+Provide a concise summary of your findings, highlighting any discrepancies or areas for improvement.
+Do not repeat the original analysis. Focus on providing a meta-analysis of the provided text.`
+
+        const reviewUserMessage = `Transcript:
+${transcript}
+
+Junior Analyst's Analysis:
+${response.content}`
+
+        reviewResponse = await reviewLlmClient.generateResponse({
+          systemPrompt: reviewSystemPrompt,
+          userMessage: reviewUserMessage,
+          model: reviewModel || reviewLlmClient.getDefaultModel()
+        })
+
+        await supabaseAdmin
+          .from('usage_logs')
+          .insert({
+            user_id: user.id,
+            provider: reviewProvider,
+            model: reviewResponse.model,
+            prompt_id: null,
+            token_count: reviewResponse.usage?.totalTokens || null,
+            cost_estimate: calculateCostEstimate(reviewProvider, reviewResponse.model, reviewResponse.usage?.totalTokens || 0),
+            used_owner_key: usedOwnerKey
+          })
+      }
+
       const totalTime = Date.now() - startTime
       console.log(`[${requestId}] Analysis completed successfully in ${totalTime}ms`, {
         analysisLength: response.content.length,
@@ -261,7 +295,13 @@ export async function POST(request: NextRequest) {
         analysis: response.content,
         usage: response.usage,
         model: response.model,
-        provider: response.provider
+        provider: response.provider,
+        ...(reviewResponse && {
+          review: reviewResponse.content,
+          reviewUsage: reviewResponse.usage,
+          reviewModel: reviewResponse.model,
+          reviewProvider: reviewResponse.provider
+        })
       })
 
     } catch (llmError: any) {
