@@ -136,6 +136,10 @@ interface AppState {
     usage?: any
   } | null
   
+  // PDF processing
+  isProcessingPdf: boolean
+  pdfError: string | null
+
   // UI state
   viewMode: 'rendered' | 'markdown'
 }
@@ -160,6 +164,8 @@ type AppAction =
   | { type: 'SET_ERROR'; payload: string }
   | { type: 'SET_ANALYSIS_METADATA'; payload: any }
   | { type: 'SET_VIEW_MODE'; payload: 'rendered' | 'markdown' }
+  | { type: 'SET_IS_PROCESSING_PDF', payload: boolean }
+  | { type: 'SET_PDF_ERROR', payload: string | null }
   | { type: 'RESET_COMPANY_SELECTION' }
   | { type: 'RESET_ANALYSIS' }
 
@@ -182,6 +188,8 @@ const initialState: AppState = {
   result: '',
   error: '',
   analysisMetadata: null,
+  isProcessingPdf: false,
+  pdfError: null,
   viewMode: 'rendered'
 }
 
@@ -230,6 +238,10 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, analysisMetadata: action.payload }
     case 'SET_VIEW_MODE':
       return { ...state, viewMode: action.payload }
+    case 'SET_IS_PROCESSING_PDF':
+      return { ...state, isProcessingPdf: action.payload }
+    case 'SET_PDF_ERROR':
+      return { ...state, pdfError: action.payload }
     case 'RESET_COMPANY_SELECTION':
       return {
         ...state,
@@ -763,6 +775,44 @@ export default function AnalyzePage() {
     }
   }
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    dispatch({ type: 'SET_IS_PROCESSING_PDF', payload: true })
+    dispatch({ type: 'SET_PDF_ERROR', payload: null })
+
+    const formData = new FormData()
+    formData.append('pdf', file)
+
+    try {
+      const { data } = await supabase.auth.getSession()
+      if (!data.session) {
+        throw new Error('Authentication required')
+      }
+
+      const response = await fetch('/api/extract-pdf', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${data.session.access_token}`
+        },
+        body: formData
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to extract text from PDF')
+      }
+
+      setTranscript(result.text)
+    } catch (error: any) {
+      dispatch({ type: 'SET_PDF_ERROR', payload: error.message })
+    } finally {
+      dispatch({ type: 'SET_IS_PROCESSING_PDF', payload: false })
+    }
+  }
+
   // Simple markdown to HTML converter with table support
   const convertMarkdownToHtml = (markdown: string): string => {
     marked.setOptions({
@@ -825,7 +875,7 @@ export default function AnalyzePage() {
                 <div className="card-header">
                   <h3 className="card-title">Transcript</h3>
                   <p className="card-description">
-                    Paste transcript text
+                    Paste transcript text or upload a PDF
                   </p>
                 </div>
                 <div className="card-content">
@@ -834,8 +884,25 @@ export default function AnalyzePage() {
                     onChange={(e) => setTranscript(e.target.value)}
                     placeholder="Paste your transcript here..."
                     className="textarea w-full h-64"
-                    disabled={state.analyzing}
+                    disabled={state.analyzing || state.isProcessingPdf}
                   />
+                  <div className="mt-4">
+                    <label htmlFor="pdf-upload" className="btn-secondary w-full flex items-center justify-center space-x-2">
+                      <Upload className="h-4 w-4" />
+                      <span>{state.isProcessingPdf ? 'Processing PDF...' : 'Upload PDF'}</span>
+                    </label>
+                    <input
+                      id="pdf-upload"
+                      type="file"
+                      accept="application/pdf"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      disabled={state.isProcessingPdf}
+                    />
+                    {state.pdfError && (
+                      <p className="text-sm text-destructive mt-2">{state.pdfError}</p>
+                    )}
+                  </div>
                 </div>
               </div>
 
