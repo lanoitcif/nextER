@@ -10,7 +10,7 @@
 
 ### Backend
 - **Database**: Supabase PostgreSQL with RLS
-- **Authentication**: Supabase Auth with JWT
+- **Authentication**: Supabase Auth with JWT for all protected routes
 - **API Routes**: Next.js API routes for analysis and management
 - **Deployment**: Vercel with auto-deploy from git main branch
 
@@ -79,6 +79,26 @@ For a full breakdown of all components and their styles, see the `DESIGN_SYSTEM.
 - **Row Level Security**: Database policies active
 - **Authentication**: JWT validation on all protected routes
 - **Input Validation**: Zod schemas on API endpoints
+
+### API Key Storage Workflow
+
+```mermaid
+sequenceDiagram
+    participant User as 👩‍💻 User
+    participant Frontend as 🌐 Frontend (Next.js)
+    participant Backend as ⚙️ Backend (API Route)
+    participant Supabase as 🐘 Supabase
+
+    User->>Frontend: 1. Enters API Key details
+    Frontend->>Backend: 2. POST /api/user-api-keys (with JWT)
+    Backend->>Supabase: 3. Validates JWT
+    Supabase-->>Backend: 4. Returns user
+    Backend->>Backend: 5. Encrypts API Key
+    Backend->>Supabase: 6. Stores encrypted key in user_api_keys
+    Supabase-->>Backend: 7. Confirms storage
+    Backend-->>Frontend: 8. Success response
+    Frontend-->>User: 9. Displays success message
+```
 
 ## 7. Performance Optimization
 

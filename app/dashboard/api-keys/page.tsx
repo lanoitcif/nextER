@@ -83,28 +83,28 @@ export default function ApiKeysPage() {
   }, [newKey.provider])
 
   const fetchApiKeys = async () => {
+    if (!user) return
     try {
+      const token = (await supabase.auth.getSession()).data.session?.access_token
+      if (!token) {
+        throw new Error('No session token found')
+      }
       const response = await fetch('/api/user-api-keys', {
-        credentials: 'include' // Send cookies for server-side session handling
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       })
 
       if (response.ok) {
-        const text = await response.text()
-        try {
-          const result = text ? JSON.parse(text) : {}
-          setApiKeys(result.apiKeys || [])
-        } catch (parseError) {
-          console.error('JSON parse error:', parseError, 'Response:', text)
-        }
+        const result = await response.json()
+        setApiKeys(result.apiKeys || [])
       } else if (response.status === 401) {
-        // Session expired, redirect to login
         console.error('Session expired while fetching API keys')
         router.push('/auth/login')
       }
     } catch (error: any) {
       console.error('Error fetching API keys:', error)
-      if (error.message?.includes('Invalid Refresh Token') || error.message?.includes('Refresh Token Not Found')) {
-        // Session expired, redirect to login
+      if (error.message.includes('Invalid Refresh Token') || error.message.includes('Refresh Token Not Found')) {
         router.push('/auth/login')
       }
     } finally {
@@ -133,39 +133,23 @@ export default function ApiKeysPage() {
     }, 60000)
 
     try {
-      console.log('🔍 Using existing user context...')
-      // Skip the problematic getSession() call and use existing user from context
-      if (!user) {
-        console.error('❌ No user in context')
-        setError('Your session has expired. Please sign in again.')
-        setSessionExpired(true)
-        setAdding(false)
-        setTimeout(() => {
-          router.push('/auth/login')
-        }, 2000)
-        return
+      const token = (await supabase.auth.getSession()).data.session?.access_token
+      if (!token) {
+        throw new Error('No session token found')
       }
 
-      console.log('✅ User context found, making API request...')
-
-      const requestBody = {
-        provider: newKey.provider,
-        apiKey: newKey.apiKey,
-        nickname: newKey.nickname || null,
-        defaultModel: newKey.defaultModel
-      }
-      
-      console.log('📤 Making API request with body:', requestBody)
-
-      // Make the API call without explicitly getting session - let the server handle auth
       const response = await fetch('/api/user-api-keys', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Send cookies for server-side session handling
+          'Authorization': `Bearer ${token}`
         },
-        credentials: 'include',
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify({
+          provider: newKey.provider,
+          apiKey: newKey.apiKey,
+          nickname: newKey.nickname || null,
+          defaultModel: newKey.defaultModel
+        })
       })
 
       console.log('📥 API response status:', response.status)
@@ -227,9 +211,16 @@ export default function ApiKeysPage() {
     }
 
     try {
+      const token = (await supabase.auth.getSession()).data.session?.access_token
+      if (!token) {
+        throw new Error('No session token found')
+      }
+
       const response = await fetch(`/api/user-api-keys/${keyId}`, {
         method: 'DELETE',
-        credentials: 'include' // Send cookies for server-side session handling
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       })
 
       if (response.ok) {
@@ -240,7 +231,7 @@ export default function ApiKeysPage() {
       }
     } catch (error: any) {
       console.error('Error deleting API key:', error)
-      if (error.message?.includes('Invalid Refresh Token') || error.message?.includes('Refresh Token Not Found')) {
+      if (error.message.includes('Invalid Refresh Token') || error.message.includes('Refresh Token Not Found')) {
         alert('Your session has expired. Please sign in again.')
         router.push('/auth/login')
       }
