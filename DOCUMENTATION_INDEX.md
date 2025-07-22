@@ -2,7 +2,7 @@
 
 **Last Updated**: July 17, 2025  
 **Project**: NEaR (Next Earnings Release) - Earnings Call Analysis Platform  
-**Documentation Files**: 8 total
+**Documentation Files**: 10 total
 
 ---
 
@@ -16,6 +16,8 @@
 - [DEVELOPMENT_LOG.md](#development_log-md) - Historical development sessions and achievements
 - [DESIGN_SYSTEM.md](#design_system-md) - UI/UX design guidelines and component library
 - [DOCUMENTATION_INDEX.md](#documentation_index-md) - This file
+- [API_KEY_PAGE.md](#api_key_page-md) - API key workflow for each user type
+- [CODE_REFACTORING_PROPOSALS.md](#code_refactoring_proposals-md) - Proposed refactor and optimization ideas
 
 ---
 
@@ -60,7 +62,17 @@
 - **Contains**: Design philosophy, color palette, typography, component library, responsive design patterns, accessibility standards, and brand voice.
 - **Use Case**: For designers and frontend developers to maintain a consistent and high-quality user experience.
 
+#### **API_KEY_PAGE.md**
+- **Purpose**: Explain API key management workflow for each user type
+- **Contains**: Mermaid diagram of page logic and brief behavior overview
+- **Use Case**: For contributors to understand access controls and API flows when updating key management features.
+
 #### **DOCUMENTATION_INDEX.md**
 - **Purpose**: Navigation and reference system
 - **Contains**: A list of all documentation files and a brief description of their contents.
 - **Use Case**: For all users who need to find their way around the project's documentation.
+
+#### **CODE_REFACTORING_PROPOSALS.md**
+- **Purpose**: Outline potential refactors and optimization ideas
+- **Contains**: Recommendations for consolidating auth logic, caching data, improving tests, and other enhancements
+- **Use Case**: For developers planning future cleanup or performance work
