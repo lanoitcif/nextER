@@ -21,6 +21,7 @@ This document serves as the central index for all project documentation.
 ## Technical Analysis
 
 -   [**rls_performance_analysis.md**](../rls_performance_analysis.md): Analysis of Row Level Security performance optimization attempts
+-   [**rls_advisor_fix_july_2025.md**](rls_advisor_fix_july_2025.md): Detailed report on resolving Supabase Advisor RLS warnings
 
 ## Deprecated Documentation
 
