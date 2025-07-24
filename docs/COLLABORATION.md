@@ -1,15 +1,6 @@
 # Collaboration Framework
 
-This document outlines the multi-AI collaboration framework used in this project.
-
-## 1. TRIPOD Framework Methodology
-
-This project utilizes the TRIPOD framework for collaborative debugging and development, leveraging multiple AI perspectives through an asynchronous, file-based system.
-
-### File-Based Async Communication
-
--   **C2G.md**: Claude to Gemini communication
--   **G2C.md**: Gemini to Claude response
+This document outlines the development and collaboration processes used in this project.
 
 ## 2. Multi-AI Communication Protocols
 
