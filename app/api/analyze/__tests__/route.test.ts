@@ -8,10 +8,20 @@ jest.mock('@/lib/supabase/server', () => ({
 }));
 
 describe('/api/analyze', () => {
-  it('should return 401 if no token is provided', async () => {
+  it('should return 401 if user is not authenticated', async () => {
+    const supabase = {
+      auth: {
+        getUser: jest.fn().mockResolvedValue({
+          data: { user: null },
+          error: new Error('No session'),
+        }),
+      },
+    };
+    (createClient as jest.Mock).mockReturnValue(supabase);
+
     const request = new NextRequest('http://localhost/api/analyze', {
       method: 'POST',
-      headers: new Headers(),
+      body: JSON.stringify({ transcript: 'test', companyId: '123', companyTypeId: '456', keySource: 'owner', provider: 'openai', model: 'gpt-4' })
     });
 
     const response = await POST(request);
@@ -31,9 +41,7 @@ describe('/api/analyze', () => {
 
     const request = new NextRequest('http://localhost/api/analyze', {
       method: 'POST',
-      headers: new Headers({
-        Authorization: 'Bearer invalid-token',
-      }),
+      body: JSON.stringify({ transcript: 'test', companyId: '123', companyTypeId: '456', keySource: 'owner', provider: 'openai', model: 'gpt-4' })
     });
 
     const response = await POST(request);
@@ -53,10 +61,7 @@ describe('/api/analyze', () => {
 
     const request = new NextRequest('http://localhost/api/analyze', {
       method: 'POST',
-      headers: new Headers({
-        Authorization: 'Bearer valid-token',
-      }),
-      body: JSON.stringify({}),
+      body: JSON.stringify({}), // Invalid body
     });
 
     const response = await POST(request);
