@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createLLMClient, SUPPORTED_PROVIDERS, type SupportedProvider } from '@/lib/llm/clients'
 import { decryptFromStorage } from '@/lib/crypto'
 import { analyzeRequestSchema } from '@/lib/api/validation'
+import { parseQATable } from '@/lib/utils/qa'
 import { handleError } from '@/lib/api/errors'
 
 export const maxDuration = 300;
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: validation.error.format() }, { status: 400 })
     }
 
-    const { transcript, companyId, companyTypeId, keySource, userApiKeyId, temporaryApiKey, provider, model } = validation.data
+    const { transcript, companyId, companyTypeId, keySource, userApiKeyId, temporaryApiKey, provider, model, quarter, year } = validation.data
 
     console.log(`[${requestId}] Request details:`, {
       transcriptLength: transcript?.length || 0,
@@ -65,7 +66,9 @@ export async function POST(request: NextRequest) {
       provider,
       model,
       hasUserApiKeyId: !!userApiKeyId,
-      hasTemporaryApiKey: !!temporaryApiKey
+      hasTemporaryApiKey: !!temporaryApiKey,
+      quarter,
+      year
     })
 
     // Get the user's profile to check permissions
@@ -248,6 +251,26 @@ export async function POST(request: NextRequest) {
           cost_estimate: calculateCostEstimate(provider, response.model, response.usage?.totalTokens || 0),
           used_owner_key: usedOwnerKey
         })
+
+      if (companyType.name.toLowerCase().includes('qa only')) {
+        const qaEntries = parseQATable(response.content)
+        if (qaEntries.length) {
+          const rows = qaEntries.map(e => ({
+            company_id: company.id,
+            company_type_id: companyType.id,
+            quarter: quarter || null,
+            year: year || null,
+            earnings_analyst: e.analyst,
+            company_representative: e.companyRepresentative,
+            question_topic: e.questionTopic,
+            key_points: e.keyPoints,
+            quantitative_data: e.quantitativeData,
+            management_response: e.managementResponse,
+            raw_markdown: response.content
+          }))
+          await supabaseAdmin.from('earnings_qa').insert(rows)
+        }
+      }
 
       const totalTime = Date.now() - startTime
       console.log(`[${requestId}] Analysis completed successfully in ${totalTime}ms`, {

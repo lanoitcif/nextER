@@ -819,3 +819,24 @@ INSERT INTO public.system_settings (key, value, description) VALUES
 ('maintenance_mode', '{"enabled": false, "message": "System is currently under maintenance. Please try again later."}', 'Enable or disable maintenance mode for the entire application'),
 ('default_provider', '{"provider": "openai", "model": "gpt-4o-mini"}', 'Default LLM provider and model for new users'),
 ('usage_limits', '{"monthly_requests": 1000, "monthly_tokens": 500000}', 'Default usage limits for standard users');
+
+-- Table for storing parsed Q&A interactions from QA Only analyses
+CREATE TABLE public.earnings_qa (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  company_id UUID REFERENCES public.companies(id) ON DELETE CASCADE,
+  company_type_id TEXT REFERENCES public.company_types(id),
+  quarter TEXT,
+  year INTEGER,
+  earnings_analyst TEXT,
+  company_representative TEXT,
+  question_topic TEXT,
+  key_points TEXT,
+  quantitative_data TEXT,
+  management_response TEXT,
+  raw_markdown TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE public.earnings_qa ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view earnings qa" ON public.earnings_qa FOR SELECT USING (true);
+CREATE POLICY "System can insert earnings qa" ON public.earnings_qa FOR INSERT WITH CHECK (true);

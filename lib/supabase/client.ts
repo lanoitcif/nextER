@@ -178,6 +178,53 @@ export interface Database {
           created_at?: string
         }
       }
+      earnings_qa: {
+        Row: {
+          id: string
+          company_id: string | null
+          company_type_id: string | null
+          quarter: string | null
+          year: number | null
+          earnings_analyst: string | null
+          company_representative: string | null
+          question_topic: string | null
+          key_points: string | null
+          quantitative_data: string | null
+          management_response: string | null
+          raw_markdown: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          company_id?: string | null
+          company_type_id?: string | null
+          quarter?: string | null
+          year?: number | null
+          earnings_analyst?: string | null
+          company_representative?: string | null
+          question_topic?: string | null
+          key_points?: string | null
+          quantitative_data?: string | null
+          management_response?: string | null
+          raw_markdown?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          company_id?: string | null
+          company_type_id?: string | null
+          quarter?: string | null
+          year?: number | null
+          earnings_analyst?: string | null
+          company_representative?: string | null
+          question_topic?: string | null
+          key_points?: string | null
+          quantitative_data?: string | null
+          management_response?: string | null
+          raw_markdown?: string | null
+          created_at?: string
+        }
+      }
     }
   }
 }
