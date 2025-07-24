@@ -13,23 +13,11 @@ export async function POST(request: NextRequest) {
   
   console.log(`[${requestId}] Analysis request received at ${new Date().toISOString()}`)
   
-  // Authentication
+  // Authentication using cookie-based session
   const supabase = await createClient()
-  const authHeader = request.headers.get('authorization')
-  console.log(`[${requestId}] Auth header present:`, !!authHeader)
+  console.log(`[${requestId}] Using cookie-based authentication`)
   
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    console.log(`[${requestId}] Missing or invalid authorization header`)
-    return NextResponse.json(
-      { error: 'Missing or invalid authorization header' },
-      { status: 401 }
-    )
-  }
-
-  const token = authHeader.replace('Bearer ', '')
-  console.log(`[${requestId}] Token length:`, token.length)
-  
-  const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {
     console.log(`[${requestId}] Auth failed:`, { authError, hasUser: !!user })

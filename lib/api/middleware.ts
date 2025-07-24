@@ -8,18 +8,11 @@ type AuthenticatedHandler = (
 
 export function withAuth(handler: AuthenticatedHandler) {
   return async (request: NextRequest, context: { params?: any } = {}) => {
+    // Use cookie-based authentication as recommended by Supabase for Next.js
     const supabase = await createClient();
-
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Missing or invalid authorization header' },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    // getUser() will use the session from cookies automatically
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json(
