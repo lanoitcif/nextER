@@ -162,6 +162,22 @@ export default function DashboardPage() {
               </div>
             </Link>
 
+            <Link href="/dashboard/live" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
+              <div className="card-content">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-secondary/20 p-3 rounded-lg">
+                    <BarChart3 className="h-8 w-8 text-secondary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Live Transcription</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Open webcasts and view transcripts in real time
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
             {isAdvanced(profile) && (
               <Link href="/dashboard/api-keys" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
                 <div className="card-content">
