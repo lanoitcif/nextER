@@ -53,6 +53,8 @@ interface AnalyzeRequest {
   keySource: 'owner' | 'user_saved' | 'user_temporary';
   userApiKeyId?: string;       // Required if keySource is 'user_saved'
   temporaryApiKey?: string;    // Required if keySource is 'user_temporary'
+  quarter?: string;            // Optional quarter label (e.g., 'Q1')
+  year?: number;               // Optional year of the call
 }
 ```
 
@@ -571,6 +573,38 @@ response = requests.post('http://localhost:3000/api/analyze',
 
 result = response.json()
 print(result['analysis'])
+```
+
+### GET /api/earnings-qa
+
+Retrieve stored Q&A entries extracted from "QA Only" analyses.
+
+```typescript
+interface EarningsQAQuery {
+  companyId?: string
+  quarter?: string
+  year?: number
+  analyst?: string
+  representative?: string
+}
+
+interface EarningsQAEntry {
+  company_id: string | null
+  company_type_id: string | null
+  quarter: string | null
+  year: number | null
+  earnings_analyst: string | null
+  company_representative: string | null
+  question_topic: string | null
+  key_points: string | null
+  quantitative_data: string | null
+  management_response: string | null
+  created_at: string
+}
+
+interface EarningsQAResponse {
+  entries: EarningsQAEntry[]
+}
 ```
 
 ## Webhook Support
