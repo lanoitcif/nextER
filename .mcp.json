@@ -1,17 +1,14 @@
 {
   "mcpServers": {
     "fetch": {
-      "command": "python",
-      "args": [
-        "-m",
-        "mcp_server_fetch"
-      ]
+      "command": "/home/john_w_dayton/.local/bin/mcp-server-fetch",
+      "args": [],
+      "type": "stdio",
+      "description": "Web content fetching for research and documentation"
     },
-"supabase": {
-      "command": "cmd",
+    "supabase": {
+      "command": "npx",
       "args": [
-        "/c",
-        "npx",
         "-y",
         "@supabase/mcp-server-supabase@latest",
         "--project-ref=xorjwzniopfuosadwvfu",
@@ -19,7 +16,27 @@
       ],
       "env": {
         "SUPABASE_ACCESS_TOKEN": "sbp_8aa001018272bef7a0b76fba0f2c8da6efb12d0f"
-      }
+      },
+      "type": "stdio",
+      "description": "NextER database management and schema operations"
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "type": "stdio",
+      "description": "Up-to-date code documentation and library information"
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "type": "stdio",
+      "description": "Persistent conversation memory using knowledge graphs"
     }
   }
 }
