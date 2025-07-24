@@ -17,6 +17,7 @@ A powerful SaaS web application for analyzing transcripts using multiple AI prov
 - **Usage Tracking**: Cost estimation and analytics
 - **User-Friendly Interface**: Clean, responsive design for non-technical users
 - **Admin Dashboard**: Manage users and system settings.
+- **Live Earnings Call Transcription**: Open webcast streams and view real-time transcripts.
 
 ## 🛠️ Tech Stack
 
@@ -70,6 +71,9 @@ OWNER_COHERE_API_KEY=your_cohere_key
 # Authentication
 NEXTAUTH_SECRET=your_random_secret
 NEXTAUTH_URL=http://localhost:3000
+
+# Live Transcription
+# Uses OpenAI Whisper with OWNER_OPENAI_API_KEY to transcribe audio
 ```
 
 ### 4. Generate Encryption Key

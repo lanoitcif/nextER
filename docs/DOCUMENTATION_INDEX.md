@@ -17,6 +17,7 @@ This document serves as the central index for all project documentation.
 -   [**DESIGN.md**](DESIGN.md): The project's design system, including color palette, typography, and component styles
 -   [**TROUBLESHOOTING.md**](TROUBLESHOOTING.md): A guide to common issues and their solutions
 -   [**COLLABORATION.md**](COLLABORATION.md): The multi-AI collaboration framework used in this project
+-   [**LIVE_TRANSCRIPTION.md**](LIVE_TRANSCRIPTION.md): Implementation notes for the live earnings call feature
 
 ## Technical Analysis
 

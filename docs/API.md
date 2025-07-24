@@ -573,6 +573,32 @@ result = response.json()
 print(result['analysis'])
 ```
 
+### Live Transcription
+
+#### POST /api/live-transcription/start
+
+Starts a new live transcription session.
+
+```bash
+curl -X POST http://localhost:3000/api/live-transcription/start \
+  -H 'Content-Type: application/json' \
+  -d '{"callUrl": "https://example.com/earnings-call"}'
+```
+
+Response:
+
+```json
+{ "sessionId": "uuid" }
+```
+
+#### GET /api/live-transcription/stream
+
+Upgrades to a WebSocket connection that streams transcription updates. Each message is JSON:
+
+```json
+{ "text": "partial transcript", "timestamp": 172349 } 
+```
+
 ## Webhook Support
 
 Currently not implemented. Future versions may include:
