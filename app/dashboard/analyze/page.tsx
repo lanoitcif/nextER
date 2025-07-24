@@ -537,6 +537,48 @@ export default function AnalyzePage() {
     }
   }
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file size (10MB limit)
+    if (file.size > 10 * 1024 * 1024) {
+      dispatch({ type: 'SET_ERROR', payload: 'File size must be less than 10MB' })
+      return
+    }
+
+    dispatch({ type: 'SET_LOADING', payload: true })
+    dispatch({ type: 'SET_ERROR', payload: null })
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/upload-transcript', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to upload file')
+      }
+
+      const result = await response.json()
+      setTranscript(result.text)
+      
+      // Show success message
+      console.log(`Successfully extracted ${result.characterCount} characters from ${result.fileName}`)
+    } catch (error: any) {
+      console.error('File upload error:', error)
+      dispatch({ type: 'SET_ERROR', payload: error.message || 'Failed to process file' })
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false })
+      // Reset file input
+      e.target.value = ''
+    }
+  }
+
   const handleAnalyze = async () => {
     if (!transcript.trim()) {
       dispatch({ type: 'SET_ERROR', payload: 'Please enter a transcript' })
@@ -825,10 +867,44 @@ export default function AnalyzePage() {
                 <div className="card-header">
                   <h3 className="card-title">Transcript</h3>
                   <p className="card-description">
-                    Paste transcript text
+                    Paste transcript text or upload a file
                   </p>
                 </div>
-                <div className="card-content">
+                <div className="card-content space-y-4">
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-4">
+                    <input
+                      type="file"
+                      id="transcript-upload"
+                      accept=".pdf,.docx,.txt"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      disabled={state.analyzing}
+                    />
+                    <label
+                      htmlFor="transcript-upload"
+                      className="flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors p-4"
+                    >
+                      <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        Click to upload PDF, DOCX, or TXT file
+                      </span>
+                      <span className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        Max file size: 10MB
+                      </span>
+                    </label>
+                  </div>
+                  
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-gray-300 dark:border-gray-700" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-white dark:bg-gray-900 px-2 text-gray-500">
+                        Or paste directly
+                      </span>
+                    </div>
+                  </div>
+                  
                   <textarea
                     value={transcript}
                     onChange={(e) => setTranscript(e.target.value)}
