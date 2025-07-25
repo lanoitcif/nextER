@@ -580,8 +580,8 @@ export default function AnalyzePage() {
       return
     }
 
-    dispatch({ type: 'SET_LOADING', payload: true })
-    dispatch({ type: 'SET_ERROR', payload: null })
+    dispatch({ type: 'SET_ANALYZING', payload: true })
+    dispatch({ type: 'SET_ERROR', payload: '' })
 
     try {
       const formData = new FormData()
@@ -606,7 +606,7 @@ export default function AnalyzePage() {
       console.error('File upload error:', error)
       dispatch({ type: 'SET_ERROR', payload: error.message || 'Failed to process file' })
     } finally {
-      dispatch({ type: 'SET_LOADING', payload: false })
+      dispatch({ type: 'SET_ANALYZING', payload: false })
       // Reset file input
       e.target.value = ''
     }
@@ -1339,7 +1339,7 @@ export default function AnalyzePage() {
                           <button
                             onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: 'markdown' })}
                             className={`px-3 py-1 text-sm rounded-r-lg ${
-                              state.viewM === 'markdown'
+                              state.viewMode === 'markdown'
                                 ? 'bg-primary text-primary-foreground'
                                 : 'bg-muted text-muted-foreground hover:bg-muted/80'
                             }`}

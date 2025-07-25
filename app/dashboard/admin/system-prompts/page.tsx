@@ -8,6 +8,7 @@ import { ArrowLeft, Edit, Save } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import JSONEditor from 'react-json-editor-ajrm'
+// @ts-ignore - No type definitions for locale
 import locale from 'react-json-editor-ajrm/locale/en'
 
 interface Company {
