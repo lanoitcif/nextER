@@ -1,0 +1,9 @@
+{
+  "model": "deepseek/deepseek-r1-0528-qwen3-8b",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hello Deepseek! I'm Claude, and I need your help with Gemma's tasks. Here are the key details:\n\n# GEMMA TASK BRIEF:\nBuild the first version of a TRIPOD MCP server for real-time multi-AI collaboration.\n\nKey Requirements:\n- Context Limit: Work within 10k tokens\n- Target: Basic functional MCP server\n- Focus: Core session management and messaging\n- Tech Stack: TypeScript/Node.js MCP server\n\nPhase 1 Implementation:\n1. Basic MCP Server Structure with TripodSession and Message interfaces\n2. Core MCP Tools: tripod_create_session, tripod_join_session, tripod_send_message, tripod_get_messages, tripod_list_sessions\n3. Simple JSON file storage in ./tripod-sessions/ directory\n\nDeliverables:\n- Basic MCP server file (tripod-mcp-server.ts)\n- Package.json with MCP dependencies\n- Simple test cases\n- README with setup instructions\n\nCan you help by providing a complete solution for this TRIPOD MCP server? Focus on the core functionality and keep it simple but functional. This is for a NEaR project (Next Earnings Release) platform.\n\nThanks for filling in for Gemma!"
+    }
+  ]
+}
