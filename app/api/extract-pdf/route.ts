@@ -46,9 +46,9 @@ export async function POST(request: NextRequest) {
     // Extract text from PDF
     const extractedText = await extractTextFromPDF(buffer)
     
-    if (!extractedText || extractedText.trim().length === 0) {
+    if (!extractedText || extractedText.trim().length < 50) { // Increased minimum length
       return NextResponse.json({ 
-        error: 'Could not extract text from PDF. The PDF might be image-based or corrupted.' 
+        error: 'Extracted text is too short. The PDF might be image-based, corrupted, or have very little text.'
       }, { status: 400 })
     }
 
