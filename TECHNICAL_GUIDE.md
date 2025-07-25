@@ -3,7 +3,7 @@
 ## 1. System Architecture and Design Patterns
 
 ### Frontend
-- **Framework**: Next.js 15.0.3 with App Router
+- **Framework**: Next.js 15.4.1 with App Router
 - **State**: React useState hooks
 - **Styling**: Tailwind CSS with retro CRT color scheme
 - **TypeScript**: Strict mode enabled
@@ -13,6 +13,7 @@
 - **Authentication**: Supabase Auth with JWT for all protected routes
 - **API Routes**: Next.js API routes for analysis and management
 - **Deployment**: Vercel with auto-deploy from git main branch
+- **Production Status**: ✅ LIVE at https://lanoitcif.com
 
 ### LLM Integration
 - **Providers**: OpenAI, Anthropic, Google, Cohere
@@ -139,3 +140,10 @@ sequenceDiagram
 - **Analysis Flow**: Track from "Starting analysis..." through session checks
 - **API Requests**: Monitor Vercel function logs for backend processing
 - **Database Queries**: Look for timing logs and query result objects
+
+### Recent Production Fixes (July 25, 2025)
+- **Next.js 15 Migration**: Resolved async cookies and params API changes
+- **supabaseAdmin Import**: Fixed missing import causing TypeScript compilation errors
+- **Environment Variables**: Synchronized Vercel environment with local development
+- **Build Process**: All builds now successful in production environment
+- **Deployment**: Auto-deploy working correctly from main branch
