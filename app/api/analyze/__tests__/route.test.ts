@@ -21,6 +21,9 @@ describe('/api/analyze', () => {
 
     const request = new NextRequest('http://localhost/api/analyze', {
       method: 'POST',
+      headers: {
+        'Authorization': 'Bearer test-token',
+      },
       body: JSON.stringify({ transcript: 'test', companyId: '123', companyTypeId: '456', keySource: 'owner', provider: 'openai', model: 'gpt-4' })
     });
 
@@ -41,6 +44,9 @@ describe('/api/analyze', () => {
 
     const request = new NextRequest('http://localhost/api/analyze', {
       method: 'POST',
+      headers: {
+        'Authorization': 'Bearer test-token',
+      },
       body: JSON.stringify({ transcript: 'test', companyId: '123', companyTypeId: '456', keySource: 'owner', provider: 'openai', model: 'gpt-4' })
     });
 
@@ -61,6 +67,9 @@ describe('/api/analyze', () => {
 
     const request = new NextRequest('http://localhost/api/analyze', {
       method: 'POST',
+      headers: {
+        'Authorization': 'Bearer test-token',
+      },
       body: JSON.stringify({}), // Invalid body
     });
 
