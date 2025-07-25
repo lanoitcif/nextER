@@ -86,7 +86,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  // Authentication
   const supabase = await createClient()
   const authHeader = request.headers.get('authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -95,7 +94,6 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       { status: 401 }
     )
   }
-
   const token = authHeader.replace('Bearer ', '')
   const { data: { user }, error: authError } = await supabase.auth.getUser(token)
 
@@ -104,21 +102,6 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       { error: 'Invalid or expired session' },
       { status: 401 }
     )
-  }
-  const supabaseAdmin = await createClient()
-
-  let accessLevel: string = 'advanced'
-  if (supabaseAdmin && typeof (supabaseAdmin as any).from === 'function') {
-    const { data } = await supabaseAdmin
-      .from('user_profiles')
-      .select('access_level')
-      .eq('id', user.id)
-      .single()
-    accessLevel = data?.access_level || 'advanced'
-  }
-
-  if (accessLevel !== 'advanced' && accessLevel !== 'admin') {
-    return NextResponse.json({ error: 'Insufficient access level' }, { status: 403 })
   }
 
   try {
