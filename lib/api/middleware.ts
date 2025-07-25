@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 
 type AuthenticatedHandler = (
@@ -9,7 +10,8 @@ type AuthenticatedHandler = (
 export function withAuth(handler: AuthenticatedHandler) {
   return async (request: NextRequest, context: { params?: any } = {}) => {
     // Use cookie-based authentication as recommended by Supabase for Next.js
-    const supabase = await createClient();
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
     
     // getUser() will use the session from cookies automatically
     const { data: { user }, error: authError } = await supabase.auth.getUser();

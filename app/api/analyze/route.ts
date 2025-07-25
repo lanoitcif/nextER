@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { createLLMClient, SUPPORTED_PROVIDERS, type SupportedProvider } from '@/lib/llm/clients'
 import { decryptFromStorage } from '@/lib/crypto'
@@ -13,7 +14,8 @@ export async function POST(request: NextRequest) {
   
   console.log(`[${requestId}] Analysis request received at ${new Date().toISOString()}`)
 
-  const supabase = await createClient()
+  const cookieStore = await cookies()
+  const supabase = await createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return NextResponse.json(
@@ -32,7 +34,7 @@ export async function POST(request: NextRequest) {
     )
   }
   
-  const supabaseAdmin = await createClient()
+  const supabaseAdmin = await createClient(cookieStore)
   
   console.log(`[${requestId}] Authentication successful for user: ${user.email}`)
   

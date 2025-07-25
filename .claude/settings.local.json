@@ -48,13 +48,18 @@
       "Bash(git merge:*)",
       "Bash(cp:*)",
       "mcp__supabase__apply_migration",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "mcp__memory__create_entities"
     ],
     "deny": []
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "fetch",
-    "supabase"
+    "supabase",
+    "context7",
+    "memory"
   ]
 }

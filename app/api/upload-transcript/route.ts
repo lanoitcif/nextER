@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import PDF2JSON from 'pdf2json'
 import mammoth from 'mammoth'
@@ -56,7 +57,8 @@ export async function POST(request: NextRequest) {
   console.log(`[${requestId}] Transcript upload request received`)
 
   // Authentication using cookie-based session
-  const supabase = await createClient()
+  const cookieStore = await cookies()
+  const supabase = await createClient(cookieStore)
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {

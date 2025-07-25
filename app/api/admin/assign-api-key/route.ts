@@ -8,8 +8,8 @@ export async function POST(request: NextRequest) {
   console.log(`[${requestId}] Admin API key assignment request received`)
 
   // Authentication
-  const cookieStore = cookies()
-  const supabase = createClient(cookieStore)
+  const cookieStore = await cookies()
+  const supabase = await createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const supabaseAdmin = await createClient()
+  const supabaseAdmin = await createClient(cookieStore)
 
   try {
     // Check if user is admin
@@ -130,8 +130,8 @@ export async function DELETE(request: NextRequest) {
   console.log(`[${requestId}] Admin API key deletion request received`)
 
   // Authentication
-  const cookieStore = cookies()
-  const supabase = createClient(cookieStore)
+  const cookieStore = await cookies()
+  const supabase = await createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -151,7 +151,7 @@ export async function DELETE(request: NextRequest) {
     )
   }
 
-  const supabaseAdmin = await createClient()
+  const supabaseAdmin = await createClient(cookieStore)
 
   try {
     // Check if user is admin
