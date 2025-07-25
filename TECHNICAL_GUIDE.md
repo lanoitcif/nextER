@@ -147,3 +147,155 @@ sequenceDiagram
 - **Environment Variables**: Synchronized Vercel environment with local development
 - **Build Process**: All builds now successful in production environment
 - **Deployment**: Auto-deploy working correctly from main branch
+
+## 9. Essential Tools and Usage Guide
+
+### Vercel CLI Tools
+**Installation**: `sudo npm install -g vercel`
+**Authentication**: `vercel login` (use email: john@151westmain.com)
+
+**Key Commands Used:**
+```bash
+# Link project to Vercel
+vercel link --yes
+
+# List deployments
+vercel ls
+
+# Deploy to production
+vercel --prod
+
+# View logs for specific deployment
+vercel logs <deployment-url>
+
+# Pull environment variables
+vercel env pull .env.vercel
+
+# List environment variables
+vercel env ls
+
+# Add environment variable
+vercel env add <VAR_NAME> production
+```
+
+### Supabase MCP Tools
+**Critical for database operations and debugging:**
+
+```python
+# Get project configuration
+mcp__supabase__get_project_url()
+mcp__supabase__get_anon_key()
+
+# Execute SQL queries (for debugging RLS policies)
+mcp__supabase__execute_sql(query="SELECT * FROM pg_policies WHERE tablename = 'user_profiles'")
+
+# Apply migrations (for fixing RLS issues)
+mcp__supabase__apply_migration(
+    name="fix_user_profiles_rls_recursion",
+    query="DROP POLICY IF EXISTS admin_all_access ON user_profiles..."
+)
+
+# Get service logs
+mcp__supabase__get_logs(service="auth")  # auth, api, postgres
+
+# Search documentation
+mcp__supabase__search_docs(graphql_query="query { searchDocs(query: 'authentication') { ... } }")
+```
+
+### Context7 Integration
+**For researching best practices and debugging patterns:**
+
+```python
+# Find library documentation
+mcp__context7__resolve-library-id(libraryName="supabase auth")
+
+# Get specific documentation
+mcp__context7__get-library-docs(
+    context7CompatibleLibraryID="/supabase/auth",
+    topic="session errors and authentication debugging",
+    tokens=8000
+)
+```
+
+### Git Workflow Commands
+```bash
+# Check status
+git status
+
+# Stage files
+git add <file>
+
+# Commit with detailed message
+git commit -m "$(cat <<'EOF'
+type: description
+
+- Bullet point details
+- More details
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+EOF
+)"
+
+# Push to remote
+git push origin main
+```
+
+### Debugging Authentication Issues
+
+**1. RLS Policy Investigation:**
+```sql
+-- Check for circular references
+SELECT schemaname, tablename, policyname, cmd, qual, with_check 
+FROM pg_policies 
+WHERE tablename = 'user_profiles' 
+ORDER BY policyname;
+```
+
+**2. Session Error Debugging:**
+- Check Vercel environment variables match local
+- Verify Supabase service role key is set
+- Look for `SecretSessionError` in logs
+
+**3. Code 42P17 (Undefined Column):**
+```sql
+-- Check table structure
+SELECT column_name, data_type, is_nullable, column_default 
+FROM information_schema.columns 
+WHERE table_name = 'user_profiles' 
+ORDER BY ordinal_position;
+```
+
+### Environment Variables Management
+
+**Critical Variables for Production:**
+- `USER_API_KEY_ENCRYPTION_SECRET` - Must be exactly 32 characters
+- `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Public anonymous key
+- `SUPABASE_SERVICE_ROLE_KEY` - Service role key (keep secret!)
+
+**Sync Check:**
+```bash
+# Pull from Vercel
+vercel env pull .env.vercel
+
+# Compare with local
+diff .env .env.vercel
+```
+
+### Troubleshooting Build Issues
+
+**TypeScript Errors:**
+```bash
+# Check types locally
+npm run type-check
+
+# Full build test
+npm run build
+```
+
+**Next.js 15 Specific Fixes:**
+- Remove `await` from `createClient()` calls
+- Add `await` to `cookies()` calls
+- Update route handlers: `params: Promise<{ id: string }>`
