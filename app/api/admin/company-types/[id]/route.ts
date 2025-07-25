@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { isAdmin } from '@/lib/auth/AuthContext'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const supabase = await createClient()
+  const cookieStore = await cookies()
+  const supabase = createClient(cookieStore)
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
@@ -21,7 +23,7 @@ export async function PUT(
   //   return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   // }
 
-  const { id } = params
+  const { id } = await context.params
   const { name, description, system_prompt_template } = await request.json()
 
   if (!name || !description || !system_prompt_template) {
