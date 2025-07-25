@@ -351,6 +351,13 @@ MIT License - see LICENSE file for details.
 - Browser extensions may interfere with fetch requests (use incognito mode as workaround)
 - Build requires explicit TypeScript types for all callback functions
 
+### Current Known Issues (July 25, 2025)
+- 🔴 **Login Authentication Errors**: 
+  - SecretSessionError "encrypt without session key" 
+  - Code 42P17 database errors on user profile fetching
+  - Investigation ongoing - RLS policy recursion fixed but session issues remain
+- **Debugging**: Use `vercel logs <deployment-url>` and Supabase auth logs for investigation
+
 ### Development Debugging
 - Console logs extensively document the application flow
 - Company loading: Look for "Setting companies: X companies loaded"
