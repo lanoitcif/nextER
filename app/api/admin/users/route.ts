@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: NextRequest) {
   const cookieStore = await cookies()
-  const supabase = await createClient(cookieStore)
+  const supabase = createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return NextResponse.json({ error: 'Missing or invalid authorization header' }, { status: 401 })
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   if (authError || !user) {
     return NextResponse.json({ error: 'Invalid or expired session' }, { status: 401 })
   }
-  const supabaseAdmin = await createClient(cookieStore)
+  const supabaseAdmin = createClient(cookieStore)
   const { data: adminProfile } = await supabaseAdmin
     .from('user_profiles')
     .select('access_level')
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   const cookieStore = await cookies()
-  const supabase = await createClient(cookieStore)
+  const supabase = createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return NextResponse.json({ error: 'Missing or invalid authorization header' }, { status: 401 })
@@ -46,7 +46,7 @@ export async function PUT(request: NextRequest) {
   if (authError || !user) {
     return NextResponse.json({ error: 'Invalid or expired session' }, { status: 401 })
   }
-  const supabaseAdmin = await createClient(cookieStore)
+  const supabaseAdmin = createClient(cookieStore)
   const { data: adminProfile } = await supabaseAdmin
     .from('user_profiles')
     .select('access_level')

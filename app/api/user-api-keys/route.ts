@@ -7,7 +7,7 @@ import { handleError } from '@/lib/api/errors'
 
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies()
-  const supabase = await createClient(cookieStore)
+  const supabase = createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return NextResponse.json(
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   const cookieStore = await cookies()
-  const supabase = await createClient(cookieStore)
+  const supabase = createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return NextResponse.json(

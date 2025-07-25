@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
   // Authentication using cookie-based session
   const cookieStore = await cookies()
-  const supabase = await createClient(cookieStore)
+  const supabase = createClient(cookieStore)
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {

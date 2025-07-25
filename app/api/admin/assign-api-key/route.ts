@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
 
   // Authentication
   const cookieStore = await cookies()
-  const supabase = await createClient(cookieStore)
+  const supabase = createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const supabaseAdmin = await createClient(cookieStore)
+  const supabaseAdmin = createClient(cookieStore)
 
   try {
     // Check if user is admin
@@ -131,7 +131,7 @@ export async function DELETE(request: NextRequest) {
 
   // Authentication
   const cookieStore = await cookies()
-  const supabase = await createClient(cookieStore)
+  const supabase = createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -151,7 +151,7 @@ export async function DELETE(request: NextRequest) {
     )
   }
 
-  const supabaseAdmin = await createClient(cookieStore)
+  const supabaseAdmin = createClient(cookieStore)
 
   try {
     // Check if user is admin

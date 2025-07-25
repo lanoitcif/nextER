@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   console.log(`[${requestId}] Analysis request received at ${new Date().toISOString()}`)
 
   const cookieStore = await cookies()
-  const supabase = await createClient(cookieStore)
+  const supabase = createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return NextResponse.json(
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     )
   }
   
-  const supabaseAdmin = await createClient(cookieStore)
+  const supabaseAdmin = createClient(cookieStore)
   
   console.log(`[${requestId}] Authentication successful for user: ${user.email}`)
   
