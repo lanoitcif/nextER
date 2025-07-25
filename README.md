@@ -5,6 +5,19 @@ A powerful SaaS web application for analyzing transcripts using multiple AI prov
 ## 🚧 Development Status
 **This project is currently in active development. Features and documentation may change.**
 
+## 📚 Documentation
+
+*   **[API Documentation](docs/API.md)**: A comprehensive guide to the project's API.
+*   **[Deployment Guide](docs/DEPLOYMENT.md)**: Instructions for deploying the application.
+*   **[Development Guide](docs/DEVELOPMENT.md)**: Information about the project's development process.
+*   **[UI Element Inventory](docs/INVENTORY.md)**: A list of all the UI elements in the application.
+*   **[Enhancement Roadmap](docs/ENHANCEMENT_ROADMAP.md)**: The future direction of the project.
+*   **[Decisions Log](docs/DECISIONS_LOG.md)**: A log of all the major decisions made during the development of the project.
+*   **[Competitive Analysis](docs/COMPETITIVE_ANALYSIS.md)**: An analysis of the competitive landscape.
+*   **[Areas of Improvement](docs/AoI.MD)**: A plan for improving the project's documentation.
+*   **[Design Guide](docs/VIBE.md)**: A guide to the project's aesthetic.
+*   **[Archived Documents](docs/archive/)**: A collection of historical documents, including the `TRIPOD` framework and debugging logs.
+
 ## 🚀 Features
 
 - **Multiple LLM Providers**: OpenAI, Anthropic, Google, and Cohere integration
