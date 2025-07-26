@@ -235,10 +235,38 @@ npm run build    # Production build
 - **Audit Trail**: Complete usage logging
 
 ### Authentication Security
-- **JWT Tokens**: Secure session management
+- **JWT Tokens**: Secure session management with Supabase auth
 - **Email Verification**: Required for new accounts
 - **Role Validation**: Server-side permission checks
 - **HTTPS**: Enforced in production
+
+### **🚨 Critical Security Vulnerability (Identified July 26, 2025)**
+**Location:** `/app/api/extract-pdf/route.ts`
+**Issue:** Manual JWT decoding without signature verification
+**Risk:** Token forgery and authentication bypass possible
+**Status:** Pending immediate fix
+
+**Current Vulnerable Pattern:**
+```typescript
+// DANGEROUS - No signature verification
+const decoded = jwt.decode(token) as any
+userId = decoded.sub
+```
+
+**Secure Pattern (Required):**
+```typescript
+// SECURE - Supabase validates signature
+const { data: { user }, error } = await supabase.auth.getUser(token)
+if (error || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+userId = user.id
+```
+
+### **Supabase 2025 Compliance Status**
+- ✅ Using modern `@supabase/ssr` package (v0.5.1)
+- ✅ No deprecated `@supabase/auth-helpers` dependencies  
+- ⚠️ Manual JWT handling requires immediate removal
+- ⚠️ Upgrade to `@supabase/ssr` v0.6.1 recommended
+- 📅 Migration deadlines: Oct 2025 (new projects), Nov 2025 (existing projects)
 
 ### Row Level Security (RLS)
 ```sql

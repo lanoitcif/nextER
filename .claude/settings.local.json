@@ -57,7 +57,13 @@
       "Bash(npm i:*)",
       "Bash(vercel ls:*)",
       "Bash(vercel logs:*)",
-      "mcp__memory__create_relations"
+      "mcp__memory__create_relations",
+      "mcp__memory__add_observations",
+      "Bash(timeout 30s vercel logs:*)",
+      "Bash(vercel inspect:*)",
+      "mcp__supabase__get_advisors",
+      "WebFetch(domain:claude.ai)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": []
   },
