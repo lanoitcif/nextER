@@ -5,7 +5,13 @@ import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase/client'
 import type { Database } from '@/lib/supabase/client'
 
-type UserProfile = Database['public']['Tables']['user_profiles']['Row']
+type UserProfile = {
+  id: string;
+  full_name: string | null;
+  email: string;
+  can_use_owner_key: boolean;
+  access_level: 'basic' | 'advanced' | 'admin';
+};
 
 // Helper function to check if a user profile has admin privileges
 export function isAdmin(profile: UserProfile | null): boolean {
@@ -88,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
-        .select('*')
+        .select('id, full_name, email, can_use_owner_key, access_level')
         .eq('id', userId)
         .single()
       
@@ -132,7 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data: profileData, error: profileError } = await supabase
         .from('user_profiles')
-        .select('*')
+        .select('id, full_name, email, can_use_owner_key, access_level')
         .eq('id', signInData.user.id)
         .single()
       

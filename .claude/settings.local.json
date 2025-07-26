@@ -51,7 +51,10 @@
       "Bash(npx tsc:*)",
       "mcp__context7__resolve-library-id",
       "mcp__context7__get-library-docs",
-      "mcp__memory__create_entities"
+      "mcp__memory__create_entities",
+      "Bash(grep:*)",
+      "Bash(npm search:*)",
+      "Bash(npm i:*)"
     ],
     "deny": []
   },
