@@ -54,7 +54,10 @@
       "mcp__memory__create_entities",
       "Bash(grep:*)",
       "Bash(npm search:*)",
-      "Bash(npm i:*)"
+      "Bash(npm i:*)",
+      "Bash(vercel ls:*)",
+      "Bash(vercel logs:*)",
+      "mcp__memory__create_relations"
     ],
     "deny": []
   },
