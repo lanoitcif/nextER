@@ -59,15 +59,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshSession = async () => {
     setLoading(true)
-    const { data: { session } } = await supabase.auth.getSession()
-    setSession(session)
-    setUser(session?.user ?? null)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      setSession(session)
+      setUser(session?.user ?? null)
 
-    if (session?.user) {
-      await fetchUserProfile(session.user.id)
+      if (session?.user) {
+        await fetchUserProfile(session.user.id)
+      }
+    } catch (error) {
+      console.error('Error refreshing session:', error)
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }
 
   useEffect(() => {
@@ -77,6 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        setLoading(true) // Ensure loading state is active during auth changes
         setSession(session)
         setUser(session?.user ?? null)
         
