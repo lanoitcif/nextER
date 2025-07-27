@@ -28,16 +28,10 @@ export default function DashboardPage() {
   const [loadingStats, setLoadingStats] = useState(true)
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/auth/login')
-    }
-  }, [user, loading, router])
-
-  useEffect(() => {
     if (user) {
       fetchDashboardStats()
     }
-  }, [user]) // Fixed: Removed isVisible dependency to prevent refetch on alt-tab
+  }, [user])
 
   const fetchDashboardStats = async () => {
     try {

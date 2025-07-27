@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase/client'
 import type { Database } from '@/lib/supabase/client'
+import { useIsVisible } from '@/lib/utils/hooks'
 
 type UserProfile = {
   id: string;
@@ -54,22 +55,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const isVisible = useIsVisible()
+
+  const refreshSession = async () => {
+    setLoading(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    setSession(session)
+    setUser(session?.user ?? null)
+
+    if (session?.user) {
+      await fetchUserProfile(session.user.id)
+    }
+
+    setLoading(false)
+  }
 
   useEffect(() => {
     // Get initial session
-    const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setSession(session)
-      setUser(session?.user ?? null)
-      
-      if (session?.user) {
-        await fetchUserProfile(session.user.id)
-      }
-      
-      setLoading(false)
-    }
-
-    getInitialSession()
+    refreshSession()
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -89,6 +92,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => subscription.unsubscribe()
   }, [])
+
+  useEffect(() => {
+    if (isVisible) {
+      console.log('Page is visible, refreshing session...')
+      refreshSession()
+    }
+  }, [isVisible])
 
   const fetchUserProfile = async (userId: string) => {
     try {
