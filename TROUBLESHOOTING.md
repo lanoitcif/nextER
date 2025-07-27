@@ -2,7 +2,7 @@
 
 ## Quick Reference for Common Issues
 
-### ✅ Recently Resolved Issues (July 26, 2025)
+### ✅ Recently Resolved Issues (July 27, 2025)
 
 #### RLS Infinite Recursion Error (RESOLVED)
 **Symptoms:**
@@ -44,9 +44,39 @@
 **Resolution Date:** July 26, 2025
 **Status:** ✅ FIXED - Dashboard loading performance optimized
 
+#### Loading Screen Bug (RESOLVED)
+**Symptoms:**
+- Application gets stuck on a 'loading' screen after minimizing and restoring the browser, particularly after an analysis.
+- No errors in console, but UI elements do not reappear.
+
+**Root Cause:**
+- `AuthContext`'s `refreshSession` function did not guarantee `setLoading(false)` on completion or error.
+- `onAuthStateChange` listener also needed to set `loading` to `true` for consistent behavior.
+
+**Solution Applied:**
+- Implemented `try...finally` block in `refreshSession` to ensure `setLoading(false)` is always called.
+- Added `setLoading(true)` at the beginning of the `onAuthStateChange` listener.
+
+**Resolution Date:** July 27, 2025
+**Status:** ✅ FIXED - Page no longer gets stuck on loading screen.
+
+#### File Upload Lag (Desktop) (RESOLVED)
+**Symptoms:**
+- Noticeable lag between attaching a `.pdf`, `.docx`, or `.txt` file and the raw text appearing in the transcript text box on desktop browsers.
+
+**Root Cause:**
+- Backend file processing (PDF/DOCX extraction) was synchronous and could be slow for larger files, causing a delay before the extracted text was returned to the frontend.
+
+**Solution Applied:**
+- Backend processing for file extraction has been optimized, reducing the lag.
+- Frontend now handles the `analyzing` state more robustly during file upload, providing better user feedback.
+
+**Resolution Date:** July 27, 2025
+**Status:** ✅ FIXED - File upload on desktop is now smoother.
+
 ---
 
-## 🔐 Security & Architecture Review (July 26, 2025)
+## 🔐 Security & Architecture Review (July 27, 2025)
 
 ### **Critical Security Vulnerability - JWT Token Handling**
 **Location:** `/app/api/extract-pdf/route.ts:24`
@@ -209,10 +239,11 @@ git push origin main
 
 ## Next Session Priorities
 
-1. Fix login authentication errors
-2. Investigate session key management
-3. Resolve code 42P17 column errors
-4. Test full user authentication flow
+1. Investigate and resolve **File Upload (Android)** issue.
+2. Fix login authentication errors
+3. Investigate session key management
+4. Resolve code 42P17 column errors
+5. Test full user authentication flow
 
 Remember: Always check build status at https://vercel.com/lanoitcifs-projects/next-er
 

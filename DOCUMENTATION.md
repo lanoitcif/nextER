@@ -24,7 +24,7 @@ This document consolidates the technical architecture, user journey, and develop
 - **State Management**: React useState hooks and useReducer for complex state
 - **Styling**: Tailwind CSS with retro CRT color scheme
 - **TypeScript**: Strict mode enabled
-- **Authentication**: Supabase Auth with JWT
+- **Authentication**: Supabase Auth with JWT (Login functionality resolved)
 
 ### Backend
 - **Database**: Supabase PostgreSQL with Row Level Security (RLS)
@@ -155,9 +155,10 @@ stateDiagram-v2
     TempKey --> ProviderSelection
     
     ProviderSelection --> ModelSelection: Select Model
-    ModelSelection --> TranscriptInput: Upload/Paste
+    ModelSelection --> TranscriptInput: Upload/Paste (Desktop working, Android pending)
     TranscriptInput --> Analysis: Submit
     Analysis --> Results: Display Results
+    Results --> AdditionalReview: Optional Second LLM Review
 ```
 
 ### Authorization Patterns
@@ -397,4 +398,4 @@ npm run lint        # Run linter
 - **Vercel**: john@151westmain.com
 - **Supabase**: john@151westmain.com
 
-Last Updated: 2025-07-26
+Last Updated: 2025-07-27

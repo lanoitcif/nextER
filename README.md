@@ -345,17 +345,16 @@ MIT License - see LICENSE file for details.
 - ✅ **Admin API Key Management**: Complete system for assigning keys with default models to users
 - ✅ **Production Build Issues**: Resolved Next.js 15 migration issues and environment configuration
 - ✅ **supabaseAdmin Import Error**: Fixed missing import causing TypeScript compilation failures
+- ✅ **File Upload (Desktop)**: Resolved issue where PDF/DOCX/TXT file uploads would sometimes hang or show a lag before displaying text on desktop browsers.
+- ✅ **Loading Screen Bug**: Fixed issue where the application would get stuck on a 'loading' screen after minimizing and restoring the browser, particularly after an analysis.
 
 ### Known Limitations
 - Session timeout handling in some browser configurations (fallbacks implemented)
 - Browser extensions may interfere with fetch requests (use incognito mode as workaround)
 - Build requires explicit TypeScript types for all callback functions
 
-### Current Known Issues (July 25, 2025)
-- 🔴 **Login Authentication Errors**: 
-  - SecretSessionError "encrypt without session key" 
-  - Code 42P17 database errors on user profile fetching
-  - Investigation ongoing - RLS policy recursion fixed but session issues remain
+### Current Known Issues (July 27, 2025)
+- 🔴 **File Upload (Android)**: File uploads from Android devices (specifically Chrome browser) still result in a 'loading' state with no progress. The request does not appear to reach the backend. Further investigation required with client-side debugging.
 - **Debugging**: Use `vercel logs <deployment-url>` and Supabase auth logs for investigation
 
 ### Development Debugging

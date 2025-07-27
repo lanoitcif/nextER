@@ -5,7 +5,8 @@ This is the NextER (Next Earnings Release) project directory containing a sophis
 ## Current Project Status
 - **Production**: Deployed on Vercel at lanoitcif.com
 - **Database**: Supabase project xorjwzniopfuosadwvfu
-- **Issue**: Login functionality currently broken due to RLS policy recursion
+- **Issue**: Login functionality is now resolved.
+- **Current Known Issue**: File uploads from Android devices (specifically Chrome browser) still result in a 'loading' state with no progress. The request does not appear to reach the backend. Further investigation required with client-side debugging.
 
 ## Development Standards
 - TypeScript strict mode required
@@ -14,10 +15,11 @@ This is the NextER (Next Earnings Release) project directory containing a sophis
 - Security-first approach with AES-256-GCM encryption
 
 ## Key Features Being Developed
-1. Multi-LLM support for transcript analysis
-2. Industry-specific analysis templates
-3. File upload system for transcripts (PDF/DOC/TXT)
-4. Simplified Analysis Type workflow
+1. Multi-LLM support for transcript analysis (Implemented)
+2. Industry-specific analysis templates (Implemented)
+3. File upload system for transcripts (PDF/DOC/TXT) (Implemented for Desktop, Android pending)
+4. Simplified Analysis Type workflow (Implemented)
+5. Additional Review feature (Implemented)
 
 ## Testing Commands
 - `npm test` - Run test suite

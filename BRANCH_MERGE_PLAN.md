@@ -2,7 +2,7 @@
 
 ## Status: ✅ RESOLVED - Production Build Successful
 
-**Last Updated:** 2025-07-25
+**Last Updated:** 2025-07-27
 
 This document tracks the completed resolution of production build issues and branch merging process.
 
@@ -108,6 +108,8 @@ This document tracks the completed resolution of production build issues and bra
 - **`feat/system-prompt-editor`:** Merged. Added a system prompt editor to the admin dashboard.
 - **`feature/pdf-upload`:** Merged. Added PDF upload functionality.
 - **`feature/review-analysis`:** Merged. Added a feature to allow a second LLM to review the initial analysis.
+- **`fix/loading-screen-bug`:** Merged. Fixed issue where the application would get stuck on a 'loading' screen after minimizing and restoring the browser.
+- **`fix/desktop-file-upload-lag`:** Merged. Optimized backend file processing to reduce lag during desktop file uploads.
 
 ---
 
