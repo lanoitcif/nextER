@@ -1,9 +1,9 @@
 # NextER Development Status & Technical Reference
 
-**Last Updated:** July 28, 2025 (Updated with authentication fixes)  
+**Last Updated:** July 28, 2025 (Dropdown styling & authentication fixes)  
 **Production URL:** https://lanoitcif.com  
 **Status:** ✅ Production Ready - Core functionality operational  
-**Current Priority:** Android File Upload & Session Management
+**Current Priority:** Android File Upload & UI Polish
 
 ---
 
@@ -32,6 +32,7 @@
 - **System Prompt Editor:** Fixed JSONEditor issue for plain text templates
 - **Session Management:** Enhanced with clearCorruptedSession functionality
 - **Visibility Handling:** Completely disabled visibility-based refresh to prevent state resets
+- **UI/UX Improvements:** Fixed dropdown styling for proper font color contrast
 
 ### ⚠️ Known Issues
 - **File Upload (Android):** Chrome on Android shows endless loading state. Request doesn't reach backend. Requires client-side debugging.
@@ -46,7 +47,7 @@
 
 ## Recent Fixes & Resolutions
 
-### July 28, 2025: Authentication & Session Management Fixes
+### July 28, 2025: Authentication, Session & UI Fixes
 
 #### 1. JSONEditor System Prompt Error
 **Problem:** JSONEditor expected object/array but received plain text for system prompts  
@@ -65,6 +66,18 @@
 ```typescript
 // Removed problematic visibility refresh that was causing state resets
 // onAuthStateChange listener is sufficient for auth management
+```
+
+#### 4. Dropdown Font Color Contrast
+**Problem:** Select dropdowns had white background with gray text, making them hard to read  
+**Solution:** Added explicit styling in `globals.css`:
+```css
+select.select, select {
+  @apply bg-background text-foreground;
+}
+select option {
+  @apply bg-background text-foreground;
+}
 ```
 
 ### July 27, 2025: JWT Security Vulnerability

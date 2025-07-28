@@ -10,6 +10,7 @@ This is the NextER (Next Earnings Release) project directory containing a sophis
   - JSONEditor system prompt error resolved
   - Login stuck on loading issue fixed
   - Visibility change state reset eliminated
+  - Dropdown font color contrast improved
 - **Current Known Issue**: File uploads from Android devices (specifically Chrome browser) still result in a 'loading' state with no progress. The request does not appear to reach the backend. Further investigation required with client-side debugging.
 
 ## Development Standards
@@ -39,6 +40,7 @@ This is the NextER (Next Earnings Release) project directory containing a sophis
 ## Recent Technical Changes (July 28, 2025)
 - **AuthContext.tsx**: Added clearCorruptedSession function, removed visibility-based refresh
 - **System Prompts Admin**: Replaced JSONEditor with textarea for plain text handling
+- **globals.css**: Added explicit select element styling for proper theme contrast
 - **Documentation**: Consolidated into DEVELOPMENT_STATUS.md for easier maintenance
 
 Current focus: Android file upload issue and continuous platform improvements.

@@ -330,7 +330,7 @@ MIT License - see LICENSE file for details.
 ---
 
 **Status**: Production Ready - Core functionality working, admin features complete
-**Last Updated**: 2025-07-28 (Authentication & session management fixes deployed)
+**Last Updated**: 2025-07-28 (Authentication, session management & UI fixes deployed)
 **Production URL**: https://lanoitcif.com
 **Build Status**: ✅ SUCCESSFUL
 
@@ -356,6 +356,7 @@ MIT License - see LICENSE file for details.
 - ✅ **JSONEditor System Prompt Error**: Fixed admin page error where JSONEditor expected object/array but received plain text (July 28)
 - ✅ **Login Loading Stuck**: Resolved issue requiring cookie clearing to login - added session corruption recovery (July 28)
 - ✅ **Visibility Change State Reset**: Fixed analysis results being reset when taking screenshots or switching tabs (July 28)
+- ✅ **Dropdown Font Color Contrast**: Fixed hard-to-read dropdowns with white background and gray text across all pages (July 28)
 
 ### Known Limitations
 - Session timeout handling in some browser configurations (fallbacks implemented)
@@ -369,6 +370,7 @@ MIT License - see LICENSE file for details.
 ### Recently Fixed (July 28, 2025)
 - ✅ **Authentication Issues**: Fixed login stuck on loading, session corruption, and visibility change problems
 - ✅ **Admin Features**: Resolved JSONEditor system prompt editing error
+- ✅ **UI/UX**: Improved dropdown font color contrast for better readability
 
 ### Development Debugging
 - Console logs extensively document the application flow
