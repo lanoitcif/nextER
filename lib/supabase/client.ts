@@ -22,15 +22,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
 // Client-side Supabase client that stores the auth session in cookies so that
 // it can be accessed by the server via `createServerClient`.
 export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey, {
-  // Prevent auth conflicts between multiple tabs/windows
   auth: {
     flowType: 'pkce',
     autoRefreshToken: true,
     detectSessionInUrl: true,
     persistSession: true,
   },
-  // Disable multiTab to prevent auth state conflicts
-  multiTab: false,
 })
 
 // Server-side Supabase client with service role (for API routes)

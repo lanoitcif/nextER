@@ -123,11 +123,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => {
-    if (isVisible && user) {
-      console.log('Page is visible, refreshing session without loading state...')
-      refreshSession(false)
+    // Only refresh session on visibility change if we have a user and haven't refreshed recently
+    if (isVisible && user && !loading) {
+      const lastRefresh = sessionStorage.getItem('lastSessionRefresh')
+      const now = Date.now()
+      
+      // Only refresh if more than 30 seconds have passed since last refresh
+      if (!lastRefresh || now - parseInt(lastRefresh) > 30000) {
+        console.log('Page is visible, refreshing session without loading state...')
+        sessionStorage.setItem('lastSessionRefresh', now.toString())
+        refreshSession(false)
+      }
     }
-  }, [isVisible])
+  }, [isVisible, user, loading])
 
   const fetchUserProfile = async (userId: string) => {
     try {
