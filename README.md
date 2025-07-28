@@ -7,6 +7,12 @@ A sophisticated SaaS platform for AI-powered earnings call transcript analysis w
 
 ## 📚 Documentation
 
+### Core Documentation
+*   **[Development Status](DEVELOPMENT_STATUS.md)**: Current status, known issues, troubleshooting, and technical reference
+*   **[Project Documentation](DOCUMENTATION.md)**: Complete technical architecture and API reference
+*   **[Claude Context](CLAUDE.md)**: AI assistant context and development standards
+
+### Additional Guides
 *   **[API Documentation](docs/API.md)**: A comprehensive guide to the project's API.
 *   **[Deployment Guide](docs/DEPLOYMENT.md)**: Instructions for deploying the application.
 *   **[Development Guide](docs/DEVELOPMENT.md)**: Information about the project's development process.
