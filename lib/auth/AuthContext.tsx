@@ -57,8 +57,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const isVisible = useIsVisible()
 
-  const refreshSession = async () => {
-    setLoading(true)
+  const refreshSession = async (showLoading = true) => {
+    if (showLoading) {
+      setLoading(true)
+    }
     try {
       const { data: { session } } = await supabase.auth.getSession()
       setSession(session)
@@ -70,7 +72,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error refreshing session:', error)
     } finally {
-      setLoading(false)
+      if (showLoading) {
+        setLoading(false)
+      }
     }
   }
 
@@ -99,9 +103,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => {
-    if (isVisible) {
-      console.log('Page is visible, refreshing session...')
-      refreshSession()
+    if (isVisible && user) {
+      console.log('Page is visible, refreshing session without loading state...')
+      refreshSession(false)
     }
   }, [isVisible])
 
