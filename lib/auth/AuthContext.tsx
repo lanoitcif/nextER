@@ -123,18 +123,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => {
-    // Only refresh session on visibility change if we have a user and haven't refreshed recently
-    if (isVisible && user && !loading) {
-      const lastRefresh = sessionStorage.getItem('lastSessionRefresh')
-      const now = Date.now()
-      
-      // Only refresh if more than 30 seconds have passed since last refresh
-      if (!lastRefresh || now - parseInt(lastRefresh) > 30000) {
-        console.log('Page is visible, refreshing session without loading state...')
-        sessionStorage.setItem('lastSessionRefresh', now.toString())
-        refreshSession(false)
-      }
-    }
+    // Disable visibility-based session refresh to prevent state resets during user interactions
+    // The onAuthStateChange listener and initial session fetch are sufficient for auth management
+    // This prevents analysis results from being reset when taking screenshots or switching tabs
   }, [isVisible, user, loading])
 
   const fetchUserProfile = async (userId: string) => {

@@ -65,7 +65,8 @@
       "WebFetch(domain:claude.ai)",
       "Bash(npm uninstall:*)",
       "mcp__memory__read_graph",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(vercel list:*)"
     ],
     "deny": []
   },
