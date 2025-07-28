@@ -2,7 +2,7 @@
 
 ## Quick Reference for Common Issues
 
-### ✅ Recently Resolved Issues (July 27, 2025)
+### ✅ Recently Resolved Issues (July 28, 2025)
 
 #### RLS Infinite Recursion Error (RESOLVED)
 **Symptoms:**
@@ -48,17 +48,19 @@
 **Symptoms:**
 - Application gets stuck on a 'loading' screen after minimizing and restoring the browser, particularly after an analysis.
 - No errors in console, but UI elements do not reappear.
+- Issue particularly noticeable when modals are open.
 
 **Root Cause:**
-- `AuthContext`'s `refreshSession` function did not guarantee `setLoading(false)` on completion or error.
-- `onAuthStateChange` listener also needed to set `loading` to `true` for consistent behavior.
+- `AuthContext`'s `refreshSession` function was setting loading state to true on every visibility change.
+- This disrupted UI when modals were open, causing confusing user experience.
 
 **Solution Applied:**
-- Implemented `try...finally` block in `refreshSession` to ensure `setLoading(false)` is always called.
-- Added `setLoading(true)` at the beginning of the `onAuthStateChange` listener.
+- Modified `refreshSession` to accept optional `showLoading` parameter (defaults to true).
+- When refreshing due to visibility change, call `refreshSession(false)` to avoid UI disruption.
+- Only refresh if user is already authenticated to avoid unnecessary API calls.
 
-**Resolution Date:** July 27, 2025
-**Status:** ✅ FIXED - Page no longer gets stuck on loading screen.
+**Resolution Date:** July 28, 2025
+**Status:** ✅ FIXED - Page no longer shows loading screen on tab switches.
 
 #### File Upload Lag (Desktop) (RESOLVED)
 **Symptoms:**
@@ -78,24 +80,26 @@
 
 ## 🔐 Security & Architecture Review (July 27, 2025)
 
-### **Critical Security Vulnerability - JWT Token Handling**
+### **Critical Security Vulnerability - JWT Token Handling (RESOLVED)**
 **Location:** `/app/api/extract-pdf/route.ts:24`
 **Issue:** Dangerous use of `jwt.decode()` without signature verification
 **Risk Level:** HIGH - Token forgery possible, authentication bypass
+**Status:** ✅ FIXED - Replaced with secure Supabase auth
 
-**Vulnerable Code:**
+**Previous Vulnerable Code:**
 ```typescript
 const decoded = jwt.decode(token) as any
 userId = decoded.sub
 ```
 
 **Security Impact:**
-- Anyone can forge tokens and bypass authentication
-- No signature validation allows malicious token creation
-- Violates Supabase security best practices
-- Could lead to unauthorized API access
+- Anyone could forge tokens and bypass authentication
+- No signature validation allowed malicious token creation
+- Violated Supabase security best practices
+- Could have led to unauthorized API access
 
-**Remediation:** Replace with Supabase's secure `auth.getUser()` method
+**Resolution Applied:** Replaced with Supabase's secure `auth.getUser()` method
+**Resolution Date:** July 27, 2025
 
 ### **Supabase Authentication Migration Status**
 **Current Status:** ✅ MOSTLY COMPLIANT with 2025 standards
@@ -239,11 +243,11 @@ git push origin main
 
 ## Next Session Priorities
 
-1. Investigate and resolve **File Upload (Android)** issue.
-2. Fix login authentication errors
-3. Investigate session key management
-4. Resolve code 42P17 column errors
-5. Test full user authentication flow
+1. Investigate and resolve **File Upload (Android)** issue
+2. Fix RLS policy circular dependency on user_api_keys table
+3. Update Supabase auth security settings (OTP expiry, password protection)
+4. Consider implementing multiTab: false configuration
+5. Monitor production using Vercel CLI and Supabase MCP tools
 
 Remember: Always check build status at https://vercel.com/lanoitcifs-projects/next-er
 

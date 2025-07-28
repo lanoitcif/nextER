@@ -1,26 +1,27 @@
 # NextER Senior Developer Handoff - Technical Implementation Plan
 
-**Date:** July 27, 2025  
-**Status:** Post Jules' Visibility Fix Branch Merge  
-**Priority:** High - Production Login Issues
+**Date:** July 28, 2025  
+**Status:** Visibility Fix Applied to Main  
+**Priority:** High - Android File Upload & RLS Performance
 
 ## Completed Work Summary
 
-### ✅ Recently Merged: Jules' Visibility Fix Branch
-- **Branch:** `fix/visibility-issue` (merged to main, branch deleted)
-- **Key Fixes Applied:**
-  1. **Alt-Tab Loading Issue Resolution**: Implemented `useIsVisible` hook in `AuthContext.tsx` to refresh sessions only when page becomes visible. Fixed the issue where the application would get stuck on a 'loading' screen after minimizing and restoring the browser.
-  2. **JWT Security Vulnerability Fix**: Replaced insecure `jwt.decode()` with Supabase's `auth.getUser()` in `/app/api/extract-pdf/route.ts`.
-  3. **RLS Infinite Recursion Fix**: Implemented `private.is_admin_user()` security definer function to prevent circular policy dependencies.
-  4. **Desktop File Upload Lag Fix**: Optimized backend file processing to reduce lag during desktop file uploads, ensuring smoother text display after attaching files.
+### ✅ Recent Fixes Applied
+- **Latest Fix (July 28):** Visibility change loading issue - Modified `AuthContext.tsx` to prevent loading screen on tab switches
+- **Previous Fixes:**
+  1. **Alt-Tab Loading Issue Resolution**: Implemented `useIsVisible` hook with conditional loading state
+  2. **JWT Security Vulnerability Fix**: Replaced insecure `jwt.decode()` with Supabase's `auth.getUser()` in `/app/api/extract-pdf/route.ts`
+  3. **RLS Infinite Recursion Fix**: Implemented `private.is_admin_user()` security definer function to prevent circular policy dependencies
+  4. **Desktop File Upload Lag Fix**: Optimized backend file processing to reduce lag during desktop file uploads
 
 ### ✅ Current Production Status
 - **Domain:** lanoitcif.com (Vercel deployment)
 - **Database:** Supabase project `xorjwzniopfuosadwvfu`
 - **Build Status:** ✅ Successful (Next.js 15 migration complete)
-- **Auth Issues:** ✅ Login functionality resolved.
-- **File Upload (Desktop):** ✅ Working smoothly.
-- **File Upload (Android):** ⚠️ Still experiencing 'loading' state with no progress. Request does not appear to reach backend. Requires further client-side debugging.
+- **Auth Issues:** ✅ Login functionality resolved
+- **Visibility Change:** ✅ Fixed loading screen on alt-tab (July 28)
+- **File Upload (Desktop):** ✅ Working smoothly
+- **File Upload (Android):** ⚠️ Still experiencing 'loading' state with no progress. Request does not appear to reach backend. Requires further client-side debugging
 
 ## Critical Next Steps for Senior Developer
 
@@ -109,9 +110,9 @@ SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 ### 3. MEDIUM PRIORITY: Supabase Package Migration
 
 **Current Status:** Using modern packages but need upgrade
-- ✅ `@supabase/ssr` v0.5.1 (should upgrade to v0.6.1)
+- ✅ `@supabase/ssr` v0.5.1 (should upgrade to latest)
 - ✅ `@supabase/supabase-js` v2.45.4 (latest)
-- 🚨 `jsonwebtoken` dependency (REMOVE - security risk)
+- ✅ `jsonwebtoken` dependency REMOVED (security fix completed)
 
 **Migration Steps:**
 ```bash
@@ -127,7 +128,7 @@ grep -r "jwt\.decode\|jwt\.verify" app/ lib/
 
 ### 4. MEDIUM PRIORITY: MultiTab Configuration Implementation
 
-**Issue:** Alt-tab fix is partial - need full multiTab configuration.
+**Issue:** Alt-tab fix implemented with `refreshSession(false)` - consider adding multiTab configuration for additional stability.
 
 **Current Implementation:** Uses `useIsVisible` hook (good)
 **Missing:** Supabase client `multiTab: false` configuration
@@ -305,11 +306,11 @@ Keep these files ready for emergency rollback:
 ---
 
 **Next Session Priority Order:**
-1. Investigate and resolve **File Upload (Android)** issue.
+1. Investigate and resolve **File Upload (Android)** issue
 2. Fix RLS policy circular dependency on user_api_keys
 3. Update Supabase auth security settings
-4. Implement multiTab: false configuration
+4. Consider multiTab: false configuration for additional stability
 5. Test complete authentication flow
-6. Monitor production metrics
+6. Monitor production metrics using Vercel CLI and Supabase MCP tools
 
 This document should be updated after each implementation phase with results and any new findings.

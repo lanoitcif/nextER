@@ -1,9 +1,9 @@
-# LLM Transcript Analyzer
+# NextER (NEaR) - Next Earnings Release
 
-A powerful SaaS web application for analyzing transcripts using multiple AI providers with secure API key management and industry-specific analysis templates.
+A sophisticated SaaS platform for AI-powered earnings call transcript analysis with multi-LLM support and industry-specific templates.
 
 ## 🚧 Development Status
-**This project is currently in active development. Features and documentation may change.**
+**This project is production ready with core functionality complete. Continuous improvements being made.**
 
 ## 📚 Documentation
 
@@ -324,7 +324,7 @@ MIT License - see LICENSE file for details.
 ---
 
 **Status**: Production Ready - Core functionality working, admin features complete
-**Last Updated**: 2025-07-25
+**Last Updated**: 2025-07-28
 **Production URL**: https://lanoitcif.com
 **Build Status**: ✅ SUCCESSFUL
 
@@ -353,9 +353,10 @@ MIT License - see LICENSE file for details.
 - Browser extensions may interfere with fetch requests (use incognito mode as workaround)
 - Build requires explicit TypeScript types for all callback functions
 
-### Current Known Issues (July 27, 2025)
+### Current Known Issues (July 28, 2025)
 - 🔴 **File Upload (Android)**: File uploads from Android devices (specifically Chrome browser) still result in a 'loading' state with no progress. The request does not appear to reach the backend. Further investigation required with client-side debugging.
-- **Debugging**: Use `vercel logs <deployment-url>` and Supabase auth logs for investigation
+- ✅ **Visibility Change Loading**: Fixed issue where alt-tabbing would show loading screen when modals were open
+- **Debugging**: Use `vercel logs <deployment-url>` and Supabase MCP tools for investigation
 
 ### Development Debugging
 - Console logs extensively document the application flow

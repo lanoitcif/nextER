@@ -5,7 +5,8 @@ This is the NextER (Next Earnings Release) project directory containing a sophis
 ## Current Project Status
 - **Production**: Deployed on Vercel at lanoitcif.com
 - **Database**: Supabase project xorjwzniopfuosadwvfu
-- **Issue**: Login functionality is now resolved.
+- **Authentication**: Login functionality fully operational
+- **Recent Fix**: Visibility change loading issue resolved (July 28, 2025)
 - **Current Known Issue**: File uploads from Android devices (specifically Chrome browser) still result in a 'loading' state with no progress. The request does not appear to reach the backend. Further investigation required with client-side debugging.
 
 ## Development Standards
@@ -26,4 +27,10 @@ This is the NextER (Next Earnings Release) project directory containing a sophis
 - `npm run type-check` - TypeScript validation  
 - `npm run lint` - Code linting
 
-Current focus: Resolving production login issues and simplifying user workflows.
+## Available Tools & Resources
+- **Vercel CLI**: For deployment logs and monitoring
+- **Supabase MCP**: Direct database queries and operations via mcp__supabase tools
+- **Memory MCP**: Knowledge graph for tracking project history and decisions
+- **Context7**: For reviewing documentation and best practices
+
+Current focus: Android file upload issue and continuous platform improvements.
