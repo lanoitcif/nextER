@@ -1,9 +1,9 @@
 # NextER Development Status & Technical Reference
 
-**Last Updated:** July 28, 2025  
+**Last Updated:** July 28, 2025 (Updated with authentication fixes)  
 **Production URL:** https://lanoitcif.com  
 **Status:** ✅ Production Ready - Core functionality operational  
-**Current Priority:** Android File Upload & RLS Performance
+**Current Priority:** Android File Upload & Session Management
 
 ---
 
@@ -23,13 +23,15 @@
 ## Current Production Status
 
 ### ✅ Working Features
-- **Authentication:** Login/logout fully operational
+- **Authentication:** Login/logout fully operational with session corruption fixes
 - **Admin Panel:** Complete functionality including API key assignment
 - **Analysis Engine:** All LLM providers integrated (OpenAI, Anthropic, Google, Cohere)
 - **File Upload (Desktop):** PDF/DOCX/TXT extraction working smoothly
 - **Company Search:** Dropdown with auto-complete and analysis type selection
 - **Additional Review:** Second LLM review feature implemented
-- **Visibility Handling:** Alt-tab no longer shows loading screen (fixed July 28)
+- **System Prompt Editor:** Fixed JSONEditor issue for plain text templates
+- **Session Management:** Enhanced with clearCorruptedSession functionality
+- **Visibility Handling:** Completely disabled visibility-based refresh to prevent state resets
 
 ### ⚠️ Known Issues
 - **File Upload (Android):** Chrome on Android shows endless loading state. Request doesn't reach backend. Requires client-side debugging.
@@ -44,12 +46,25 @@
 
 ## Recent Fixes & Resolutions
 
-### July 28, 2025: Visibility Change Loading Fix
-**Problem:** Alt-tabbing showed loading screen when modals were open  
-**Solution:** Modified `AuthContext.tsx` to accept optional `showLoading` parameter
+### July 28, 2025: Authentication & Session Management Fixes
+
+#### 1. JSONEditor System Prompt Error
+**Problem:** JSONEditor expected object/array but received plain text for system prompts  
+**Solution:** Replaced JSONEditor with textarea in `/app/dashboard/admin/system-prompts/page.tsx`
+
+#### 2. Login Loading Stuck Issue
+**Problem:** Page gets stuck on "loading" after login, requiring cookie clearing  
+**Solution:** Enhanced session management in `AuthContext.tsx`:
+- Added `clearCorruptedSession` function for manual cleanup
+- Improved session refresh with error handling
+- Better auth state corruption recovery
+
+#### 3. Visibility Change State Reset
+**Problem:** Taking screenshots or switching tabs reset analysis results  
+**Solution:** Completely disabled visibility-based session refresh
 ```typescript
-// When refreshing due to visibility change
-refreshSession(false) // Don't show loading state
+// Removed problematic visibility refresh that was causing state resets
+// onAuthStateChange listener is sufficient for auth management
 ```
 
 ### July 27, 2025: JWT Security Vulnerability
@@ -121,13 +136,12 @@ CREATE POLICY "Admins can manage all API keys" ON user_api_keys
 - Enable leaked password protection
 - Update to latest @supabase/ssr package
 
-### 4. LOW PRIORITY: MultiTab Configuration
-**Enhancement:** Add `multiTab: false` to Supabase client
-```typescript
-export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey, {
-  multiTab: false  // Prevents auth state conflicts
-})
-```
+### 4. COMPLETED: Session Management Issues
+**Status:** ✅ Resolved on July 28, 2025
+- Fixed login loading state issues
+- Resolved visibility change state resets
+- Added session corruption recovery mechanisms
+- Note: `multiTab: false` not supported in current @supabase/ssr version
 
 ---
 
@@ -227,7 +241,8 @@ SELECT provider, COUNT(*), SUM(cost_estimate) FROM usage_logs GROUP BY provider;
 - `feature/review-analysis` - Second LLM review
 - `fix/loading-screen-bug` - Browser minimize/restore fix
 - `fix/desktop-file-upload-lag` - Upload optimization
-- `fix/visibility-change-loading` - Alt-tab loading fix (July 28)
+- `fix/auth-session-management` - Login loading & visibility fixes (July 28)
+- `fix/json-editor-placeholder` - System prompt editor fix (July 28)
 
 ### Pending Codex Branches
 **With commits (need review):**

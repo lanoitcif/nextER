@@ -24,7 +24,7 @@ This document consolidates the technical architecture, user journey, and develop
 - **State Management**: React useState hooks and useReducer for complex state
 - **Styling**: Tailwind CSS with retro CRT color scheme
 - **TypeScript**: Strict mode enabled
-- **Authentication**: Supabase Auth with JWT (Login functionality operational)
+- **Authentication**: Supabase Auth with enhanced session management (Login functionality operational)
 
 ### Backend
 - **Database**: Supabase PostgreSQL with Row Level Security (RLS)
@@ -398,4 +398,4 @@ npm run lint        # Run linter
 - **Vercel**: john@151westmain.com
 - **Supabase**: john@151westmain.com
 
-Last Updated: 2025-07-28
+Last Updated: 2025-07-28 (Authentication & session management updates)

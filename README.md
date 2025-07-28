@@ -330,7 +330,7 @@ MIT License - see LICENSE file for details.
 ---
 
 **Status**: Production Ready - Core functionality working, admin features complete
-**Last Updated**: 2025-07-28
+**Last Updated**: 2025-07-28 (Authentication & session management fixes deployed)
 **Production URL**: https://lanoitcif.com
 **Build Status**: ✅ SUCCESSFUL
 
@@ -353,6 +353,9 @@ MIT License - see LICENSE file for details.
 - ✅ **supabaseAdmin Import Error**: Fixed missing import causing TypeScript compilation failures
 - ✅ **File Upload (Desktop)**: Resolved issue where PDF/DOCX/TXT file uploads would sometimes hang or show a lag before displaying text on desktop browsers.
 - ✅ **Loading Screen Bug**: Fixed issue where the application would get stuck on a 'loading' screen after minimizing and restoring the browser, particularly after an analysis.
+- ✅ **JSONEditor System Prompt Error**: Fixed admin page error where JSONEditor expected object/array but received plain text (July 28)
+- ✅ **Login Loading Stuck**: Resolved issue requiring cookie clearing to login - added session corruption recovery (July 28)
+- ✅ **Visibility Change State Reset**: Fixed analysis results being reset when taking screenshots or switching tabs (July 28)
 
 ### Known Limitations
 - Session timeout handling in some browser configurations (fallbacks implemented)
@@ -361,8 +364,11 @@ MIT License - see LICENSE file for details.
 
 ### Current Known Issues (July 28, 2025)
 - 🔴 **File Upload (Android)**: File uploads from Android devices (specifically Chrome browser) still result in a 'loading' state with no progress. The request does not appear to reach the backend. Further investigation required with client-side debugging.
-- ✅ **Visibility Change Loading**: Fixed issue where alt-tabbing would show loading screen when modals were open
 - **Debugging**: Use `vercel logs <deployment-url>` and Supabase MCP tools for investigation
+
+### Recently Fixed (July 28, 2025)
+- ✅ **Authentication Issues**: Fixed login stuck on loading, session corruption, and visibility change problems
+- ✅ **Admin Features**: Resolved JSONEditor system prompt editing error
 
 ### Development Debugging
 - Console logs extensively document the application flow
