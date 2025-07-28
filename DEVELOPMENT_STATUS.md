@@ -386,6 +386,12 @@ git push origin --delete branch-name
 - **GitHub Repo:** https://github.com/lanoitcif/nextER
 - **Production URL:** https://lanoitcif.com
 
+## Security Notes
+
+- **Service Role Key**: Must be kept secret and only stored in server environment variables
+- **Rotate Keys**: If service role key is exposed, rotate immediately in Supabase dashboard
+- **Environment Variables**: Ensure all sensitive keys are in Vercel environment settings, never in code
+
 ---
 
 ## Next Session Priorities
