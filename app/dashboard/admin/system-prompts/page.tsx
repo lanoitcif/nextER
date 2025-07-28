@@ -7,9 +7,7 @@ import { supabase } from '@/lib/supabase/client'
 import { ArrowLeft, Edit, Save } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
-import JSONEditor from 'react-json-editor-ajrm'
-// @ts-ignore - No type definitions for locale
-import locale from 'react-json-editor-ajrm/locale/en'
+// Removed JSONEditor import - using textarea for plain text templates
 
 interface Company {
   id: string
@@ -226,19 +224,22 @@ export default function SystemPromptsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">System Prompt</label>
-                    <JSONEditor
-                      id="system-prompt-editor"
-                      placeholder={editingType.system_prompt_template}
-                      locale={locale}
-                      height="400px"
-                      width="100%"
-                      onChange={(data: any) =>
+                    <label className="block text-sm font-medium mb-1">
+                      System Prompt Template
+                    </label>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Use {`{placeholders}`} for dynamic content like {`{role}`}, {`{classification_rules}`}, etc.
+                    </p>
+                    <textarea
+                      value={editingType.system_prompt_template || ""}
+                      onChange={(e) =>
                         setEditingType({
                           ...editingType,
-                          system_prompt_template: data.jsObject,
+                          system_prompt_template: e.target.value,
                         })
                       }
+                      className="w-full h-96 font-mono text-sm p-3 border rounded-md"
+                      placeholder="Enter your system prompt template here..."
                     />
                   </div>
                 </div>
