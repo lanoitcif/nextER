@@ -38,6 +38,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<UserProfile | null>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
+  clearCorruptedSession: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -62,15 +63,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true)
     }
     try {
-      const { data: { session } } = await supabase.auth.getSession()
+      console.log('🔄 Refreshing session...')
+      const { data: { session }, error } = await supabase.auth.getSession()
+      
+      if (error) {
+        console.error('❌ Session refresh error:', error)
+        // Clear potentially corrupted auth state
+        await supabase.auth.signOut({ scope: 'local' })
+        setSession(null)
+        setUser(null)
+        setProfile(null)
+        return
+      }
+
+      console.log('✅ Session refreshed:', session ? 'authenticated' : 'anonymous')
       setSession(session)
       setUser(session?.user ?? null)
 
       if (session?.user) {
         await fetchUserProfile(session.user.id)
+      } else {
+        setProfile(null)
       }
     } catch (error) {
-      console.error('Error refreshing session:', error)
+      console.error('💥 Critical error refreshing session:', error)
+      // Force clear everything on critical errors
+      setSession(null)
+      setUser(null)
+      setProfile(null)
     } finally {
       if (showLoading) {
         setLoading(false)
@@ -176,6 +196,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const clearCorruptedSession = async () => {
+    console.log('🧹 Clearing potentially corrupted session...')
+    try {
+      // Clear local auth state first
+      await supabase.auth.signOut({ scope: 'local' })
+      
+      // Clear any lingering state
+      setSession(null)
+      setUser(null)
+      setProfile(null)
+      setLoading(false)
+      
+      // Clear relevant cookies/localStorage if any
+      if (typeof window !== 'undefined') {
+        // Clear any auth-related localStorage
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('supabase.auth.token') || key.startsWith('sb-')) {
+            localStorage.removeItem(key)
+          }
+        })
+      }
+      
+      console.log('✅ Session cleared successfully')
+    } catch (error) {
+      console.error('Error clearing session:', error)
+    }
+  }
+
   const signOut = async () => {
     try {
       console.log('Starting sign out process...')
@@ -214,7 +262,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     signIn,
     signOut,
-    refreshProfile
+    refreshProfile,
+    clearCorruptedSession
   }
 
   return (
