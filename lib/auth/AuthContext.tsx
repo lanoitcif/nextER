@@ -5,7 +5,13 @@ import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase/client'
 import type { Database } from '@/lib/supabase/client'
 
-type UserProfile = Database['public']['Tables']['user_profiles']['Row']
+type UserProfile = {
+  id: string;
+  full_name: string | null;
+  email: string;
+  can_use_owner_key: boolean;
+  access_level: 'basic' | 'advanced' | 'admin';
+};
 
 // Helper function to check if a user profile has admin privileges
 export function isAdmin(profile: UserProfile | null): boolean {
@@ -31,6 +37,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<UserProfile | null>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
+  clearCorruptedSession: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -48,47 +55,130 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isPageVisible, setIsPageVisible] = useState(true)
 
-  useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setSession(session)
-      setUser(session?.user ?? null)
-      
-      if (session?.user) {
-        await fetchUserProfile(session.user.id)
-      }
-      
-      setLoading(false)
+  // Helper function to compare sessions more thoroughly
+  const sessionsAreEqual = (session1: Session | null, session2: Session | null): boolean => {
+    if (!session1 && !session2) return true
+    if (!session1 || !session2) return false
+    
+    return (
+      session1.access_token === session2.access_token &&
+      session1.user?.id === session2.user?.id &&
+      session1.expires_at === session2.expires_at
+    )
+  }
+
+  const refreshSession = async (showLoading = true, skipLoadingOnInvisible = true) => {
+    // Don't show loading if page is not visible and skipLoadingOnInvisible is true
+    const shouldSkipLoading = skipLoadingOnInvisible && !isPageVisible
+    
+    // Only show loading if explicitly requested, we don't have a current session, and page is visible
+    if (showLoading && !session && !shouldSkipLoading) {
+      setLoading(true)
     }
+    try {
+      console.log('🔄 Refreshing session...')
+      const { data: { session: newSession }, error } = await supabase.auth.getSession()
+      
+      if (error) {
+        console.error('❌ Session refresh error:', error)
+        // Clear potentially corrupted auth state
+        await supabase.auth.signOut({ scope: 'local' })
+        setSession(null)
+        setUser(null)
+        setProfile(null)
+        return
+      }
 
-    getInitialSession()
+      // Only update state if session actually changed
+      if (!sessionsAreEqual(newSession, session)) {
+        console.log('✅ Session refreshed:', newSession ? 'authenticated' : 'anonymous')
+        setSession(newSession)
+        setUser(newSession?.user ?? null)
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session)
-        setUser(session?.user ?? null)
-        
-        if (session?.user) {
-          await fetchUserProfile(session.user.id)
+        if (newSession?.user) {
+          await fetchUserProfile(newSession.user.id)
         } else {
           setProfile(null)
         }
-        
+      } else {
+        console.log('✅ Session unchanged, skipping state update')
+      }
+    } catch (error) {
+      console.error('💥 Critical error refreshing session:', error)
+      // Force clear everything on critical errors
+      setSession(null)
+      setUser(null)
+      setProfile(null)
+    } finally {
+      // Only clear loading if we set it or if we're doing initial load
+      if ((showLoading && !shouldSkipLoading) || loading) {
         setLoading(false)
+      }
+    }
+  }
+
+  useEffect(() => {
+    // Track page visibility to prevent loading states on alt-tab
+    const handleVisibilityChange = () => {
+      const visible = document.visibilityState === 'visible'
+      setIsPageVisible(visible)
+      console.log('👁️ Page visibility changed:', visible ? 'visible' : 'hidden')
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    // Get initial session
+    refreshSession()
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, newSession) => {
+        console.log('🔔 Auth state change:', event, 'Page visible:', isPageVisible)
+        
+        // Only show loading for user-initiated auth events, not background refreshes
+        const isUserInitiatedEvent = ['SIGNED_IN', 'SIGNED_OUT', 'USER_DELETED'].includes(event)
+        const isBackgroundEvent = ['TOKEN_REFRESHED', 'USER_UPDATED'].includes(event)
+        
+        // Skip loading for background events or when page is not visible
+        const shouldShowLoading = isUserInitiatedEvent && isPageVisible && !isBackgroundEvent
+        
+        if (shouldShowLoading) {
+          setLoading(true)
+        }
+        
+        // Only update state if session actually changed
+        if (!sessionsAreEqual(newSession, session)) {
+          setSession(newSession)
+          setUser(newSession?.user ?? null)
+          
+          if (newSession?.user) {
+            await fetchUserProfile(newSession.user.id)
+          } else {
+            setProfile(null)
+          }
+        } else {
+          console.log('✅ Auth event received but session unchanged, skipping state update')
+        }
+        
+        if (shouldShowLoading) {
+          setLoading(false)
+        }
       }
     )
 
-    return () => subscription.unsubscribe()
-  }, [])
+    return () => {
+      subscription.unsubscribe()
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [session, isPageVisible])
 
   const fetchUserProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
-        .select('*')
+        .select('id, full_name, email, can_use_owner_key, access_level')
         .eq('id', userId)
         .single()
       
@@ -132,7 +222,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data: profileData, error: profileError } = await supabase
         .from('user_profiles')
-        .select('*')
+        .select('id, full_name, email, can_use_owner_key, access_level')
         .eq('id', signInData.user.id)
         .single()
       
@@ -148,6 +238,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (profileError) {
       console.error('Error fetching user profile after sign in:', profileError)
       return null
+    }
+  }
+
+  const clearCorruptedSession = async () => {
+    console.log('🧹 Clearing potentially corrupted session...')
+    try {
+      // Clear local auth state first
+      await supabase.auth.signOut({ scope: 'local' })
+      
+      // Clear any lingering state
+      setSession(null)
+      setUser(null)
+      setProfile(null)
+      setLoading(false)
+      
+      // Clear relevant cookies/localStorage if any
+      if (typeof window !== 'undefined') {
+        // Clear any auth-related localStorage
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('supabase.auth.token') || key.startsWith('sb-')) {
+            localStorage.removeItem(key)
+          }
+        })
+      }
+      
+      console.log('✅ Session cleared successfully')
+    } catch (error) {
+      console.error('Error clearing session:', error)
     }
   }
 
@@ -189,7 +307,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     signIn,
     signOut,
-    refreshProfile
+    refreshProfile,
+    clearCorruptedSession
   }
 
   return (

@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { supabaseAdmin } from '@/lib/supabase/client'
 import { updateApiKeyRequestSchema } from '@/lib/api/validation'
 import { handleError } from '@/lib/api/errors'
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Authentication
-  const supabase = await createClient()
+  const cookieStore = await cookies()
+  const supabase = createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return NextResponse.json(
@@ -23,7 +26,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       { status: 401 }
     )
   }
-  const supabaseAdmin = await createClient()
 
   let accessLevel: string = 'advanced'
   if (supabaseAdmin && typeof (supabaseAdmin as any).from === 'function') {
@@ -54,6 +56,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { nickname, defaultModel } = validation.data
 
     // Update the API key
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Service unavailable - admin client not configured' },
+        { status: 503 }
+      )
+    }
+    
     const { data, error } = await supabaseAdmin
       .from('user_api_keys')
       .update({
@@ -86,8 +95,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  // Authentication
-  const supabase = await createClient()
+  const cookieStore = await cookies()
+  const supabase = createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return NextResponse.json(
@@ -95,7 +104,6 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       { status: 401 }
     )
   }
-
   const token = authHeader.replace('Bearer ', '')
   const { data: { user }, error: authError } = await supabase.auth.getUser(token)
 
@@ -104,21 +112,6 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       { error: 'Invalid or expired session' },
       { status: 401 }
     )
-  }
-  const supabaseAdmin = await createClient()
-
-  let accessLevel: string = 'advanced'
-  if (supabaseAdmin && typeof (supabaseAdmin as any).from === 'function') {
-    const { data } = await supabaseAdmin
-      .from('user_profiles')
-      .select('access_level')
-      .eq('id', user.id)
-      .single()
-    accessLevel = data?.access_level || 'advanced'
-  }
-
-  if (accessLevel !== 'advanced' && accessLevel !== 'admin') {
-    return NextResponse.json({ error: 'Insufficient access level' }, { status: 403 })
   }
 
   try {
@@ -133,6 +126,13 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     }
 
     // Delete the API key, ensuring it belongs to the authenticated user
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Service unavailable - admin client not configured' },
+        { status: 503 }
+      )
+    }
+    
     const { error } = await supabaseAdmin
       .from('user_api_keys')
       .delete()

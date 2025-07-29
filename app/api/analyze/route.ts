@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { createLLMClient, SUPPORTED_PROVIDERS, type SupportedProvider } from '@/lib/llm/clients'
 import { decryptFromStorage } from '@/lib/crypto'
@@ -12,23 +13,17 @@ export async function POST(request: NextRequest) {
   const requestId = crypto.randomUUID()
   
   console.log(`[${requestId}] Analysis request received at ${new Date().toISOString()}`)
-  
-  // Authentication
-  const supabase = await createClient()
+
+  const cookieStore = await cookies()
+  const supabase = createClient(cookieStore)
   const authHeader = request.headers.get('authorization')
-  console.log(`[${requestId}] Auth header present:`, !!authHeader)
-  
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    console.log(`[${requestId}] Missing or invalid authorization header`)
     return NextResponse.json(
       { error: 'Missing or invalid authorization header' },
       { status: 401 }
     )
   }
-
   const token = authHeader.replace('Bearer ', '')
-  console.log(`[${requestId}] Token length:`, token.length)
-  
   const { data: { user }, error: authError } = await supabase.auth.getUser(token)
 
   if (authError || !user) {
@@ -39,7 +34,7 @@ export async function POST(request: NextRequest) {
     )
   }
   
-  const supabaseAdmin = await createClient()
+  const supabaseAdmin = createClient(cookieStore)
   
   console.log(`[${requestId}] Authentication successful for user: ${user.email}`)
   
@@ -55,7 +50,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: validation.error.format() }, { status: 400 })
     }
 
-    const { transcript, companyId, companyTypeId, keySource, userApiKeyId, temporaryApiKey, provider, model } = validation.data
+    const { transcript, companyId, companyTypeId, keySource, userApiKeyId, temporaryApiKey, provider, model, reviewAnalysis, reviewProvider, reviewModel } = validation.data
 
     console.log(`[${requestId}] Request details:`, {
       transcriptLength: transcript?.length || 0,
@@ -249,6 +244,40 @@ export async function POST(request: NextRequest) {
           used_owner_key: usedOwnerKey
         })
 
+      let reviewResponse: any
+      if (reviewAnalysis && reviewProvider && reviewModel) {
+        const reviewLlmClient = createLLMClient(reviewProvider, apiKey)
+        const reviewSystemPrompt = `You are a senior financial analyst tasked with reviewing an analysis from a junior analyst.
+The user will provide a transcript and the junior analyst's work.
+Your task is to review the original analysis for accuracy, missing information, and other notable exceptions.
+Provide a concise summary of your findings, highlighting any discrepancies or areas for improvement.
+Do not repeat the original analysis. Focus on providing a meta-analysis of the provided text.`
+
+        const reviewUserMessage = `Transcript:
+${transcript}
+
+Junior Analyst's Analysis:
+${response.content}`
+
+        reviewResponse = await reviewLlmClient.generateResponse({
+          systemPrompt: reviewSystemPrompt,
+          userMessage: reviewUserMessage,
+          model: reviewModel || reviewLlmClient.getDefaultModel()
+        })
+
+        await supabaseAdmin
+          .from('usage_logs')
+          .insert({
+            user_id: user.id,
+            provider: reviewProvider,
+            model: reviewResponse.model,
+            prompt_id: null,
+            token_count: reviewResponse.usage?.totalTokens || null,
+            cost_estimate: calculateCostEstimate(reviewProvider, reviewResponse.model, reviewResponse.usage?.totalTokens || 0),
+            used_owner_key: usedOwnerKey
+          })
+      }
+
       const totalTime = Date.now() - startTime
       console.log(`[${requestId}] Analysis completed successfully in ${totalTime}ms`, {
         analysisLength: response.content.length,
@@ -256,12 +285,43 @@ export async function POST(request: NextRequest) {
         usedOwnerKey
       })
 
+      // Store the transcript and analysis results
+      const { data: transcriptRecord, error: transcriptError } = await supabaseAdmin
+        .from('analysis_transcripts')
+        .insert({
+          user_id: user.id,
+          company_id: companyId,
+          company_type_id: companyTypeId,
+          transcript,
+          analysis_result: response.content,
+          review_result: reviewResponse ? reviewResponse.content : null,
+          provider,
+          model: response.model,
+          review_provider: reviewResponse ? reviewResponse.provider : null,
+          review_model: reviewResponse ? reviewResponse.model : null,
+          feedback: 0
+        })
+        .select('id')
+        .single()
+
+      if (transcriptError) {
+        console.error(`[${requestId}] Error saving transcript:`, transcriptError)
+        // Don't block the user from seeing the result, but log the error
+      }
+
       return NextResponse.json({
         success: true,
         analysis: response.content,
         usage: response.usage,
         model: response.model,
-        provider: response.provider
+        provider: response.provider,
+        transcriptId: transcriptRecord?.id,
+        ...(reviewResponse && {
+          review: reviewResponse.content,
+          reviewUsage: reviewResponse.usage,
+          reviewModel: reviewResponse.model,
+          reviewProvider: reviewResponse.provider
+        })
       })
 
     } catch (llmError: any) {

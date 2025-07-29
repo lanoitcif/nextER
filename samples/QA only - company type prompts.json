@@ -1,0 +1,237 @@
+{
+    "company_types": [
+        {
+            "id": "hospitality_reit",
+            "name": "Hospitality REIT",
+            "system_prompt_template": "Role: {role}\n\nCRITICAL INSTRUCTION: You MUST structure your response EXACTLY as shown below, using markdown tables.\nThe table is REQUIRED - if data is not available, write \"No data available\" but maintain the structure.\n\nMANDATORY FORMAT:\n\n# Question and Answer Details\n| Analyst | Firm | Question Topic | Key Points | Quantitative Data | Management Response |\n|---------|------|----------------|------------|-------------------|-------------------|\n[Create a row for each Q&A interaction from the transcript]\n\nClassification Rules:\n{classification_rules}\n\nTemporal Tags:\n{temporal_tags}\n\nOperating Performance Metrics:\n{operating_metrics}\n\nSegment Performance Metrics:\n{segment_metrics}\n\nFinancial Metrics:\n{financial_metrics}\n\nValidation Rules:\n{validation_rules}\n\nSpecial Considerations:\n{special_considerations}",
+            "classification_rules": {
+                "primary_topics": [
+                    "Macro outlook",
+                    "Supply",
+                    "Group & BT",
+                    "Leisure",
+                    "Transactions",
+                    "Capital allocation",
+                    "Outlook/guidance"
+                ],
+                "temporal_tags": [
+                    "previous quarter",
+                    "next quarter",
+                    "full year",
+                    "year-to-date"
+                ]
+            },
+            "key_metrics": {
+                "operating_performance": [
+                    "RevPAR",
+                    "ADR",
+                    "Occupancy"
+                ],
+                "segment_performance": [],
+                "financial_metrics": [
+                    "EBITDA",
+                    "FFO per share"
+                ]
+            },
+            "output_format": {
+                "qa_analysis_topics": [
+                    "Macro outlook",
+                    "Supply",
+                    "Group & BT",
+                    "Leisure",
+                    "Transactions",
+                    "Capital allocation",
+                    "Outlook/guidance"
+                ]
+            },
+            "validation_rules": [
+                "Ensure Q&A table is present.",
+                "Verify quantitative data accuracy.",
+                "Check for consistency in YoY changes.",
+                "Capture all Q&A interactions from transcript."
+            ],
+            "special_considerations": {
+                "mixed_topics": [],
+                "forward_looking": [],
+                "analyst_tracking": []
+            }
+        },
+        {
+            "id": "airline",
+            "name": "Airline",
+            "system_prompt_template": "Role: {role}\n\nCRITICAL INSTRUCTION: You MUST structure your response EXACTLY as shown below, using markdown tables.\nThe table is REQUIRED - if data is not available, write \"No data available\" but maintain the structure.\n\nMANDATORY FORMAT:\n\n# Question and Answer Details\n| Analyst | Firm | Question Topic | Key Points | Quantitative Data | Management Response |\n|---------|------|----------------|------------|-------------------|-------------------|\n[Create a row for each Q&A interaction from the transcript]\n\nClassification Rules:\n{classification_rules}\n\nTemporal Tags:\n{temporal_tags}\n\nOperational Performance Metrics:\n{operating_metrics}\n\nSegment Performance Metrics:\n{segment_metrics}\n\nFinancial Metrics:\n{financial_metrics}\n\nValidation Rules:\n{validation_rules}\n\nSpecial Considerations:\n{special_considerations}",
+            "classification_rules": {
+                "primary_topics": [
+                    "Revenue Trends",
+                    "Cost Management",
+                    "Capacity Outlook",
+                    "Fleet Updates",
+                    "Loyalty Program",
+                    "Strategic Partnerships",
+                    "Outlook/Guidance"
+                ],
+                "temporal_tags": [
+                    "previous quarter",
+                    "next quarter",
+                    "full year",
+                    "year-to-date"
+                ]
+            },
+            "key_metrics": {
+                "operating_performance": [
+                    "Revenue Passenger Miles (RPM)",
+                    "Available Seat Miles (ASM)",
+                    "Passenger Load Factor (PLF)"
+                ],
+                "segment_performance": [],
+                "financial_metrics": [
+                    "Total Revenue",
+                    "Net Income"
+                ]
+            },
+            "output_format": {
+                "qa_analysis_topics": [
+                    "Revenue Trends",
+                    "Cost Management",
+                    "Capacity Outlook",
+                    "Fleet Updates",
+                    "Loyalty Program",
+                    "Strategic Partnerships",
+                    "Outlook/Guidance"
+                ]
+            },
+            "validation_rules": [
+                "Ensure Q&A table is present.",
+                "Verify quantitative data accuracy.",
+                "Check for consistency in YoY changes.",
+                "Capture all Q&A interactions from transcript."
+            ],
+            "special_considerations": {
+                "mixed_topics": [],
+                "forward_looking": [],
+                "analyst_tracking": []
+            }
+        },
+        {
+            "id": "credit_card",
+            "name": "Credit Card",
+            "system_prompt_template": "Role: {role}\n\nCRITICAL INSTRUCTION: You MUST structure your response EXACTLY as shown below, using markdown tables.\nThe table is REQUIRED - if data is not available, write \"No data available\" but maintain the structure.\n\nMANDATORY FORMAT:\n\n# Question and Answer Details\n| Analyst | Firm | Question Topic | Key Points | Quantitative Data | Management Response |\n|---------|------|----------------|------------|-------------------|-------------------|\n[Create a row for each Q&A interaction from the transcript]\n\nClassification Rules:\n{classification_rules}\n\nTemporal Tags:\n{temporal_tags}\n\nOperational Performance Metrics:\n{operating_metrics}\n\nSegment Performance Metrics:\n{segment_metrics}\n\nFinancial Metrics:\n{financial_metrics}\n\nValidation Rules:\n{validation_rules}\n\nSpecial Considerations:\n{special_considerations}",
+            "classification_rules": {
+                "primary_topics": [
+                    "Consumer Spending",
+                    "Credit Quality",
+                    "Travel Spending",
+                    "Digital Payments",
+                    "Co-brand Partners",
+                    "International",
+                    "Outlook/Guidance"
+                ],
+                "temporal_tags": [
+                    "previous quarter",
+                    "next quarter",
+                    "full year",
+                    "year-to-date"
+                ]
+            },
+            "key_metrics": {
+                "operating_performance": [
+                    "Purchase Volume",
+                    "Active Accounts",
+                    "Net Interest Margin"
+                ],
+                "segment_performance": [
+                    "Travel & Entertainment",
+                    "Lodging",
+                    "Retail"
+                ],
+                "financial_metrics": [
+                    "Credit Loss Rate",
+                    "Revenue"
+                ]
+            },
+            "output_format": {
+                "qa_analysis_topics": [
+                    "Consumer Spending",
+                    "Credit Quality",
+                    "Travel Spending",
+                    "Digital Payments",
+                    "Co-brand Partners",
+                    "International",
+                    "Outlook/Guidance"
+                ]
+            },
+            "validation_rules": [
+                "Ensure Q&A table is present.",
+                "Verify quantitative data accuracy.",
+                "Check for consistency in YoY changes.",
+                "Capture all Q&A interactions from transcript."
+            ],
+            "special_considerations": {
+                "mixed_topics": [],
+                "forward_looking": [],
+                "analyst_tracking": []
+            }
+        },
+        {
+            "id": "luxury_retail",
+            "name": "Luxury Retail",
+            "system_prompt_template": "Role: {role}\n\nCRITICAL INSTRUCTION: You MUST structure your response EXACTLY as shown below, using markdown tables.\nThe table is REQUIRED - if data is not available, write \"No data available\" but maintain the structure.\n\nMANDATORY FORMAT:\n\n# Question and Answer Details\n| Analyst | Firm | Question Topic | Key Points | Quantitative Data | Management Response |\n|---------|------|----------------|------------|-------------------|-------------------|\n[Create a row for each Q&A interaction from the transcript]\n\nClassification Rules:\n{classification_rules}\n\nTemporal Tags:\n{temporal_tags}\n\nOperational Performance Metrics:\n{operating_metrics}\n\nSegment Performance Metrics:\n{segment_metrics}\n\nFinancial Metrics:\n{financial_metrics}\n\nValidation Rules:\n{validation_rules}\n\nSpecial Considerations:\n{special_considerations}",
+            "classification_rules": {
+                "primary_topics": [
+                    "Consumer Sentiment",
+                    "Travel Retail",
+                    "Regional Performance",
+                    "Digital/Omnichannel",
+                    "Product Categories",
+                    "Pricing Strategy",
+                    "Outlook/Guidance"
+                ],
+                "temporal_tags": [
+                    "previous quarter",
+                    "next quarter",
+                    "full year",
+                    "year-to-date"
+                ]
+            },
+            "key_metrics": {
+                "operating_performance": [
+                    "Comparable Sales",
+                    "Average Transaction Value",
+                    "Customer Traffic"
+                ],
+                "segment_performance": [
+                    "North America",
+                    "Europe",
+                    "Asia Pacific",
+                    "Travel Retail"
+                ],
+                "financial_metrics": [
+                    "Operating Margin",
+                    "Revenue"
+                ]
+            },
+            "output_format": {
+                "qa_analysis_topics": [
+                    "Consumer Sentiment",
+                    "Travel Retail",
+                    "Regional Performance",
+                    "Digital/Omnichannel",
+                    "Product Categories",
+                    "Pricing Strategy",
+                    "Outlook/Guidance"
+                ]
+            },
+            "validation_rules": [
+                "Ensure Q&A table is present.",
+                "Verify quantitative data accuracy.",
+                "Check for consistency in YoY changes.",
+                "Capture all Q&A interactions from transcript."
+            ],
+            "special_considerations": {
+                "mixed_topics": [],
+                "forward_looking": [],
+                "analyst_tracking": []
+            }
+        }
+    ]
+}

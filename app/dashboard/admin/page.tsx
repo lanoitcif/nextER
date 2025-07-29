@@ -235,6 +235,22 @@ export default function AdminPage() {
                 </div>
               </div>
             </Link>
+
+            <Link href="/dashboard/admin/system-prompts" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
+              <div className="card-content p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-purple-500/20 p-3 rounded-lg">
+                    <Settings className="h-8 w-8 text-purple-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">System Prompts</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Manage system prompts for different company types
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Link>
           </div>
         </div>
       </main>

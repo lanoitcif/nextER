@@ -1,9 +1,28 @@
-# LLM Transcript Analyzer
+# NextER (NEaR) - Next Earnings Release
 
-A powerful SaaS web application for analyzing transcripts using multiple AI providers with secure API key management and industry-specific analysis templates.
+A sophisticated SaaS platform for AI-powered earnings call transcript analysis with multi-LLM support and industry-specific templates.
 
 ## 🚧 Development Status
-**This project is currently in active development. Features and documentation may change.**
+**This project is production ready with core functionality complete. Continuous improvements being made.**
+
+## 📚 Documentation
+
+### Core Documentation
+*   **[Development Status](DEVELOPMENT_STATUS.md)**: Current status, known issues, troubleshooting, and technical reference
+*   **[Project Documentation](DOCUMENTATION.md)**: Complete technical architecture and API reference
+*   **[Claude Context](CLAUDE.md)**: AI assistant context and development standards
+
+### Additional Guides
+*   **[API Documentation](docs/API.md)**: A comprehensive guide to the project's API.
+*   **[Deployment Guide](docs/DEPLOYMENT.md)**: Instructions for deploying the application.
+*   **[Development Guide](docs/DEVELOPMENT.md)**: Information about the project's development process.
+*   **[UI Element Inventory](docs/INVENTORY.md)**: A list of all the UI elements in the application.
+*   **[Enhancement Roadmap](docs/ENHANCEMENT_ROADMAP.md)**: The future direction of the project.
+*   **[Decisions Log](docs/DECISIONS_LOG.md)**: A log of all the major decisions made during the development of the project.
+*   **[Competitive Analysis](docs/COMPETITIVE_ANALYSIS.md)**: An analysis of the competitive landscape.
+*   **[Areas of Improvement](docs/AoI.MD)**: A plan for improving the project's documentation.
+*   **[Design Guide](docs/VIBE.md)**: A guide to the project's aesthetic.
+*   **[Archived Documents](docs/archive/)**: A collection of historical documents, including the `TRIPOD` framework and debugging logs.
 
 ## 🚀 Features
 
@@ -17,6 +36,7 @@ A powerful SaaS web application for analyzing transcripts using multiple AI prov
 - **Usage Tracking**: Cost estimation and analytics
 - **User-Friendly Interface**: Clean, responsive design for non-technical users
 - **Admin Dashboard**: Manage users and system settings.
+- **Live Earnings Call Transcription**: Open webcast streams and view real-time transcripts.
 
 ## 🛠️ Tech Stack
 
@@ -45,7 +65,7 @@ npm install
 
 ### 2. Database Setup
 
-1. Create a Supabase project at `https://xorjwzniopfuosadwvfu.supabase.co`
+1. Create a Supabase project
 2. Run the SQL schema from `supabase_schema.sql` in your Supabase SQL Editor
 
 ### 3. Environment Configuration
@@ -70,6 +90,9 @@ OWNER_COHERE_API_KEY=your_cohere_key
 # Authentication
 NEXTAUTH_SECRET=your_random_secret
 NEXTAUTH_URL=http://localhost:3000
+
+# Live Transcription
+# Uses OpenAI Whisper with OWNER_OPENAI_API_KEY to transcribe audio
 ```
 
 ### 4. Generate Encryption Key
@@ -150,7 +173,6 @@ API key management
 2. **API Keys**: Add personal keys or use system keys (if authorized)
 3. **Analyze**: Paste transcript → select analysis type → get insights
 4. **Manage**: View usage statistics and manage API keys
-5. After any completion of code updates, we need to push to git for this project so that Vercel updates automatically.
 
 ## 🔍 Lessons Learned (January 2025)
 
@@ -182,23 +204,26 @@ Compatible with Netlify, Railway, Render, AWS Amplify, or self-hosted.
 
 ## 👥 User Management
 
-### Access Levels
-Users now have an `access_level`:
+### Standard Users
+- Use their own API keys
+- Access all analysis features
+- View personal usage statistics
 
-- **basic** – can use admin assigned keys but cannot manage their own
-  keys.
-- **advanced** – may add personal API keys in addition to any assigned
-  by an admin.
-- **admin** – full administrative privileges.
-
-Change a user's level via the admin dashboard or SQL:
+### Owner Key Users
+Grant access via database:
 ```sql
-UPDATE user_profiles
-SET access_level = 'advanced'
+UPDATE user_profiles 
+SET can_use_owner_key = true 
 WHERE email = 'user@company.com';
 ```
 
-Admins can assign API keys directly to users and manage system settings.
+### Admins
+Grant access via database:
+```sql
+UPDATE user_profiles
+SET role = 'admin'
+WHERE email = 'admin@example.com';
+```
 
 ## 🔧 Customization
 
@@ -241,7 +266,6 @@ VALUES ('TICK', 'Company Name', 'industry_id', ARRAY['additional_type']);
 
 ## 🧪 Development
 
-### Traditional Development
 ```bash
 # Type checking
 npm run type-check
@@ -256,11 +280,60 @@ npm run build
 npm test
 ```
 
-### ⚠️ Deprecated: Multi-Agent Development
+## 🆘 Troubleshooting
 
-**Note**: The Agent-MCP multi-agent development framework has been deprecated as of July 2025. This section is kept for historical reference only.
+### Common Issues
 
-For development, use standard single-agent workflows with Claude Code or similar tools.
+**Company Search Not Working**
+- Company dropdown not appearing: Check that companies are loaded (console logs show "Setting companies: X companies loaded")
+- "No companies found" error: Verify database has active companies (`SELECT * FROM companies WHERE is_active = true`)
+- Analysis types not loading: Check Row Level Security policies allow public access to `company_types` table
+
+**Browser Extension Interference**
+- LLM analysis requests hanging: Try incognito/private browsing mode to disable extensions
+- JavaScript errors in console: Password managers and other extensions can interfere with fetch requests
+- Page not loading properly: Disable browser extensions or use private browsing
+
+**Session/Authentication Issues**
+- "Session check timeout" errors: Common in some browser configurations, app includes fallback handling
+- Analysis hanging at "Getting session...": Implemented 3-second timeout with auth context fallback
+- 401 errors on API requests: Verify SUPABASE_SERVICE_ROLE_KEY is set in Vercel environment variables
+
+**Database Connection**
+- Verify Supabase credentials in environment variables
+- Ensure schema is applied with proper RLS policies
+- Check that both anon key and service role key are configured
+
+**API Key Management**
+- Ensure encryption secret is exactly 32 characters
+- Owner API keys require OWNER_[PROVIDER]_API_KEY environment variables
+- User saved keys require ENCRYPTION_KEY for decryption
+
+**LLM API Errors**
+- Verify API keys and credits/quotas
+- Check provider status and rate limits
+- Monitor Vercel function logs for detailed error messages
+
+**Build/Deployment Issues**
+- TypeScript errors: All callback functions need explicit type annotations
+- Next.js cache issues: Clear .next folder and rebuild
+- Vercel deployment: Check build logs for compilation errors
+
+## 📈 Monitoring
+
+- Check `usage_logs` table for analytics
+- Monitor costs by provider
+- Review user activity patterns
+- Track API response times
+
+## 🔮 Future Enhancements
+
+- Batch processing for multiple transcripts
+- Custom user prompts
+- Team collaboration features
+- Integration with meeting platforms
+- Mobile applications
+- Advanced analytics dashboard
 
 ## 📄 License
 
@@ -272,3 +345,78 @@ MIT License - see LICENSE file for details.
 2. Create a feature branch
 3. Add tests for new features
 4. Submit a pull request
+
+---
+
+**Status**: Production Ready - Core functionality working, analyst auto-selection implemented
+**Last Updated**: 2025-07-28 (Authentication, session management & UI fixes deployed)
+**Production URL**: https://lanoitcif.com
+**Build Status**: ✅ SUCCESSFUL
+
+## 🔧 Recent Fixes & Improvements
+
+### Fixed Issues (July 17, 2025)
+- ✅ **Default Analyst Population**: Fixed primary analyst not auto-selecting after company selection
+- ✅ **State Management**: Improved React state handling with dual auto-selection mechanisms
+- ✅ **User Interface**: Added visual indicators for auto-selected analysts and primary types
+- ✅ **Company Selection Flow**: Enhanced state cleanup and transitions between companies
+- ✅ **Debug Logging**: Comprehensive tracking of company and analyst selection process
+
+### Fixed Issues (July 2025)
+- ✅ **Company Search**: Fixed company loading with proper authentication and RLS policy compliance
+- ✅ **Company Types**: Resolved analysis type dropdown population with timeout handling
+- ✅ **Dropdown Visibility**: Fixed exact match auto-selection keeping dropdown visible
+- ✅ **Browser Extension Compatibility**: Added error handling for extension interference
+- ✅ **Session Management**: Implemented timeouts and fallbacks for authentication edge cases
+- ✅ **TypeScript Compilation**: Fixed type annotations for Next.js 15 build compatibility
+- ✅ **Debugging Infrastructure**: Added comprehensive logging throughout the application
+- ✅ **Retro CRT Design**: Implemented comprehensive retro color palette across all pages
+- ✅ **Analysis Dropdown Persistence**: Fixed state reset bug causing dropdown to break after alt-tabbing
+- ✅ **Admin UI Contrast**: Resolved bright white text issues in admin pages
+- ✅ **Long Transcript Support**: Increased token limits to 16K for handling 30+ page transcripts
+- ✅ **Admin API Key Management**: Complete system for assigning keys with default models to users
+- ✅ **Production Build Issues**: Resolved Next.js 15 migration issues and environment configuration
+- ✅ **supabaseAdmin Import Error**: Fixed missing import causing TypeScript compilation failures
+- ✅ **File Upload (Desktop)**: Resolved issue where PDF/DOCX/TXT file uploads would sometimes hang or show a lag before displaying text on desktop browsers.
+- ✅ **Loading Screen Bug**: Fixed issue where the application would get stuck on a 'loading' screen after minimizing and restoring the browser, particularly after an analysis.
+- ✅ **JSONEditor System Prompt Error**: Fixed admin page error where JSONEditor expected object/array but received plain text (July 28)
+- ✅ **Login Loading Stuck**: Resolved issue requiring cookie clearing to login - added session corruption recovery (July 28)
+- ✅ **Visibility Change State Reset**: Fixed analysis results being reset when taking screenshots or switching tabs (July 28)
+- ✅ **Dropdown Font Color Contrast**: Fixed hard-to-read dropdowns with white background and gray text across all pages (July 28)
+
+### Known Limitations
+- Session timeout handling in some browser configurations (fallbacks implemented)
+- Browser extensions may interfere with fetch requests (use incognito mode as workaround)
+- Build requires explicit TypeScript types for all callback functions
+
+### Current Known Issues (July 29, 2025)
+- 🔴 **File Upload (Android)**: File uploads from Android devices (specifically Chrome browser) still result in a 'loading' state with no progress. The request does not appear to reach the backend. Further investigation required with client-side debugging.
+- ⚠️ **Alt-Tab Loading**: Occasional loading screen when alt-tabbing, though session management improvements have reduced this significantly
+- **Debugging**: Use `vercel logs <deployment-url>` and Supabase MCP tools for investigation
+
+### Latest Features Added (July 29, 2025)
+- ✅ **Transcript Feedback System**: Users can rate analyses with thumbs up/down buttons
+- ✅ **Analysis History**: Comprehensive history page with search, filtering, and detailed views
+- ✅ **View Analysis Modal**: Fixed critical middleware interference - modal now works properly
+- ✅ **Middleware Fix**: Excluded API routes to prevent response corruption
+- ✅ **Performance Optimization**: Database indexes for efficient history queries
+- ✅ **Enhanced Session Management**: Reduced unnecessary loading states on alt-tab
+
+### Recently Fixed (July 28, 2025)
+- ✅ **Authentication Issues**: Fixed login stuck on loading, session corruption, and visibility change problems
+- ✅ **Admin Features**: Resolved JSONEditor system prompt editing error
+- ✅ **UI/UX**: Improved dropdown font color contrast for better readability
+
+### Current Workflow Status
+1. **Company Search** ✅ - Working reliably with dropdown and exact match
+2. **Company Selection** ✅ - Proper state management and visual feedback
+3. **Analyst Auto-Selection** ✅ - Primary analyst automatically populates
+4. **Analysis Configuration** ✅ - API keys, models, and providers ready
+5. **LLM Analysis** 🔄 - Ready for testing end-to-end
+
+### Development Debugging
+- Console logs extensively document the application flow
+- Company loading: Look for "Setting companies: X companies loaded"
+- Analyst selection: Track "Auto-selecting primary company type" and "Primary company type selected"
+- Analysis flow: Track from "Starting analysis..." through session checks
+- API requests: Monitor Vercel function logs for backend processing

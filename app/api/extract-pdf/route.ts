@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase/client'
-import jwt from 'jsonwebtoken'
 import PDF2JSON from 'pdf2json'
 import TurndownService from 'turndown'
 
@@ -11,21 +10,22 @@ interface PDFText {
 
 export async function POST(request: NextRequest) {
   try {
-    // Verify authentication
+    // Verify authentication using Supabase's secure method
     const authHeader = request.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const token = authHeader.split(' ')[1]
-    let userId: string
     
-    try {
-      const decoded = jwt.decode(token) as any
-      userId = decoded.sub
-    } catch (error) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    // Use Supabase's secure auth validation (replaces manual JWT decoding)
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      console.error('Authentication failed:', authError)
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    
+    const userId = user.id
 
     // Get the PDF file from the request
     const formData = await request.formData()
@@ -46,9 +46,9 @@ export async function POST(request: NextRequest) {
     // Extract text from PDF
     const extractedText = await extractTextFromPDF(buffer)
     
-    if (!extractedText || extractedText.trim().length === 0) {
+    if (!extractedText || extractedText.trim().length < 50) { // Increased minimum length
       return NextResponse.json({ 
-        error: 'Could not extract text from PDF. The PDF might be image-based or corrupted.' 
+        error: 'Extracted text is too short. The PDF might be image-based, corrupted, or have very little text.'
       }, { status: 400 })
     }
 

@@ -1,6 +1,6 @@
 # Claude Memory: NEaR Project Context
 
-**Last Updated**: January 19, 2025  
+**Last Updated**: January 29, 2025  
 **Project**: NEaR (Next Earnings Release) - LLM-powered earnings call analysis platform
 
 ## 🚨 CRITICAL RECENT FIXES (January 2025)
@@ -15,6 +15,24 @@
 - **Result**: Caused 500 errors across all endpoints
 - **Rollback**: Applied immediately (commit `82c9e3d`)
 - **Root Cause**: Multiple duplicate RLS policies + subquery optimization created conflicts
+
+## 🔄 RECENT FEATURE ADDITIONS (July 2025)
+
+### Default Analyst Auto-Selection - RESOLVED ✅
+**Problem**: Primary analyst wasn't populating after company selection
+**Root Cause**: React state timing issues in `fetchCompanyTypes` function
+**Solution Implemented**:
+- Added setTimeout for proper state update timing
+- Implemented backup useEffect for redundant auto-selection
+- Enhanced state cleanup during company transitions
+- Added visual indicators for auto-selected analysts
+
+**Files Modified**: `app/dashboard/analyze/page.tsx`
+
+### API Key Storage Issue - IDENTIFIED ⚠️
+- Frontend expects `preferred_model` field for each API key
+- Database table `user_api_keys` is missing this column
+- Backend API routes don't handle preferred_model storage/retrieval
 
 ## 🛠️ DATABASE ADMINISTRATION TOOLS
 
@@ -51,11 +69,11 @@ supabase db inspect outliers --project-ref $SUPABASE_PROJECT_REF
 - `docs/TROUBLESHOOTING.md` - Updated with auth fixes
 - `rls_performance_analysis.md` - RLS optimization lessons learned
 
-### Documentation Consolidation (January 2025)
-**Reduced from 9 to 6 files:**
-- ✅ Merged `DESIGN.md` + `COLLABORATION.md` → `GUIDE.md`
-- ✅ Removed deprecated `AGENT-MCP.md`
-- ✅ Updated all docs with current issues and lessons learned
+### Documentation Status - NEEDS CLEANUP ⚠️
+**Note**: Documentation cleanup was planned but appears incomplete
+- Multiple .md files exist that should have been consolidated
+- Remote branch shows different documentation structure than local
+- Need to reconcile documentation strategy and complete cleanup
 
 ## 🔧 DEVELOPMENT ENVIRONMENT
 
@@ -97,7 +115,12 @@ DROP INDEX IF EXISTS idx_user_api_keys_provider;
 DROP INDEX IF EXISTS idx_companies_primary_type;
 ```
 
-### RLS Policy Cleanup (Phase 2 - Medium Risk)
+### Documentation Cleanup (Phase 2)
+- Complete planned documentation consolidation
+- Resolve conflicting .md file structures
+- Establish clear documentation strategy
+
+### RLS Policy Cleanup (Phase 3 - Medium Risk)
 - Remove duplicate policies before attempting subquery optimization
 - Test one table at a time in development environment
 

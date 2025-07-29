@@ -3,15 +3,35 @@ import { POST } from '../route';
 import { createClient } from '@/lib/supabase/server';
 
 // Mock the supabase client
+jest.mock('next/headers', () => ({
+  cookies: jest.fn(() => ({
+    get: jest.fn(),
+    set: jest.fn(),
+  })),
+}));
+
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(),
 }));
 
 describe('/api/analyze', () => {
-  it('should return 401 if no token is provided', async () => {
+  it('should return 401 if user is not authenticated', async () => {
+    const supabase = {
+      auth: {
+        getUser: jest.fn().mockResolvedValue({
+          data: { user: null },
+          error: new Error('No session'),
+        }),
+      },
+    };
+    (createClient as jest.Mock).mockReturnValue(supabase);
+
     const request = new NextRequest('http://localhost/api/analyze', {
       method: 'POST',
-      headers: new Headers(),
+      headers: {
+        'Authorization': 'Bearer test-token',
+      },
+      body: JSON.stringify({ transcript: 'test', companyId: '123', companyTypeId: '456', keySource: 'owner', provider: 'openai', model: 'gpt-4' })
     });
 
     const response = await POST(request);
@@ -31,9 +51,10 @@ describe('/api/analyze', () => {
 
     const request = new NextRequest('http://localhost/api/analyze', {
       method: 'POST',
-      headers: new Headers({
-        Authorization: 'Bearer invalid-token',
-      }),
+      headers: {
+        'Authorization': 'Bearer test-token',
+      },
+      body: JSON.stringify({ transcript: 'test', companyId: '123', companyTypeId: '456', keySource: 'owner', provider: 'openai', model: 'gpt-4' })
     });
 
     const response = await POST(request);
@@ -53,10 +74,10 @@ describe('/api/analyze', () => {
 
     const request = new NextRequest('http://localhost/api/analyze', {
       method: 'POST',
-      headers: new Headers({
-        Authorization: 'Bearer valid-token',
-      }),
-      body: JSON.stringify({}),
+      headers: {
+        'Authorization': 'Bearer test-token',
+      },
+      body: JSON.stringify({}), // Invalid body
     });
 
     const response = await POST(request);

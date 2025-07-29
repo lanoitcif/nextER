@@ -49,6 +49,25 @@
       "Bash(cp:*)",
       "mcp__supabase__apply_migration",
       "Bash(npx tsc:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "mcp__memory__create_entities",
+      "Bash(grep:*)",
+      "Bash(npm search:*)",
+      "Bash(npm i:*)",
+      "Bash(vercel ls:*)",
+      "Bash(vercel logs:*)",
+      "mcp__memory__create_relations",
+      "mcp__memory__add_observations",
+      "Bash(timeout 30s vercel logs:*)",
+      "Bash(vercel inspect:*)",
+      "mcp__supabase__get_advisors",
+      "WebFetch(domain:claude.ai)",
+      "Bash(npm uninstall:*)",
+      "mcp__memory__read_graph",
+      "Bash(git restore:*)",
+      "Bash(vercel list:*)",
+      "mcp__supabase__search_docs",
       "Bash(curl:*)",
       "WebFetch(domain:supabase.com)"
     ],
@@ -57,6 +76,8 @@
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "fetch",
-    "supabase"
+    "supabase",
+    "context7",
+    "memory"
   ]
 }

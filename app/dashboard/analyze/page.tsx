@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState, useReducer } from 'react'
 import { marked } from 'marked'
 import { supabase } from '@/lib/supabase/client'
-import { Upload, FileText, Send, ArrowLeft, Settings, Key, Download, Copy, Eye, EyeOff } from 'lucide-react'
+import { Upload, FileText, Send, ArrowLeft, Settings, Key, Download, Copy, Eye, EyeOff, ThumbsUp, ThumbsDown } from 'lucide-react'
 import Link from 'next/link'
 import { safeLocalStorage } from '@/lib/utils/localStorage'
 
@@ -138,6 +138,21 @@ interface AppState {
   
   // UI state
   viewMode: 'rendered' | 'markdown'
+
+  // Review state
+  reviewAnalysis: boolean
+  reviewProvider: 'openai' | 'anthropic' | 'google' | 'cohere'
+  reviewModel: string
+  reviewResult: string
+  reviewAnalysisMetadata: {
+    model?: string
+    provider?: string
+    usage?: any
+  } | null
+
+  // Feedback state
+  transcriptId: string | null
+  feedbackSubmitted: boolean
 }
 
 type AppAction = 
@@ -162,6 +177,13 @@ type AppAction =
   | { type: 'SET_VIEW_MODE'; payload: 'rendered' | 'markdown' }
   | { type: 'RESET_COMPANY_SELECTION' }
   | { type: 'RESET_ANALYSIS' }
+  | { type: 'SET_REVIEW_ANALYSIS'; payload: boolean }
+  | { type: 'SET_REVIEW_PROVIDER'; payload: 'openai' | 'anthropic' | 'google' | 'cohere' }
+  | { type: 'SET_REVIEW_MODEL'; payload: string }
+  | { type: 'SET_REVIEW_RESULT'; payload: string }
+  | { type: 'SET_REVIEW_ANALYSIS_METADATA'; payload: any }
+  | { type: 'SET_TRANSCRIPT_ID'; payload: string | null }
+  | { type: 'SET_FEEDBACK_SUBMITTED'; payload: boolean }
 
 const initialState: AppState = {
   ticker: '',
@@ -182,7 +204,14 @@ const initialState: AppState = {
   result: '',
   error: '',
   analysisMetadata: null,
-  viewMode: 'rendered'
+  viewMode: 'rendered',
+  reviewAnalysis: false,
+  reviewProvider: 'openai',
+  reviewModel: '',
+  reviewResult: '',
+  reviewAnalysisMetadata: null,
+  transcriptId: null,
+  feedbackSubmitted: false
 }
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -246,8 +275,24 @@ function appReducer(state: AppState, action: AppAction): AppState {
         result: '',
         error: '',
         analysisMetadata: null,
-        analyzing: false
+        analyzing: false,
+        reviewResult: '',
+        reviewAnalysisMetadata: null
       }
+    case 'SET_REVIEW_ANALYSIS':
+      return { ...state, reviewAnalysis: action.payload }
+    case 'SET_REVIEW_PROVIDER':
+      return { ...state, reviewProvider: action.payload }
+    case 'SET_REVIEW_MODEL':
+      return { ...state, reviewModel: action.payload }
+    case 'SET_REVIEW_RESULT':
+      return { ...state, reviewResult: action.payload }
+    case 'SET_REVIEW_ANALYSIS_METADATA':
+      return { ...state, reviewAnalysisMetadata: action.payload }
+    case 'SET_TRANSCRIPT_ID':
+      return { ...state, transcriptId: action.payload }
+    case 'SET_FEEDBACK_SUBMITTED':
+      return { ...state, feedbackSubmitted: action.payload }
     default:
       return state
   }
@@ -309,6 +354,16 @@ export default function AnalyzePage() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // Auto-select primary company type when available types change
+  useEffect(() => {
+    if (state.selectedCompany && state.availableCompanyTypes.length > 0 && !state.selectedCompanyType) {
+      const primaryType = state.availableCompanyTypes.find(ct => ct.id === state.selectedCompany.primary_company_type_id)
+      if (primaryType) {
+        console.log('useEffect: Auto-selecting primary type:', primaryType.name)
+        dispatch({ type: 'SET_SELECTED_COMPANY_TYPE', payload: primaryType })
+      }
+    }
+  }, [state.availableCompanyTypes, state.selectedCompany, state.selectedCompanyType])
 
   const loadUserPreferences = () => {
     const preferences = safeLocalStorage.getItem<{
@@ -408,7 +463,7 @@ export default function AnalyzePage() {
         return
       }
       
-      const { data: sessionData } = await supabase.auth.getSession()
+const { data: sessionData } = await supabase.auth.getSession()
       if (!sessionData.session) {
         console.error('❌ No session found')
         dispatch({ type: 'SET_ERROR', payload: 'Authentication required' })
@@ -537,6 +592,48 @@ export default function AnalyzePage() {
     }
   }
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file size (10MB limit)
+    if (file.size > 10 * 1024 * 1024) {
+      dispatch({ type: 'SET_ERROR', payload: 'File size must be less than 10MB' })
+      return
+    }
+
+    dispatch({ type: 'SET_ANALYZING', payload: true })
+    dispatch({ type: 'SET_ERROR', payload: '' })
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/upload-transcript', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to upload file')
+      }
+
+      const result = await response.json()
+      setTranscript(result.text)
+      
+      // Show success message
+      console.log(`Successfully extracted ${result.characterCount} characters from ${result.fileName}`)
+    } catch (error: any) {
+      console.error('File upload error:', error)
+      dispatch({ type: 'SET_ERROR', payload: error.message || 'Failed to process file' })
+    } finally {
+      dispatch({ type: 'SET_ANALYZING', payload: false })
+      // Reset file input
+      e.target.value = ''
+    }
+  }
+
   const handleAnalyze = async () => {
     if (!transcript.trim()) {
       dispatch({ type: 'SET_ERROR', payload: 'Please enter a transcript' })
@@ -588,7 +685,12 @@ export default function AnalyzePage() {
         provider: state.provider,
         model: state.selectedModel || DEFAULT_MODELS[state.provider],
         ...(state.keySource === 'user_saved' && { userApiKeyId: state.selectedApiKey }),
-        ...(state.keySource === 'user_temporary' && { temporaryApiKey: state.temporaryApiKey })
+        ...(state.keySource === 'user_temporary' && { temporaryApiKey: state.temporaryApiKey }),
+        reviewAnalysis: state.reviewAnalysis,
+        ...(state.reviewAnalysis && {
+          reviewProvider: state.reviewProvider,
+          reviewModel: state.reviewModel || DEFAULT_MODELS[state.reviewProvider]
+        })
       }
 
       console.log('Request body prepared:', {
@@ -632,11 +734,47 @@ export default function AnalyzePage() {
         provider: result.provider,
         usage: result.usage
       }})
+      dispatch({ type: 'SET_TRANSCRIPT_ID', payload: result.transcriptId })
+      dispatch({ type: 'SET_FEEDBACK_SUBMITTED', payload: false })
+
+      if (result.review) {
+        dispatch({ type: 'SET_REVIEW_RESULT', payload: result.review })
+        dispatch({ type: 'SET_REVIEW_ANALYSIS_METADATA', payload: {
+          model: result.reviewModel,
+          provider: result.reviewProvider,
+          usage: result.reviewUsage
+        }})
+      }
+
     } catch (error: any) {
       console.error('Analysis error:', error)
       dispatch({ type: 'SET_ERROR', payload: error.message || 'An error occurred during analysis' })
     } finally {
       dispatch({ type: 'SET_ANALYZING', payload: false })
+    }
+  }
+
+  const handleFeedback = async (feedback: 1 | -1) => {
+    if (!state.transcriptId) return
+
+    try {
+      const { data } = await supabase.auth.getSession()
+      if (!data.session) return
+
+      await fetch('/api/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${data.session.access_token}`
+        },
+        body: JSON.stringify({
+          transcriptId: state.transcriptId,
+          feedback
+        })
+      })
+      dispatch({ type: 'SET_FEEDBACK_SUBMITTED', payload: true })
+    } catch (error) {
+      console.error('Error submitting feedback:', error)
     }
   }
 
@@ -825,10 +963,44 @@ export default function AnalyzePage() {
                 <div className="card-header">
                   <h3 className="card-title">Transcript</h3>
                   <p className="card-description">
-                    Paste transcript text
+                    Paste transcript text or upload a file
                   </p>
                 </div>
-                <div className="card-content">
+                <div className="card-content space-y-4">
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-4">
+                    <input
+                      type="file"
+                      id="transcript-upload"
+                      accept=".pdf,.docx,.txt"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      disabled={state.analyzing}
+                    />
+                    <label
+                      htmlFor="transcript-upload"
+                      className="flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors p-4"
+                    >
+                      <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        Click to upload PDF, DOCX, or TXT file
+                      </span>
+                      <span className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        Max file size: 10MB
+                      </span>
+                    </label>
+                  </div>
+                  
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-gray-300 dark:border-gray-700" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-white dark:bg-gray-900 px-2 text-gray-500">
+                        Or paste directly
+                      </span>
+                    </div>
+                  </div>
+                  
                   <textarea
                     value={transcript}
                     onChange={(e) => setTranscript(e.target.value)}
@@ -923,6 +1095,9 @@ export default function AnalyzePage() {
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       Analysis Type
+                      {selectedCompanyType && selectedCompany && selectedCompanyType.id === selectedCompany.primary_company_type_id && (
+                        <span className="text-xs text-green-600 ml-2">(Auto-selected)</span>
+                      )}
                     </label>
                     <select
                       value={state.selectedCompanyType?.id || ''}
@@ -942,6 +1117,7 @@ export default function AnalyzePage() {
                       {state.availableCompanyTypes.map((type) => (
                         <option key={type.id} value={type.id}>
                           {type.name}
+                          {selectedCompany && type.id === selectedCompany.primary_company_type_id ? ' (Primary)' : ''}
                         </option>
                       ))}
                     </select>
@@ -1107,6 +1283,64 @@ export default function AnalyzePage() {
                     </div>
                   )}
 
+                  {/* Review Analysis Switch */}
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm font-medium">
+                      Review Analysis
+                    </label>
+                    <input
+                      type="checkbox"
+                      checked={state.reviewAnalysis}
+                      onChange={(e) => dispatch({ type: 'SET_REVIEW_ANALYSIS', payload: e.target.checked })}
+                      className="toggle"
+                      disabled={state.analyzing}
+                    />
+                  </div>
+
+                  {state.reviewAnalysis && (
+                    <div className="space-y-4 border-t pt-4">
+                      {/* Review Provider Selection */}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Review LLM Provider
+                        </label>
+                        <select
+                          value={state.reviewProvider}
+                          onChange={(e) => dispatch({ type: 'SET_REVIEW_PROVIDER', payload: e.target.value as any })}
+                          className="select w-full"
+                          disabled={state.analyzing}
+                        >
+                          <option value="openai">OpenAI</option>
+                          <option value="anthropic">Anthropic</option>
+                          <option value="google">Google</option>
+                          <option value="cohere">Cohere</option>
+                        </select>
+                      </div>
+
+                      {/* Review Model Selection */}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Review Model
+                        </label>
+                        <select
+                          value={state.reviewModel}
+                          onChange={(e) => dispatch({ type: 'SET_REVIEW_MODEL', payload: e.target.value })}
+                          className="select w-full"
+                          disabled={state.analyzing}
+                        >
+                          {PROVIDER_MODELS[state.reviewProvider].map((model) => (
+                            <option key={model} value={model}>
+                              {model}
+                            </option>
+                          ))}
+                        </select>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Default: {DEFAULT_MODELS[state.reviewProvider]}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Analyze Button */}
                   <button
                     onClick={handleAnalyze}
@@ -1130,96 +1364,150 @@ export default function AnalyzePage() {
             </div>
 
             {/* Results Section */}
-            <div className="card">
-              <div className="card-header">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="card-title">Analysis Results</h3>
-                    <p className="card-description">
-                      AI analysis results will appear here
-                    </p>
-                  </div>
-                  {state.result && (
-                    <div className="flex items-center space-x-2">
-                      <div className="flex items-center border rounded-lg">
+            <div className="space-y-6">
+              <div className="card">
+                <div className="card-header">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="card-title">Analysis Results</h3>
+                      <p className="card-description">
+                        AI analysis results will appear here
+                      </p>
+                    </div>
+                    {state.result && (
+                      <div className="flex items-center space-x-2">
+                        <div className="flex items-center border rounded-lg">
+                          <button
+                            onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: 'rendered' })}
+                            className={`px-3 py-1 text-sm rounded-l-lg ${
+                              state.viewMode === 'rendered'
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                            }`}
+                          >
+                            <Eye className="h-4 w-4 mr-1 inline" />
+                            Formatted
+                          </button>
+                          <button
+                            onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: 'markdown' })}
+                            className={`px-3 py-1 text-sm rounded-r-lg ${
+                              state.viewMode === 'markdown'
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                            }`}
+                          >
+                            <EyeOff className="h-4 w-4 mr-1 inline" />
+                            Markdown
+                          </button>
+                        </div>
                         <button
-                          onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: 'rendered' })}
-                          className={`px-3 py-1 text-sm rounded-l-lg ${
-                            state.viewMode === 'rendered' 
-                              ? 'bg-primary text-primary-foreground' 
-                              : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                          }`}
+                          onClick={copyToClipboard}
+                          className="btn-secondary text-sm px-3 py-1"
+                          title="Copy to clipboard"
                         >
-                          <Eye className="h-4 w-4 mr-1 inline" />
-                          Formatted
+                          <Copy className="h-4 w-4 mr-1" />
+                          Copy
                         </button>
                         <button
-                          onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: 'markdown' })}
-                          className={`px-3 py-1 text-sm rounded-r-lg ${
-                            state.viewMode === 'markdown' 
-                              ? 'bg-primary text-primary-foreground' 
-                              : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                          }`}
+                          onClick={downloadAsWord}
+                          className="btn-primary text-sm px-3 py-1"
+                          title="Download as Word document"
                         >
-                          <EyeOff className="h-4 w-4 mr-1 inline" />
-                          Markdown
+                          <Download className="h-4 w-4 mr-1" />
+                          Word
                         </button>
                       </div>
-                      <button
-                        onClick={copyToClipboard}
-                        className="btn-secondary text-sm px-3 py-1"
-                        title="Copy to clipboard"
-                      >
-                        <Copy className="h-4 w-4 mr-1" />
-                        Copy
-                      </button>
-                      <button
-                        onClick={downloadAsWord}
-                        className="btn-primary text-sm px-3 py-1"
-                        title="Download as Word document"
-                      >
-                        <Download className="h-4 w-4 mr-1" />
-                        Word
-                      </button>
+                    )}
+                  </div>
+                  {state.analysisMetadata && (
+                    <div className="mt-2 text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-md border">
+                      <strong>Analysis Details:</strong> {state.analysisMetadata.provider} • {state.analysisMetadata.model}
+                      {state.analysisMetadata.usage?.totalTokens && (
+                        <> • {state.analysisMetadata.usage.totalTokens.toLocaleString()} tokens</>
+                      )}
                     </div>
                   )}
                 </div>
-                {state.analysisMetadata && (
-                  <div className="mt-2 text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-md border">
-                    <strong>Analysis Details:</strong> {state.analysisMetadata.provider} • {state.analysisMetadata.model}
-                    {state.analysisMetadata.usage?.totalTokens && (
-                      <> • {state.analysisMetadata.usage.totalTokens.toLocaleString()} tokens</>
+                <div className="card-content">
+                  {state.error && (
+                    <div className="bg-destructive/20 border border-destructive/30 rounded-md p-4 mb-4">
+                      <div className="text-sm text-destructive">{state.error}</div>
+                    </div>
+                  )}
+
+                  {state.result ? (
+                    <div className="max-w-none">
+                      {state.viewMode === 'rendered' ? (
+                        <div
+                          className="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-ul:text-muted-foreground prose-li:text-muted-foreground prose-code:text-primary prose-code:bg-muted"
+                          dangerouslySetInnerHTML={{ __html: renderMarkdown(state.result) }}
+                        />
+                      ) : (
+                        <pre className="whitespace-pre-wrap text-sm bg-muted text-muted-foreground p-4 rounded-md border font-mono">
+                          {state.result}
+                        </pre>
+                      )}
+                      {state.result && !state.feedbackSubmitted && (
+                        <div className="flex items-center justify-end space-x-2 mt-4">
+                          <p className="text-sm text-muted-foreground">Was this analysis helpful?</p>
+                          <button
+                            onClick={() => handleFeedback(1)}
+                            className="btn-icon"
+                            title="Good analysis"
+                          >
+                            <ThumbsUp className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() => handleFeedback(-1)}
+                            className="btn-icon"
+                            title="Bad analysis"
+                          >
+                            <ThumbsDown className="h-5 w-5" />
+                          </button>
+                        </div>
+                      )}
+                      {state.feedbackSubmitted && (
+                        <p className="text-sm text-muted-foreground text-right mt-4">Thank you for your feedback!</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <FileText className="mx-auto h-12 w-12 text-muted-foreground/60 mb-4" />
+                      <p>Analysis results will appear here after processing</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {state.reviewAnalysis && state.reviewResult && (
+                <div className="card">
+                  <div className="card-header">
+                    <h3 className="card-title">Review Analysis</h3>
+                    {state.reviewAnalysisMetadata && (
+                      <div className="mt-2 text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-md border">
+                        <strong>Review Details:</strong> {state.reviewAnalysisMetadata.provider} • {state.reviewAnalysisMetadata.model}
+                        {state.reviewAnalysisMetadata.usage?.totalTokens && (
+                          <> • {state.reviewAnalysisMetadata.usage.totalTokens.toLocaleString()} tokens</>
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
-              </div>
-              <div className="card-content">
-                {state.error && (
-                  <div className="bg-destructive/20 border border-destructive/30 rounded-md p-4 mb-4">
-                    <div className="text-sm text-destructive">{state.error}</div>
+                  <div className="card-content">
+                    <div className="max-w-none">
+                      {state.viewMode === 'rendered' ? (
+                        <div
+                          className="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-ul:text-muted-foreground prose-li:text-muted-foreground prose-code:text-primary prose-code:bg-muted"
+                          dangerouslySetInnerHTML={{ __html: renderMarkdown(state.reviewResult) }}
+                        />
+                      ) : (
+                        <pre className="whitespace-pre-wrap text-sm bg-muted text-muted-foreground p-4 rounded-md border font-mono">
+                          {state.reviewResult}
+                        </pre>
+                      )}
+                    </div>
                   </div>
-                )}
-                
-                {state.result ? (
-                  <div className="max-w-none">
-                    {state.viewMode === 'rendered' ? (
-                      <div 
-                        className="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-ul:text-muted-foreground prose-li:text-muted-foreground prose-code:text-primary prose-code:bg-muted"
-                        dangerouslySetInnerHTML={{ __html: renderMarkdown(state.result) }}
-                      />
-                    ) : (
-                      <pre className="whitespace-pre-wrap text-sm bg-muted text-muted-foreground p-4 rounded-md border font-mono">
-                        {state.result}
-                      </pre>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <FileText className="mx-auto h-12 w-12 text-muted-foreground/60 mb-4" />
-                    <p>Analysis results will appear here after processing</p>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

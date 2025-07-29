@@ -9,6 +9,9 @@ export const analyzeRequestSchema = z.object({
   temporaryApiKey: z.string().optional(),
   provider: z.enum(['openai', 'anthropic', 'google', 'cohere']),
   model: z.string().optional(),
+  reviewAnalysis: z.boolean().optional(),
+  reviewProvider: z.enum(['openai', 'anthropic', 'google', 'cohere']).optional(),
+  reviewModel: z.string().optional(),
 });
 
 export const addApiKeyRequestSchema = z.object({

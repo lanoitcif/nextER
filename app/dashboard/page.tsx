@@ -28,16 +28,10 @@ export default function DashboardPage() {
   const [loadingStats, setLoadingStats] = useState(true)
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/auth/login')
-    }
-  }, [user, loading, router])
-
-  useEffect(() => {
     if (user) {
       fetchDashboardStats()
     }
-  }, [user]) // Fixed: Removed isVisible dependency to prevent refetch on alt-tab
+  }, [user])
 
   const fetchDashboardStats = async () => {
     try {
@@ -156,6 +150,38 @@ export default function DashboardPage() {
                     <h3 className="text-lg font-semibold">Analyze Transcript</h3>
                     <p className="text-sm text-muted-foreground mt-1">
                       Analyze earnings call transcripts with AI
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            <Link href="/dashboard/history" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
+              <div className="card-content">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-accent/20 p-3 rounded-lg">
+                    <FileText className="h-8 w-8 text-accent" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Analysis History</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      View and manage past transcript analyses
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            <Link href="/dashboard/live" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
+              <div className="card-content">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-secondary/20 p-3 rounded-lg">
+                    <BarChart3 className="h-8 w-8 text-secondary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Live Transcription</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Open webcasts and view transcripts in real time
                     </p>
                   </div>
                 </div>

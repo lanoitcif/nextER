@@ -14,7 +14,10 @@ This document serves as the central index for all project documentation.
 ## Specialized Documentation
 
 -   [**WORKFLOWS.md**](WORKFLOWS.md): Visual diagrams of user and system workflows
--   [**TROUBLESHOOTING.md**](TROUBLESHOOTING.md): A guide to common issues and their solutions, including recent authentication fixes
+-   [**DESIGN.md**](DESIGN.md): The project's design system, including color palette, typography, and component styles
+-   [**TROUBLESHOOTING.md**](TROUBLESHOOTING.md): A guide to common issues and their solutions
+-   [**COLLABORATION.md**](COLLABORATION.md): The multi-AI collaboration framework used in this project
+-   [**LIVE_TRANSCRIPTION.md**](LIVE_TRANSCRIPTION.md): Implementation notes for the live earnings call feature
 -   [**DATABASE_ADMIN.md**](DATABASE_ADMIN.md): Comprehensive database administration using Supabase CLI tools and inspection commands
 
 ## Technical Analysis
