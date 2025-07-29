@@ -27,9 +27,9 @@ export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     detectSessionInUrl: true,
     persistSession: true,
+    // Multi-tab synchronization is handled automatically via cookie-based storage
+    // in @supabase/ssr. The library manages session state across tabs internally.
   },
-  // Disable multiTab to prevent auth state conflicts between tabs
-  multiTab: false,
 })
 
 // Server-side Supabase client with service role (for API routes)

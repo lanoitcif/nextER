@@ -66,7 +66,8 @@
       "Bash(npm uninstall:*)",
       "mcp__memory__read_graph",
       "Bash(git restore:*)",
-      "Bash(vercel list:*)"
+      "Bash(vercel list:*)",
+      "mcp__supabase__search_docs"
     ],
     "deny": []
   },
