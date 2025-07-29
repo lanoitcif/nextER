@@ -285,12 +285,37 @@ ${response.content}`
         usedOwnerKey
       })
 
+      // Store the transcript and analysis results
+      const { data: transcriptRecord, error: transcriptError } = await supabaseAdmin
+        .from('analysis_transcripts')
+        .insert({
+          user_id: user.id,
+          company_id: companyId,
+          company_type_id: companyTypeId,
+          transcript,
+          analysis_result: response.content,
+          review_result: reviewResponse ? reviewResponse.content : null,
+          provider,
+          model: response.model,
+          review_provider: reviewResponse ? reviewResponse.provider : null,
+          review_model: reviewResponse ? reviewResponse.model : null,
+          feedback: 0
+        })
+        .select('id')
+        .single()
+
+      if (transcriptError) {
+        console.error(`[${requestId}] Error saving transcript:`, transcriptError)
+        // Don't block the user from seeing the result, but log the error
+      }
+
       return NextResponse.json({
         success: true,
         analysis: response.content,
         usage: response.usage,
         model: response.model,
         provider: response.provider,
+        transcriptId: transcriptRecord?.id,
         ...(reviewResponse && {
           review: reviewResponse.content,
           reviewUsage: reviewResponse.usage,

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState, useReducer } from 'react'
 import { marked } from 'marked'
 import { supabase } from '@/lib/supabase/client'
-import { Upload, FileText, Send, ArrowLeft, Settings, Key, Download, Copy, Eye, EyeOff } from 'lucide-react'
+import { Upload, FileText, Send, ArrowLeft, Settings, Key, Download, Copy, Eye, EyeOff, ThumbsUp, ThumbsDown } from 'lucide-react'
 import Link from 'next/link'
 import { safeLocalStorage } from '@/lib/utils/localStorage'
 
@@ -149,6 +149,10 @@ interface AppState {
     provider?: string
     usage?: any
   } | null
+
+  // Feedback state
+  transcriptId: string | null
+  feedbackSubmitted: boolean
 }
 
 type AppAction = 
@@ -178,6 +182,8 @@ type AppAction =
   | { type: 'SET_REVIEW_MODEL'; payload: string }
   | { type: 'SET_REVIEW_RESULT'; payload: string }
   | { type: 'SET_REVIEW_ANALYSIS_METADATA'; payload: any }
+  | { type: 'SET_TRANSCRIPT_ID'; payload: string | null }
+  | { type: 'SET_FEEDBACK_SUBMITTED'; payload: boolean }
 
 const initialState: AppState = {
   ticker: '',
@@ -203,7 +209,9 @@ const initialState: AppState = {
   reviewProvider: 'openai',
   reviewModel: '',
   reviewResult: '',
-  reviewAnalysisMetadata: null
+  reviewAnalysisMetadata: null,
+  transcriptId: null,
+  feedbackSubmitted: false
 }
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -281,6 +289,10 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, reviewResult: action.payload }
     case 'SET_REVIEW_ANALYSIS_METADATA':
       return { ...state, reviewAnalysisMetadata: action.payload }
+    case 'SET_TRANSCRIPT_ID':
+      return { ...state, transcriptId: action.payload }
+    case 'SET_FEEDBACK_SUBMITTED':
+      return { ...state, feedbackSubmitted: action.payload }
     default:
       return state
   }
@@ -712,6 +724,8 @@ export default function AnalyzePage() {
         provider: result.provider,
         usage: result.usage
       }})
+      dispatch({ type: 'SET_TRANSCRIPT_ID', payload: result.transcriptId })
+      dispatch({ type: 'SET_FEEDBACK_SUBMITTED', payload: false })
 
       if (result.review) {
         dispatch({ type: 'SET_REVIEW_RESULT', payload: result.review })
@@ -727,6 +741,30 @@ export default function AnalyzePage() {
       dispatch({ type: 'SET_ERROR', payload: error.message || 'An error occurred during analysis' })
     } finally {
       dispatch({ type: 'SET_ANALYZING', payload: false })
+    }
+  }
+
+  const handleFeedback = async (feedback: 1 | -1) => {
+    if (!state.transcriptId) return
+
+    try {
+      const { data } = await supabase.auth.getSession()
+      if (!data.session) return
+
+      await fetch('/api/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${data.session.access_token}`
+        },
+        body: JSON.stringify({
+          transcriptId: state.transcriptId,
+          feedback
+        })
+      })
+      dispatch({ type: 'SET_FEEDBACK_SUBMITTED', payload: true })
+    } catch (error) {
+      console.error('Error submitting feedback:', error)
     }
   }
 
@@ -1394,6 +1432,28 @@ export default function AnalyzePage() {
                         <pre className="whitespace-pre-wrap text-sm bg-muted text-muted-foreground p-4 rounded-md border font-mono">
                           {state.result}
                         </pre>
+                      )}
+                      {state.result && !state.feedbackSubmitted && (
+                        <div className="flex items-center justify-end space-x-2 mt-4">
+                          <p className="text-sm text-muted-foreground">Was this analysis helpful?</p>
+                          <button
+                            onClick={() => handleFeedback(1)}
+                            className="btn-icon"
+                            title="Good analysis"
+                          >
+                            <ThumbsUp className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() => handleFeedback(-1)}
+                            className="btn-icon"
+                            title="Bad analysis"
+                          >
+                            <ThumbsDown className="h-5 w-5" />
+                          </button>
+                        </div>
+                      )}
+                      {state.feedbackSubmitted && (
+                        <p className="text-sm text-muted-foreground text-right mt-4">Thank you for your feedback!</p>
                       )}
                     </div>
                   ) : (
