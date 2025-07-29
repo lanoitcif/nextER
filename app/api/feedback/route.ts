@@ -4,9 +4,16 @@ import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import { handleError } from '@/lib/api/errors'
 
+// Use enum for feedback values
+enum FeedbackType {
+  NEGATIVE = -1,
+  NEUTRAL = 0,
+  POSITIVE = 1
+}
+
 const feedbackSchema = z.object({
   transcriptId: z.string().uuid(),
-  feedback: z.union([z.literal(1), z.literal(-1)])
+  feedback: z.union([z.literal(FeedbackType.POSITIVE), z.literal(FeedbackType.NEGATIVE)])
 })
 
 export async function POST(request: NextRequest) {
@@ -39,14 +46,34 @@ export async function POST(request: NextRequest) {
 
     const { transcriptId, feedback } = validation.data
 
-    const { error } = await supabase
+    // Verify transcript exists and belongs to user
+    const { data: transcript } = await supabase
+      .from('analysis_transcripts')
+      .select('id')
+      .eq('id', transcriptId)
+      .eq('user_id', user.id)
+      .single()
+
+    if (!transcript) {
+      return NextResponse.json(
+        { error: 'Transcript not found or access denied' },
+        { status: 404 }
+      )
+    }
+
+    // Update feedback
+    const { error: updateError } = await supabase
       .from('analysis_transcripts')
       .update({ feedback })
       .eq('id', transcriptId)
       .eq('user_id', user.id)
 
-    if (error) {
-      return NextResponse.json({ error: 'Failed to update feedback' }, { status: 500 })
+    if (updateError) {
+      console.error('Failed to update feedback:', updateError)
+      return NextResponse.json(
+        { error: 'Failed to update feedback' },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json({ success: true })
