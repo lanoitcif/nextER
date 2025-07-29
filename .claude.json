@@ -1,0 +1,37 @@
+{
+  "claude": {
+    "projectName": "NextER (NEaR) - Next Earnings Release",
+    "projectDescription": "Sophisticated SaaS platform for AI-powered earnings call transcript analysis with multi-LLM support and industry-specific templates",
+    "developmentPrinciples": {
+      "multiAgent": "Use specialized agents for coordinated development",
+      "codeQuality": "Maintain >80% test coverage with TypeScript strict mode",
+      "userExperience": "CRT-inspired dark theme with accessibility compliance",
+      "security": "AES-256-GCM encryption and Row Level Security",
+      "performance": "Core Web Vitals optimization and fast API responses"
+    },
+    "keyDirectories": {
+      "api": "/app/api - All backend endpoints and business logic",
+      "dashboard": "/app/dashboard - Main application interface",
+      "components": "/components - Reusable UI components",
+      "lib": "/lib - Core utilities and integrations",
+      "docs": "/docs - Project documentation"
+    },
+    "workflowInstructions": {
+      "beforeCoding": [
+        "Review coding standards and security requirements",
+        "Verify test coverage requirements for changes"
+      ],
+      "duringDevelopment": [
+        "Follow TypeScript strict mode requirements",
+        "Implement comprehensive error handling",
+        "Add tests for all new functionality",
+        "Document any architectural decisions"
+      ],
+      "beforeCommit": [
+        "Run full test suite (npm test)",
+        "Verify TypeScript compilation (npm run type-check)",
+        "Check linting compliance (npm run lint)"
+      ]
+    }
+  }
+}

@@ -174,6 +174,21 @@ API key management
 3. **Analyze**: Paste transcript → select analysis type → get insights
 4. **Manage**: View usage statistics and manage API keys
 
+## 🔍 Lessons Learned (January 2025)
+
+### Critical Authentication Issue
+- **Problem**: Server-side Supabase client accidentally configured with anon key instead of service role key
+- **Impact**: Complete production authentication failure 
+- **Root Cause**: `lib/supabase/server.ts` using `NEXT_PUBLIC_SUPABASE_ANON_KEY` instead of `SUPABASE_SERVICE_ROLE_KEY`
+- **Prevention**: Always verify Supabase client configurations use appropriate keys for their context
+
+### RLS Performance Optimization 
+- **Attempted**: Wrapping `auth.uid()` in subqueries `(SELECT auth.uid())` for performance
+- **Result**: Caused 500 errors across all affected endpoints
+- **Hypothesis**: Multiple duplicate policies + subquery optimization created conflicts
+- **Current Status**: Optimization reverted, duplicate policies remain (performance warnings persist)
+- **Future Approach**: Clean up duplicate RLS policies before attempting subquery optimization
+
 ## 🚀 Deployment
 
 ### Vercel (Recommended)

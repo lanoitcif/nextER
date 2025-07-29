@@ -67,7 +67,12 @@
       "mcp__memory__read_graph",
       "Bash(git restore:*)",
       "Bash(vercel list:*)",
-      "mcp__supabase__search_docs"
+      "mcp__supabase__search_docs",
+      "Bash(curl:*)",
+      "WebFetch(domain:supabase.com)",
+      "Bash(git ls-tree:*)",
+      "Bash(git rm:*)",
+      "Bash(git reset:*)"
     ],
     "deny": []
   },
