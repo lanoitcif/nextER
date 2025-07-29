@@ -156,6 +156,22 @@ export default function DashboardPage() {
               </div>
             </Link>
 
+            <Link href="/dashboard/history" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
+              <div className="card-content">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-accent/20 p-3 rounded-lg">
+                    <FileText className="h-8 w-8 text-accent" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Analysis History</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      View and manage past transcript analyses
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
             {isAdvanced(profile) && (
               <Link href="/dashboard/api-keys" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
                 <div className="card-content">
