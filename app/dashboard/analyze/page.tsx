@@ -354,6 +354,16 @@ export default function AnalyzePage() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // Auto-select primary company type when available types change
+  useEffect(() => {
+    if (state.selectedCompany && state.availableCompanyTypes.length > 0 && !state.selectedCompanyType) {
+      const primaryType = state.availableCompanyTypes.find(ct => ct.id === state.selectedCompany.primary_company_type_id)
+      if (primaryType) {
+        console.log('useEffect: Auto-selecting primary type:', primaryType.name)
+        dispatch({ type: 'SET_SELECTED_COMPANY_TYPE', payload: primaryType })
+      }
+    }
+  }, [state.availableCompanyTypes, state.selectedCompany, state.selectedCompanyType])
 
   const loadUserPreferences = () => {
     const preferences = safeLocalStorage.getItem<{
@@ -453,7 +463,7 @@ export default function AnalyzePage() {
         return
       }
       
-      const { data: sessionData } = await supabase.auth.getSession()
+const { data: sessionData } = await supabase.auth.getSession()
       if (!sessionData.session) {
         console.error('❌ No session found')
         dispatch({ type: 'SET_ERROR', payload: 'Authentication required' })
@@ -1085,6 +1095,9 @@ export default function AnalyzePage() {
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       Analysis Type
+                      {selectedCompanyType && selectedCompany && selectedCompanyType.id === selectedCompany.primary_company_type_id && (
+                        <span className="text-xs text-green-600 ml-2">(Auto-selected)</span>
+                      )}
                     </label>
                     <select
                       value={state.selectedCompanyType?.id || ''}
@@ -1104,6 +1117,7 @@ export default function AnalyzePage() {
                       {state.availableCompanyTypes.map((type) => (
                         <option key={type.id} value={type.id}>
                           {type.name}
+                          {selectedCompany && type.id === selectedCompany.primary_company_type_id ? ' (Primary)' : ''}
                         </option>
                       ))}
                     </select>
