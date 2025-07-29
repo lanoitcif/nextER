@@ -145,19 +145,28 @@ export default function HistoryPage() {
       const { data } = await supabase.auth.getSession()
       if (!data.session) return
 
+      console.log('Fetching analysis details for ID:', analysisId)
       const response = await fetch(`/api/history/${analysisId}`, {
         headers: {
           'Authorization': `Bearer ${data.session.access_token}`
         }
       })
 
-      if (!response.ok) throw new Error('Failed to fetch analysis details')
+      console.log('Response status:', response.status, 'Content-Type:', response.headers.get('content-type'))
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('API Error:', errorText)
+        throw new Error(`Failed to fetch analysis details: ${response.status}`)
+      }
 
       const result = await response.json()
+      console.log('Analysis details fetched successfully:', result)
       setSelectedAnalysis(result.analysis)
       setShowModal(true)
     } catch (error) {
       console.error('Error fetching analysis details:', error)
+      alert('Failed to load analysis details. Please try again.')
     }
   }
 
