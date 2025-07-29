@@ -371,6 +371,8 @@ MIT License - see LICENSE file for details.
 ### Latest Features Added (July 29, 2025)
 - ✅ **Transcript Feedback System**: Users can rate analyses with thumbs up/down buttons
 - ✅ **Analysis History**: Comprehensive history page with search, filtering, and detailed views
+- ✅ **View Analysis Modal**: Fixed critical middleware interference - modal now works properly
+- ✅ **Middleware Fix**: Excluded API routes to prevent response corruption
 - ✅ **Performance Optimization**: Database indexes for efficient history queries
 - ✅ **Enhanced Session Management**: Reduced unnecessary loading states on alt-tab
 

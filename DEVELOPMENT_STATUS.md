@@ -33,6 +33,7 @@
 - **Session Management:** Enhanced with improved alt-tab handling and loading states
 - **Transcript Feedback:** Users can rate analyses with thumbs up/down buttons
 - **Analysis History:** Full-featured history page with search, filtering, and detailed views
+- **View Analysis Modal:** Fully functional after fixing middleware interference
 - **Performance Optimization:** Database indexes for efficient history queries
 - **UI/UX Improvements:** Fixed dropdown styling for proper font color contrast
 
@@ -68,7 +69,15 @@
 - Delete functionality for unwanted analyses
 - Performance-optimized with database indexes
 
-#### 3. Enhanced Session Management
+#### 3. CRITICAL FIX: View Analysis Modal
+**Problem:** Dynamic route `/api/history/[id]` returned HTML instead of JSON in production
+**Root Cause:** Next.js middleware was processing API routes and interfering with responses
+**Solution:** Updated middleware matcher to exclude all API routes
+- Modified `/middleware.ts` to exclude `api/` pattern completely
+- API routes now handle their own authentication independently
+- Modal functionality restored and working properly
+
+#### 4. Enhanced Session Management
 **Problem:** Loading screens appearing on alt-tab due to unnecessary session refreshes
 **Solution:** Improved session state management:
 - Only show loading states when session actually changes

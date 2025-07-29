@@ -9,6 +9,7 @@ This is the NextER (Next Earnings Release) project directory containing a sophis
 - **Recent Major Updates (July 29, 2025)**:
   - Transcript feedback system with thumbs up/down ratings implemented
   - Comprehensive analysis history feature with search and filtering
+  - **CRITICAL FIX**: View analysis modal working - middleware interference resolved
   - Session management improvements to reduce alt-tab loading issues
   - Performance database indexes for scalable history queries
 - **Previous Fixes (July 28, 2025)**:
@@ -48,6 +49,8 @@ This is the NextER (Next Earnings Release) project directory containing a sophis
 - **Analysis Transcripts**: New table with performance indexes for storing analysis history
 - **Feedback System**: Users can rate analyses with thumbs up/down, stored in database
 - **History Feature**: Full-featured history page with search, filtering, and detailed views
+- **View Analysis Modal**: Fixed critical issue where modal returned HTML instead of JSON
+- **Middleware Configuration**: Excluded all API routes to prevent response interference
 - **Session Management**: Enhanced to prevent unnecessary loading states on alt-tab
 - **API Endpoints**: New /api/history and /api/feedback routes with comprehensive security
 
