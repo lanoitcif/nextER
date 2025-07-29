@@ -363,9 +363,16 @@ MIT License - see LICENSE file for details.
 - Browser extensions may interfere with fetch requests (use incognito mode as workaround)
 - Build requires explicit TypeScript types for all callback functions
 
-### Current Known Issues (July 28, 2025)
+### Current Known Issues (July 29, 2025)
 - 🔴 **File Upload (Android)**: File uploads from Android devices (specifically Chrome browser) still result in a 'loading' state with no progress. The request does not appear to reach the backend. Further investigation required with client-side debugging.
+- ⚠️ **Alt-Tab Loading**: Occasional loading screen when alt-tabbing, though session management improvements have reduced this significantly
 - **Debugging**: Use `vercel logs <deployment-url>` and Supabase MCP tools for investigation
+
+### Latest Features Added (July 29, 2025)
+- ✅ **Transcript Feedback System**: Users can rate analyses with thumbs up/down buttons
+- ✅ **Analysis History**: Comprehensive history page with search, filtering, and detailed views
+- ✅ **Performance Optimization**: Database indexes for efficient history queries
+- ✅ **Enhanced Session Management**: Reduced unnecessary loading states on alt-tab
 
 ### Recently Fixed (July 28, 2025)
 - ✅ **Authentication Issues**: Fixed login stuck on loading, session corruption, and visibility change problems
