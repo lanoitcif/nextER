@@ -20,6 +20,8 @@ export default function AdminPage() {
   const router = useRouter()
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [loadingStats, setLoadingStats] = useState(true)
+  const [systemSettings, setSystemSettings] = useState<Record<string, any>>({})
+  const [loadingSettings, setLoadingSettings] = useState(true)
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin(profile))) {
@@ -30,8 +32,43 @@ export default function AdminPage() {
   useEffect(() => {
     if (user && isAdmin(profile)) {
       fetchStats()
+      fetchSettings()
     }
   }, [user, profile])
+
+  const fetchSettings = async () => {
+    try {
+      setLoadingSettings(true)
+      const response = await fetch('/api/admin/settings')
+      if (response.ok) {
+        const data = await response.json()
+        setSystemSettings(data)
+      } else {
+        console.error('Failed to fetch settings')
+      }
+    } catch (error) {
+      console.error('Error fetching settings:', error)
+    } finally {
+      setLoadingSettings(false)
+    }
+  }
+
+  const handleSettingChange = async (key: string, enabled: boolean) => {
+    const newSettings = { ...systemSettings, [key]: { enabled } }
+    setSystemSettings(newSettings)
+
+    try {
+      await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key, value: { enabled } }),
+      })
+    } catch (error) {
+      console.error(`Failed to update setting ${key}:`, error)
+      // Revert on failure
+      fetchSettings()
+    }
+  }
 
   const fetchStats = async () => {
     try {
@@ -185,6 +222,35 @@ export default function AdminPage() {
               </div>
             </div>
           )}
+
+          {/* System Settings */}
+          <div className="card mb-8">
+            <div className="card-content p-6">
+              <h2 className="text-xl font-semibold mb-4">System Settings</h2>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium">Enable Live Transcription</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Allow non-admin users to access the live transcription feature.
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={systemSettings.live_transcription_enabled?.enabled || false}
+                      onChange={() => handleSettingChange(
+                        'live_transcription_enabled',
+                        !systemSettings.live_transcription_enabled?.enabled
+                      )}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Admin Actions */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

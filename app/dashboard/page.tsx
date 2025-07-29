@@ -26,12 +26,29 @@ export default function DashboardPage() {
   const router = useRouter()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loadingStats, setLoadingStats] = useState(true)
+  const [liveTranscriptionEnabled, setLiveTranscriptionEnabled] = useState(false)
 
   useEffect(() => {
     if (user) {
       fetchDashboardStats()
+      fetchFeatureSettings()
     }
   }, [user])
+
+  const fetchFeatureSettings = async () => {
+    try {
+      // Non-admins don't need to fetch this, but it simplifies logic
+      // and the API is protected.
+      const response = await fetch('/api/admin/settings')
+      if (response.ok) {
+        const data = await response.json()
+        setLiveTranscriptionEnabled(data.live_transcription_enabled?.enabled || false)
+      }
+    } catch (error) {
+      // Defaults to false, which is safe
+      console.error('Could not fetch feature settings:', error)
+    }
+  }
 
   const fetchDashboardStats = async () => {
     try {
@@ -172,21 +189,23 @@ export default function DashboardPage() {
               </div>
             </Link>
 
-            <Link href="/dashboard/live" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
-              <div className="card-content">
-                <div className="flex items-center space-x-4">
-                  <div className="bg-secondary/20 p-3 rounded-lg">
-                    <BarChart3 className="h-8 w-8 text-secondary" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold">Live Transcription</h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Open webcasts and view transcripts in real time
-                    </p>
+            {(isAdmin(profile) || liveTranscriptionEnabled) && (
+              <Link href="/dashboard/live" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
+                <div className="card-content">
+                  <div className="flex items-center space-x-4">
+                    <div className="bg-secondary/20 p-3 rounded-lg">
+                      <BarChart3 className="h-8 w-8 text-secondary" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold">Live Transcription</h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Open webcasts and view transcripts in real time
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            )}
 
             {isAdvanced(profile) && (
               <Link href="/dashboard/api-keys" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">

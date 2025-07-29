@@ -356,8 +356,9 @@ export default function AnalyzePage() {
 
   // Auto-select primary company type when available types change
   useEffect(() => {
-    if (state.selectedCompany && state.availableCompanyTypes.length > 0 && !state.selectedCompanyType) {
-      const primaryType = state.availableCompanyTypes.find(ct => ct.id === state.selectedCompany?.primary_company_type_id)
+    const company = state.selectedCompany;
+    if (company && state.availableCompanyTypes.length > 0 && !state.selectedCompanyType) {
+      const primaryType = state.availableCompanyTypes.find(ct => ct.id === company.primary_company_type_id)
       if (primaryType) {
         console.log('useEffect: Auto-selecting primary type:', primaryType.name)
         dispatch({ type: 'SET_SELECTED_COMPANY_TYPE', payload: primaryType })
