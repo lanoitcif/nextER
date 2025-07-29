@@ -3,6 +3,13 @@ import { POST } from '../route';
 import { createClient } from '@/lib/supabase/server';
 
 // Mock the supabase client
+jest.mock('next/headers', () => ({
+  cookies: jest.fn(() => ({
+    get: jest.fn(),
+    set: jest.fn(),
+  })),
+}));
+
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(),
 }));
