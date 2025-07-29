@@ -7,30 +7,32 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const cookieStore = await cookies()
-  const supabase = createClient(cookieStore)
-  
-  const { id } = await params
-  
-  const authHeader = request.headers.get('authorization')
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return NextResponse.json(
-      { error: 'Missing or invalid authorization header' },
-      { status: 401 }
-    )
-  }
-  
-  const token = authHeader.replace('Bearer ', '')
-  const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-
-  if (authError || !user) {
-    return NextResponse.json(
-      { error: 'Invalid or expired session' },
-      { status: 401 }
-    )
-  }
-
   try {
+    const cookieStore = await cookies()
+    const supabase = createClient(cookieStore)
+    
+    const { id } = await params
+    
+    // Debug: Add route verification
+    console.log('🔍 Dynamic route accessed:', { id, path: request.nextUrl.pathname })
+  
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: 'Missing or invalid authorization header' },
+        { status: 401 }
+      )
+    }
+    
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Invalid or expired session' },
+        { status: 401 }
+      )
+    }
     const { data: analysis, error } = await supabase
       .from('analysis_transcripts')
       .select(`
@@ -61,12 +63,14 @@ export async function GET(
       .single()
 
     if (error || !analysis) {
+      console.log('❌ Analysis not found:', { id, userId: user.id, error })
       return NextResponse.json(
         { error: 'Analysis not found or access denied' },
         { status: 404 }
       )
     }
 
+    console.log('✅ Analysis found successfully:', { id, userId: user.id })
     return NextResponse.json({
       analysis: {
         id: analysis.id,
@@ -85,6 +89,7 @@ export async function GET(
     })
 
   } catch (error: any) {
+    console.error('💥 Route error:', error)
     return handleError(error)
   }
 }
