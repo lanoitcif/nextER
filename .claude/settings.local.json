@@ -72,7 +72,14 @@
       "WebFetch(domain:supabase.com)",
       "Bash(git ls-tree:*)",
       "Bash(git rm:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(git rev-list:*)",
+      "Bash(vercel:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(gh pr close:*)",
+      "Bash(npx vercel:*)",
+      "WebFetch(domain:lanoitcif.com)",
+      "mcp__supabase__get_advisors"
     ],
     "deny": []
   },

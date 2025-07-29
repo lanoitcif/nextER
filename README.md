@@ -349,9 +349,10 @@ MIT License - see LICENSE file for details.
 ---
 
 **Status**: Production Ready - Core functionality working, analyst auto-selection implemented
-**Last Updated**: 2025-07-29 (Word export, TypeScript fixes, and build improvements deployed)
+**Last Updated**: 2025-07-29 (HTML export added, mobile Word export improved, comprehensive analysis completed)
 **Production URL**: https://lanoitcif.com
 **Build Status**: ✅ SUCCESSFUL
+**Code Quality**: Good with areas for improvement (see Development Status)
 
 ## 🔧 Recent Fixes & Improvements
 
@@ -392,12 +393,17 @@ MIT License - see LICENSE file for details.
 ### Current Known Issues (July 29, 2025)
 - 🔴 **File Upload (Android)**: File uploads from Android devices (specifically Chrome browser) still result in a 'loading' state with no progress. The request does not appear to reach the backend. Further investigation required with client-side debugging.
 - ⚠️ **Alt-Tab Loading**: Occasional loading screen when alt-tabbing, though session management improvements have reduced this significantly
+- ⚠️ **Mobile Word Export**: .doc files may not open correctly on iPhone devices - HTML export recommended for mobile users
+- 🔧 **Security Settings**: OTP expiry needs reduction to 1 hour, leaked password protection should be enabled
+- 📊 **Performance**: RLS policies have circular dependencies affecting query performance
 - **Debugging**: Use `vercel logs <deployment-url>` and Supabase MCP tools for investigation
 
 ### Latest Features Added (July 29, 2025)
 - ✅ **Transcript Feedback System**: Users can rate analyses with thumbs up/down buttons
 - ✅ **Analysis History**: Comprehensive history page with search, filtering, and detailed views
-- ✅ **Word Document Export**: Professional .docx export with proper formatting for tables, headings, and lists
+- ✅ **Dual Export Options**: Both Word (.doc) and HTML export with proper formatting
+- ✅ **Mobile-Friendly Word Export**: Simplified .doc format for better mobile compatibility
+- ✅ **HTML Export**: Standalone HTML files with inline CSS for universal compatibility
 - ✅ **File Parsing Support**: Added PDF and DOCX file parsing capabilities with pdf-parse and mammoth libraries
 - ✅ **Build Optimizations**: Fixed TypeScript errors and improved build process
 - ✅ **View Analysis Modal**: Fixed critical middleware interference - modal now works properly

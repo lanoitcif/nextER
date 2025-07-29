@@ -1,12 +1,15 @@
 # AI Agent Knowledge Graph for NEaR Project
 # Format: Structured YAML for knowledge graphs and AI agent configuration
-# Last Updated: January 19, 2025
+# Last Updated: July 29, 2025
 
 project:
   name: "NEaR (Next Earnings Release)"
   type: "LLM-powered earnings call analysis platform"
   tech_stack: "Next.js 15, Supabase, TypeScript, Tailwind CSS"
   deployment: "Vercel auto-deploy from main branch"
+  production_url: "https://lanoitcif.com"
+  build_status: "SUCCESSFUL"
+  last_deployment: "July 29, 2025"
   
 environment:
   project_id: "xorjwzniopfuosadwvfu"
@@ -137,6 +140,22 @@ security_critical_patterns:
       context: "Next.js 15 requirement"
       example: "(event: React.FormEvent<HTMLFormElement>) => {}"
 
+current_features_status:
+  working:
+    - "Authentication with session management"
+    - "Admin panel with API key assignment"
+    - "All LLM providers (OpenAI, Anthropic, Google, Cohere)"
+    - "Company search with auto-complete"
+    - "Analysis type selection (automatic based on company)"
+    - "Transcript feedback system (thumbs up/down)"
+    - "Analysis history with search/filter"
+    - "Professional Word document export (.docx)"
+    - "File upload and text extraction (PDF/DOCX/TXT) on desktop"
+  
+  issues:
+    - "Android file upload broken (Chrome shows endless loading)"
+    - "Occasional alt-tab loading screen"
+
 known_issues:
   resolved:
     - issue: "Production authentication failures"
@@ -149,6 +168,16 @@ known_issues:
       cause: "Auth context refresh triggering data resets"
       fix: "User ID tracking to prevent unnecessary refetches"
       commit: "6fb78ac"
+    
+    - issue: "Vercel deployment failures"
+      cause: "TypeScript errors in Next.js 15"
+      fix: "Added proper null checks and type definitions"
+      date: "July 29, 2025"
+    
+    - issue: "HTML-only export limitations"
+      cause: "Basic string concatenation for document generation"
+      fix: "Implemented html-docx-js for proper Word document formatting"
+      date: "July 29, 2025"
   
   ongoing:
     - issue: "RLS performance warnings"
@@ -237,8 +266,31 @@ knowledge_graph_tags:
   - "ux-simplification"
   - "file-upload-processing"
   - "state-management-optimization"
+  - "document-export"
+  - "word-document-generation"
+  - "pdf-text-extraction"
+  - "security-improvements"
 
 recent_improvements:
+  july_29_2025_deployment_success:
+    summary: "Fixed critical build issues and enhanced export functionality"
+    changes:
+      - name: "Word Document Export Implementation"
+        impact: "Professional document generation for analysis reports"
+        technical: "Integrated html-docx-js library for proper .docx formatting"
+        benefits: ["Tables, headings, lists properly formatted", "Replaces HTML-only export", "Professional output"]
+      - name: "TypeScript Build Fixes"
+        impact: "Restored production deployment capability"
+        technical: "Fixed null checks, missing parameters, and type definitions"
+        fixes:
+          - "state.selectedCompany.primary_company_type_id null check"
+          - "createClient cookieStore parameter added"
+          - "Added @types/pdf-parse dependency"
+      - name: "Security Improvements"
+        impact: "Protected sensitive API keys and credentials"
+        technical: "Removed mcp.json from repository, updated .gitignore"
+        prevention: "Future secret exposure prevented via .gitignore"
+  
   july_2025_ux_updates:
     summary: "Major workflow simplification and file upload implementation"
     changes:

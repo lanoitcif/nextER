@@ -1,7 +1,41 @@
 # Claude Memory: NEaR Project Context
 
-**Last Updated**: January 29, 2025  
+**Last Updated**: July 29, 2025 (Evening)  
 **Project**: NEaR (Next Earnings Release) - LLM-powered earnings call analysis platform
+**Production URL**: https://lanoitcif.com
+**Build Status**: ✅ SUCCESSFUL
+**Code Quality**: Good overall with technical debt in analyze component (1845 lines)
+
+## 🎉 RECENT ACCOMPLISHMENTS (July 29, 2025)
+
+### Export Functionality Enhancement - COMPLETED ✅
+- **Dual Export Options**: Added HTML export alongside Word export
+- **Mobile Compatibility**: Implemented .doc format for better mobile support
+- **Features**: Both exports preserve formatting (tables, headings, lists)
+- **HTML Export**: Universal compatibility with inline CSS
+- **Status**: Both export options fully functional in production
+
+### Comprehensive Codebase Analysis - COMPLETED ✅
+- **Scope**: Full project analysis including architecture, security, performance
+- **Critical Issues Found**: Android upload, security settings, RLS performance
+- **Technical Debt**: Large analyze component (1845 lines), limited test coverage
+- **Positive Findings**: Good TypeScript usage, proper encryption, clean architecture
+
+### Build Process Fixes - RESOLVED ✅
+- **TypeScript Errors**: Fixed null check for `state.selectedCompany.primary_company_type_id`
+- **Supabase Client**: Fixed missing cookieStore parameter in createClient
+- **Dependencies**: Added missing pdf-parse, mammoth, @types/pdf-parse
+- **Result**: Successful Vercel deployment after multiple failed attempts
+
+### Security Improvements - COMPLETED ✅
+- **Issue**: Sensitive mcp.json file containing API keys was in repository
+- **Fix**: Removed file and updated .gitignore
+- **Prevention**: Future secret exposure prevented
+
+### File Parsing - FUNCTIONAL ✅
+- **PDF/DOCX Upload**: Now working with proper text extraction libraries
+- **Desktop**: Fully functional
+- **Mobile**: Android Chrome still showing endless loading (known issue)
 
 ## 🚨 CRITICAL RECENT FIXES (January 2025)
 
@@ -101,28 +135,54 @@ npm test            # Jest tests
 npm run lint        # ESLint
 ```
 
-## 🎯 IMMEDIATE PRIORITIES
+## ✅ CURRENT FEATURE STATUS (July 29, 2025)
 
-### Database Performance (Phase 1 - Low Risk)
-```sql
--- Add missing foreign key indexes
-CREATE INDEX idx_prompts_company_type_id ON prompts(company_type_id);
-CREATE INDEX idx_usage_logs_prompt_id ON usage_logs(prompt_id);
-CREATE INDEX idx_user_api_keys_admin_assigned_by ON user_api_keys(admin_assigned_by);
+### Working Features
+- ✅ Authentication with session management
+- ✅ Admin panel with API key assignment
+- ✅ All LLM providers (OpenAI, Anthropic, Google, Cohere)
+- ✅ Company search with auto-complete
+- ✅ Analysis type selection (automatic based on company)
+- ✅ Transcript feedback system (thumbs up/down)
+- ✅ Analysis history with search/filter
+- ✅ Professional Word document export (.docx)
+- ✅ File upload (PDF/DOCX/TXT) on desktop
 
--- Remove unused indexes (after confirmation)
-DROP INDEX IF EXISTS idx_user_api_keys_provider;
-DROP INDEX IF EXISTS idx_companies_primary_type;
-```
+### Known Issues (Updated Evening July 29)
+- ⚠️ Android file upload broken (Chrome shows endless loading)
+- ⚠️ Supabase security settings need update (OTP expiry 7 days, password protection off)
+- ⚠️ RLS circular dependencies causing performance issues
+- ⚠️ iPhone Word export compatibility (.doc files)
+- ⚠️ Occasional alt-tab loading screen
+- ⚠️ RLS performance warnings (16 auth.uid() re-evaluations)
+- ⚠️ Multiple permissive policy warnings (44 duplicate policies)
 
-### Documentation Cleanup (Phase 2)
-- Complete planned documentation consolidation
-- Resolve conflicting .md file structures
-- Establish clear documentation strategy
+## 🎯 IMMEDIATE PRIORITIES (Updated Evening July 29)
 
-### RLS Policy Cleanup (Phase 3 - Medium Risk)
-- Remove duplicate policies before attempting subquery optimization
-- Test one table at a time in development environment
+### 1. Fix Android File Upload (Critical)
+- User-facing issue affecting mobile users
+- Chrome mobile shows endless loading
+- Requires client-side debugging
+
+### 2. Update Supabase Security Settings (High)
+- Change OTP expiry from 7 days to reasonable duration
+- Enable leaked password protection
+- Review other security settings
+
+### 3. Fix RLS Circular Dependencies (High)
+- Causing performance degradation
+- Affects scalability
+- Need to refactor policies
+
+### 4. Refactor Analyze Component (Medium)
+- Split 1845-line file into smaller components
+- Improve maintainability
+- Enable better testing
+
+### 5. Add Comprehensive Testing (Medium)
+- Currently only 5 test files
+- Need unit and integration tests
+- Achieve >80% coverage mandate
 
 ## 🚫 WHAT NOT TO DO
 

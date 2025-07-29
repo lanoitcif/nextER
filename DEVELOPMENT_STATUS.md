@@ -1,9 +1,10 @@
 # NextER Development Status & Technical Reference
 
-**Last Updated:** July 29, 2025 (Word Export & Build Improvements)  
+**Last Updated:** July 29, 2025 (Comprehensive Analysis & Documentation Update)  
 **Production URL:** https://lanoitcif.com  
-**Status:** ✅ Production Ready - Core functionality operational with professional export features  
-**Current Priority:** Android File Upload & Session Management Polish
+**Status:** ✅ Production Ready - Core functionality operational with dual export options  
+**Current Priority:** Android File Upload, Security Settings Update, Code Refactoring
+**Code Quality:** Good overall with technical debt in analyze component (1845 lines)
 
 ---
 
@@ -42,6 +43,9 @@
 ### ⚠️ Known Issues
 - **File Upload (Android):** Chrome on Android shows endless loading state. Request doesn't reach backend. Requires client-side debugging.
 - **Alt-Tab Loading:** Occasional loading screen when switching tabs, though significantly improved
+- **Mobile Word Export:** .doc files may not open correctly on iPhone - HTML export provided as alternative
+- **RLS Performance:** Circular dependencies in policies causing performance warnings
+- **Security Settings:** OTP expiry too long (>1 hour), leaked password protection disabled
 
 ### 🔧 Infrastructure
 - **Deployment:** Vercel (auto-deploy from main branch)
@@ -108,6 +112,58 @@
 - Added missing dependencies (`pdf-parse`, `mammoth`, `@types/pdf-parse`)
 - Removed sensitive `mcp.json` file from repository
 - Updated `.gitignore` to prevent future secret exposure
+
+#### 8. Export Functionality Enhancement
+**Implementation:** Dual export options for maximum compatibility
+- Added HTML export button alongside Word export
+- Mobile-friendly Word export using simplified .doc format
+- Comprehensive inline CSS for standalone HTML files
+- Fallback mechanisms for failed exports
+- Professional formatting preserved in both formats
+
+---
+
+## Immediate Action Items (Priority Order)
+
+### 🚨 Critical Issues
+1. **Fix Android File Upload**
+   - Debug FormData handling on mobile Chrome
+   - Check for CORS issues specific to mobile
+   - Implement proper error boundaries
+
+2. **Update Security Settings**
+   ```sql
+   -- In Supabase Dashboard:
+   -- 1. Set OTP expiry to 3600 seconds (1 hour)
+   -- 2. Enable leaked password protection (HaveIBeenPwned)
+   ```
+
+3. **Fix RLS Performance Issues**
+   ```sql
+   -- Fix circular dependency in admin policies
+   BEGIN;
+   DROP POLICY IF EXISTS "Admins can manage all API keys" ON user_api_keys;
+   CREATE POLICY "Admins can manage all API keys" ON user_api_keys
+       FOR ALL USING (private.is_admin_user(auth.uid()));
+   COMMIT;
+   ```
+
+### ⚠️ High Priority
+1. **Refactor Analyze Component** (1845 lines → multiple components)
+   - Extract company search into separate component
+   - Extract API key selection logic
+   - Create reusable export buttons component
+   - Split analysis configuration into sub-components
+
+2. **Add Comprehensive Testing**
+   - Component tests for critical user flows
+   - Integration tests for API endpoints
+   - E2E tests for analysis workflow
+
+3. **Implement Rate Limiting**
+   - Add middleware for API rate limiting
+   - Implement queue system for LLM requests
+   - Add request caching where appropriate
 
 ### July 28, 2025: Authentication, Session & UI Fixes
 
