@@ -4,7 +4,6 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase/client'
 import type { Database } from '@/lib/supabase/client'
-import { useIsVisible } from '@/lib/utils/hooks'
 
 type UserProfile = {
   id: string;
@@ -56,7 +55,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
-  const isVisible = useIsVisible()
 
   const refreshSession = async (showLoading = true) => {
     if (showLoading) {
@@ -121,12 +119,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => subscription.unsubscribe()
   }, [])
-
-  useEffect(() => {
-    // Disable visibility-based session refresh to prevent state resets during user interactions
-    // The onAuthStateChange listener and initial session fetch are sufficient for auth management
-    // This prevents analysis results from being reset when taking screenshots or switching tabs
-  }, [isVisible, user, loading])
 
   const fetchUserProfile = async (userId: string) => {
     try {
