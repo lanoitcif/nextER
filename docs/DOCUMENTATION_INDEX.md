@@ -1,6 +1,6 @@
 # NEaR Project Documentation Index
 
-**Last Updated**: January 19, 2025
+**Last Updated**: July 20, 2025
 
 This document serves as the central index for all project documentation.
 
@@ -23,6 +23,7 @@ This document serves as the central index for all project documentation.
 ## Technical Analysis
 
 -   [**rls_performance_analysis.md**](../rls_performance_analysis.md): Analysis of Row Level Security performance optimization attempts and current Supabase warnings
+-   [**JULY_2025_UX_IMPROVEMENTS.md**](JULY_2025_UX_IMPROVEMENTS.md): Comprehensive documentation of UX simplification and file upload implementation
 
 ## AI Agent Documentation
 
@@ -45,8 +46,15 @@ This document serves as the central index for all project documentation.
 - **Established** clear separation between human conceptual docs and AI operational instructions
 - **Documented** strategy in `DOCUMENTATION_STRATEGY.md` for future maintenance
 
+### Phase 3: UX Improvements Documentation (July 2025) ✅
+- **Created** `JULY_2025_UX_IMPROVEMENTS.md` documenting major workflow simplification
+- **Updated** `WORKFLOWS.md` Mermaid diagrams to reflect Analysis Type removal and file upload
+- **Enhanced** `AI_KNOWLEDGE_GRAPH.yaml` with UX simplification patterns and lessons learned
+- **Integrated** file upload architecture and implementation details
+
 ### Benefits
 - **Human docs** focus on understanding, rationale, and strategic context
 - **AI docs** provide structured operational instructions and automation workflows  
 - **Knowledge graphs** can directly ingest YAML for semantic search and agent coordination
 - **Maintenance efficiency** through appropriate format for each audience type
+- **Living documentation** captures real implementation lessons and user feedback integration

@@ -69,7 +69,8 @@
       "Bash(vercel list:*)",
       "mcp__supabase__search_docs",
       "Bash(curl:*)",
-      "WebFetch(domain:supabase.com)"
+      "WebFetch(domain:supabase.com)",
+      "Bash(git ls-tree:*)"
     ],
     "deny": []
   },

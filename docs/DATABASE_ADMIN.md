@@ -2,6 +2,13 @@
 
 This guide provides comprehensive database administration tools and workflows for the NEaR project using proper Supabase tools instead of MCP integrations.
 
+**Last Updated**: January 19, 2025
+
+## Important Files
+- **Main Migration**: `supabase_migration_20250119.sql` - Complete schema with fixed RLS
+- **RLS Fixes Only**: `consolidated_rls_fixes.sql` - Apply to fix infinite recursion
+- **Documentation**: See [SQL_FILES_DOCUMENTATION.md](../SQL_FILES_DOCUMENTATION.md) for all SQL files
+
 ## Setup: Supabase CLI
 
 ### Installation
@@ -26,6 +33,12 @@ export SUPABASE_URL="https://xorjwzniopfuosadwvfu.supabase.co"
 ## Database Inspection Tools
 
 ### Performance Monitoring
+
+**Current Issues Identified (January 2025):**
+- 16 Auth RLS warnings - `auth.uid()` re-evaluation
+- 44 Multiple permissive policy warnings - Duplicate policies
+- 3 Missing foreign key indexes - Fixed in migration
+- 2 Unused indexes - Can be removed
 
 #### 1. Cache Efficiency Analysis
 ```bash

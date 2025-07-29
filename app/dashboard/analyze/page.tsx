@@ -357,7 +357,7 @@ export default function AnalyzePage() {
   // Auto-select primary company type when available types change
   useEffect(() => {
     if (state.selectedCompany && state.availableCompanyTypes.length > 0 && !state.selectedCompanyType) {
-      const primaryType = state.availableCompanyTypes.find(ct => ct.id === state.selectedCompany.primary_company_type_id)
+      const primaryType = state.availableCompanyTypes.find(ct => ct.id === state.selectedCompany!.primary_company_type_id)
       if (primaryType) {
         console.log('useEffect: Auto-selecting primary type:', primaryType.name)
         dispatch({ type: 'SET_SELECTED_COMPANY_TYPE', payload: primaryType })
@@ -1095,7 +1095,7 @@ const { data: sessionData } = await supabase.auth.getSession()
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       Analysis Type
-                      {selectedCompanyType && selectedCompany && selectedCompanyType.id === selectedCompany.primary_company_type_id && (
+                      {state.selectedCompanyType && state.selectedCompany && state.selectedCompanyType.id === state.selectedCompany.primary_company_type_id && (
                         <span className="text-xs text-green-600 ml-2">(Auto-selected)</span>
                       )}
                     </label>
@@ -1117,7 +1117,7 @@ const { data: sessionData } = await supabase.auth.getSession()
                       {state.availableCompanyTypes.map((type) => (
                         <option key={type.id} value={type.id}>
                           {type.name}
-                          {selectedCompany && type.id === selectedCompany.primary_company_type_id ? ' (Primary)' : ''}
+                          {state.selectedCompany && type.id === state.selectedCompany.primary_company_type_id ? ' (Primary)' : ''}
                         </option>
                       ))}
                     </select>

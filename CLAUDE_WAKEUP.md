@@ -165,12 +165,39 @@ supabase db inspect seq-scans --project-ref $SUPABASE_PROJECT_REF
 5. **Auto-Deploy**: Vercel deploys automatically from main branch
 6. **Health Check**: Verify authentication and basic functionality
 
+## 🎯 RECENT UX IMPROVEMENTS (July 2025)
+
+**Major Changes**: Analysis Type workflow simplification + File upload implementation
+
+### Analysis Type Simplification
+- ❌ **Removed**: Analysis Type dropdown (caused user friction)
+- ✅ **Automated**: Uses `company.primary_company_type_id` automatically
+- 📈 **Result**: 20% reduction in user workflow steps
+
+### File Upload System
+- 📁 **Formats**: PDF, DOC, DOCX, TXT (10MB limit)
+- 🔧 **Libraries**: `pdf-parse`, `mammoth` for server-side processing
+- 🎨 **UX**: Drag-and-drop with visual feedback
+- 🔗 **Integration**: Supplements existing textarea (progressive enhancement)
+
+**Key Files**:
+- `components/FileUpload.tsx` - React component
+- `app/api/extract-text/route.ts` - Text extraction API
+- `docs/JULY_2025_UX_IMPROVEMENTS.md` - Complete documentation
+
+### UX Lessons Learned
+1. **Eliminate steps that don't add user value** - Technical requirements ≠ User needs
+2. **Progressive enhancement** - Add capabilities, don't replace workflows
+3. **Leverage existing data relationships** - Simplify state management
+4. **Server-side file processing** - Security and consistency over client convenience
+
 ## 📚 QUICK REFERENCE LINKS
 
 - **Database Linter**: https://supabase.com/dashboard/project/xorjwzniopfuosadwvfu/database/linter
 - **Documentation**: See `docs/DOCUMENTATION_INDEX.md`
 - **Troubleshooting**: See `docs/TROUBLESHOOTING.md`
 - **DB Admin Guide**: See `docs/DATABASE_ADMIN.md`
+- **UX Improvements**: See `docs/JULY_2025_UX_IMPROVEMENTS.md`
 
 ---
 

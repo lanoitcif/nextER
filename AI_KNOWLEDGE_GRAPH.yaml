@@ -234,3 +234,46 @@ knowledge_graph_tags:
   - "vercel-deployment"
   - "ai-agent-workflows"
   - "production-critical"
+  - "ux-simplification"
+  - "file-upload-processing"
+  - "state-management-optimization"
+
+recent_improvements:
+  july_2025_ux_updates:
+    summary: "Major workflow simplification and file upload implementation"
+    changes:
+      - name: "Analysis Type Dropdown Removal"
+        impact: "20% workflow step reduction"
+        technical: "Eliminated complex state management, used company.primary_company_type_id"
+        files_modified: ["app/dashboard/analyze/page.tsx"]
+      - name: "File Upload System"
+        impact: "Enhanced accessibility and user convenience" 
+        technical: "PDF/DOC/TXT processing via pdf-parse and mammoth libraries"
+        files_created: ["components/FileUpload.tsx", "app/api/extract-text/route.ts"]
+      - name: "State Management Simplification"
+        impact: "Reduced complexity and improved type safety"
+        technical: "Removed availableCompanyTypes and selectedCompanyType state"
+        benefits: ["Fewer null checks", "Simplified validation logic", "Better performance"]
+    
+    lessons_learned:
+      - "Complex state can often be simplified by leveraging existing data relationships"
+      - "Progressive enhancement (supplement, don't replace) provides better UX than complete rewrites"
+      - "User feedback indicating friction points often reveals unnecessary technical complexity"
+      - "File upload requires server-side processing for security and consistency"
+      - "Eliminating steps that don't add user value improves satisfaction more than feature additions"
+
+workflow_patterns:
+  ux_simplification:
+    trigger: "User reports difficulty with multi-step workflows"
+    investigation: "Analyze whether each step provides genuine user value vs technical convenience"
+    solution: "Eliminate or automate steps that can be derived from existing data"
+    example: "Analysis Type selection → automatic based on company data"
+    
+  file_upload_architecture:
+    pattern: "Client upload → Server processing → Text extraction → Client callback"
+    security: "Always process files server-side to prevent client-side vulnerabilities"
+    libraries: 
+      pdf: "pdf-parse for reliable PDF text extraction"
+      word: "mammoth for DOCX processing with good formatting preservation"
+    size_limits: "10MB default balances functionality vs performance"
+    error_handling: "Graceful degradation with clear user messaging for unsupported formats"

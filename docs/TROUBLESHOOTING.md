@@ -308,6 +308,28 @@ This guide provides solutions to common issues encountered in the NEaR (Next Ear
 3. **Run migrations** - Apply any pending schema changes
 4. **Verify connection strings** - Check `.env.local` values
 
+### RLS Infinite Recursion Error (FIXED January 2025)
+
+**Symptoms:**
+- 500 Internal Server Error on login
+- Error: "infinite recursion detected in policy for relation 'user_profiles'"
+- Complete authentication failure
+
+**Causes:**
+- Admin RLS policies querying same table creating circular reference
+- Duplicate RLS policies causing conflicts
+
+**Solutions:**
+1. **Apply consolidated RLS fixes** - Use `consolidated_rls_fixes.sql`
+2. **Use EXISTS subqueries** - Avoid direct selects in admin policies
+3. **Remove duplicate policies** - Each action should have only one policy
+4. **Never use** `(SELECT auth.uid())` optimization - incompatible with Supabase
+
+**Technical Details:**
+- Fixed by rewriting admin policies to use EXISTS subqueries
+- Removed all duplicate policies across tables
+- See [SQL_FILES_DOCUMENTATION.md](../SQL_FILES_DOCUMENTATION.md) for details
+
 ### Slow Query Performance
 
 **Symptoms:**
@@ -405,7 +427,8 @@ If these solutions don't resolve your issue:
 
 ---
 
-**Last Updated**: July 19, 2025
+**Last Updated**: January 19, 2025
 
-For development-specific issues, see [CLAUDE_WAKEUP.md](./CLAUDE_WAKEUP.md)
-For API-specific issues, see [API.md](./docs/API.md)
+For development-specific issues, see [CLAUDE_WAKEUP.md](../CLAUDE_WAKEUP.md)
+For API-specific issues, see [API.md](./API.md)
+For SQL and database issues, see [SQL_FILES_DOCUMENTATION.md](../SQL_FILES_DOCUMENTATION.md)
