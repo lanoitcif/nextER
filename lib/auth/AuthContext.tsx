@@ -57,12 +57,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   const refreshSession = async (showLoading = true) => {
-    if (showLoading) {
+    // Only show loading if explicitly requested and we don't have a current session
+    if (showLoading && !session) {
       setLoading(true)
     }
     try {
       console.log('🔄 Refreshing session...')
-      const { data: { session }, error } = await supabase.auth.getSession()
+      const { data: { session: newSession }, error } = await supabase.auth.getSession()
       
       if (error) {
         console.error('❌ Session refresh error:', error)
@@ -74,14 +75,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
-      console.log('✅ Session refreshed:', session ? 'authenticated' : 'anonymous')
-      setSession(session)
-      setUser(session?.user ?? null)
+      // Only update state if session actually changed
+      if (newSession?.access_token !== session?.access_token) {
+        console.log('✅ Session refreshed:', newSession ? 'authenticated' : 'anonymous')
+        setSession(newSession)
+        setUser(newSession?.user ?? null)
 
-      if (session?.user) {
-        await fetchUserProfile(session.user.id)
+        if (newSession?.user) {
+          await fetchUserProfile(newSession.user.id)
+        } else {
+          setProfile(null)
+        }
       } else {
-        setProfile(null)
+        console.log('✅ Session unchanged, skipping state update')
       }
     } catch (error) {
       console.error('💥 Critical error refreshing session:', error)
@@ -90,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setProfile(null)
     } finally {
-      if (showLoading) {
+      if (showLoading && loading) {
         setLoading(false)
       }
     }
@@ -102,18 +108,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setLoading(true) // Ensure loading state is active during auth changes
-        setSession(session)
-        setUser(session?.user ?? null)
+      async (event, newSession) => {
+        console.log('🔔 Auth state change:', event)
         
-        if (session?.user) {
-          await fetchUserProfile(session.user.id)
+        // Only show loading for significant auth events
+        const shouldShowLoading = ['SIGNED_IN', 'SIGNED_OUT', 'USER_DELETED'].includes(event)
+        
+        if (shouldShowLoading) {
+          setLoading(true)
+        }
+        
+        setSession(newSession)
+        setUser(newSession?.user ?? null)
+        
+        if (newSession?.user) {
+          await fetchUserProfile(newSession.user.id)
         } else {
           setProfile(null)
         }
         
-        setLoading(false)
+        if (shouldShowLoading) {
+          setLoading(false)
+        }
       }
     )
 

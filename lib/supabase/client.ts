@@ -28,6 +28,8 @@ export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true,
     persistSession: true,
   },
+  // Disable multiTab to prevent auth state conflicts between tabs
+  multiTab: false,
 })
 
 // Server-side Supabase client with service role (for API routes)
