@@ -1,19 +1,23 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { LiveTranscriptionEvent } from '@deepgram/sdk'
-
-type TranscriptSource = {
-  type: 'final' | 'interim'
-  text: string
-}
-
 import { useAuth, isAdmin } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 
 type TranscriptSource = {
   type: 'final' | 'interim'
   text: string
+}
+
+// LiveTranscriptionEvent type for OpenAI implementation
+type LiveTranscriptionEvent = {
+  type: string
+  channel?: {
+    alternatives?: Array<{
+      transcript?: string
+    }>
+  }
+  is_final?: boolean
 }
 
 export default function LiveTranscriptionPage() {
@@ -178,7 +182,7 @@ export default function LiveTranscriptionPage() {
         if (line.startsWith('data: ')) {
           try {
             const json = JSON.parse(line.substring(6)) as LiveTranscriptionEvent
-            const text = json.channel.alternatives[0].transcript
+            const text = json.channel?.alternatives?.[0]?.transcript
             if (text) {
               if (json.is_final) {
                 fullTranscript += text + ' '

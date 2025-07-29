@@ -79,7 +79,9 @@
       "Bash(gh pr close:*)",
       "Bash(npx vercel:*)",
       "WebFetch(domain:lanoitcif.com)",
-      "mcp__supabase__get_advisors"
+      "mcp__supabase__get_advisors",
+      "Bash(npm uninstall:*)",
+      "Bash(mv:*)"
     ],
     "deny": []
   },
