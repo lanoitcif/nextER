@@ -70,7 +70,9 @@
       "mcp__supabase__search_docs",
       "Bash(curl:*)",
       "WebFetch(domain:supabase.com)",
-      "Bash(git ls-tree:*)"
+      "Bash(git ls-tree:*)",
+      "Bash(git rm:*)",
+      "Bash(git reset:*)"
     ],
     "deny": []
   },

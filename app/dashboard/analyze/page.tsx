@@ -791,113 +791,247 @@ const { data: sessionData } = await supabase.auth.getSession()
     if (!state.result) return
 
     try {
+      // Dynamically import html-docx-js for client-side only
+      const htmlDocx = (await import('html-docx-js/dist/html-docx' as any)) as any
+      
       // Convert markdown to HTML first
       const markdownHtml = convertMarkdownToHtml(state.result)
       
-      // Create a blob with Word document format
+      // Create HTML content with proper Word formatting
       const htmlContent = `
         <!DOCTYPE html>
-        <html>
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
         <head>
           <meta charset="utf-8">
           <title>Transcript Analysis - ${state.selectedCompany?.ticker}</title>
+          <!--[if gte mso 9]>
+          <xml>
+            <w:WordDocument>
+              <w:View>Print</w:View>
+              <w:Zoom>90</w:Zoom>
+              <w:DoNotOptimizeForBrowser/>
+            </w:WordDocument>
+          </xml>
+          <![endif]-->
           <style>
+            @page {
+              size: 8.5in 11.0in;
+              margin: 1.0in 1.0in 1.0in 1.0in;
+              mso-header-margin: .5in;
+              mso-footer-margin: .5in;
+              mso-paper-source: 0;
+            }
             body { 
-              font-family: 'Times New Roman', serif; 
+              font-family: 'Calibri', 'Arial', sans-serif; 
+              font-size: 11pt;
               line-height: 1.6; 
-              margin: 1in; 
               color: #333;
+              mso-element: main-text;
             }
-            h1, h2, h3, h4, h5, h6 { 
+            h1 { 
+              font-size: 20pt; 
+              font-weight: bold;
+              color: #1a5490;
+              margin-top: 24pt;
+              margin-bottom: 12pt;
+              page-break-after: avoid;
+              mso-outline-level: 1;
+            }
+            h2 { 
+              font-size: 16pt; 
+              font-weight: bold;
+              color: #2e74b5;
+              margin-top: 18pt;
+              margin-bottom: 12pt;
+              page-break-after: avoid;
+              mso-outline-level: 2;
+            }
+            h3 { 
+              font-size: 14pt; 
+              font-weight: bold;
+              color: #2e74b5;
+              margin-top: 14pt;
+              margin-bottom: 10pt;
+              page-break-after: avoid;
+              mso-outline-level: 3;
+            }
+            h4 { 
+              font-size: 12pt; 
+              font-weight: bold;
+              color: #2e74b5;
+              margin-top: 12pt;
+              margin-bottom: 8pt;
+              mso-outline-level: 4;
+            }
+            p { 
+              margin-top: 0pt;
+              margin-bottom: 10pt; 
+              text-align: justify;
+              text-justify: inter-word;
+            }
+            ul, ol { 
+              margin-bottom: 10pt; 
+              margin-left: 0.5in;
+            }
+            li { 
+              margin-bottom: 6pt; 
+              mso-special-format: bullet;
+            }
+            strong { 
+              font-weight: bold;
               color: #2c3e50; 
-              margin-top: 1.5em; 
-              margin-bottom: 0.5em;
             }
-            h1 { font-size: 24px; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
-            h2 { font-size: 20px; color: #34495e; }
-            h3 { font-size: 18px; color: #34495e; }
-            p { margin-bottom: 1em; text-align: justify; }
-            ul, ol { margin-bottom: 1em; padding-left: 30px; }
-            li { margin-bottom: 0.5em; }
-            strong { color: #2c3e50; }
-            em { color: #7f8c8d; }
+            em { 
+              font-style: italic;
+              color: #555; 
+            }
             blockquote { 
-              border-left: 4px solid #3498db; 
-              padding-left: 20px; 
-              margin: 1em 0; 
-              background-color: #f8f9fa;
-              padding: 15px 20px;
+              border-left: 3pt solid #3498db; 
+              padding-left: 12pt; 
+              margin-left: 0.25in;
+              margin-right: 0.25in;
+              margin-top: 12pt;
+              margin-bottom: 12pt;
+              font-style: italic;
+              color: #555;
             }
             code { 
-              background-color: #f1f2f6; 
-              padding: 2px 6px; 
-              border-radius: 3px; 
               font-family: 'Courier New', monospace;
+              font-size: 10pt;
+              background-color: #f5f5f5; 
+              padding: 2pt 4pt; 
+              border: 1pt solid #ddd;
+            }
+            pre {
+              font-family: 'Courier New', monospace;
+              font-size: 10pt;
+              background-color: #f5f5f5;
+              border: 1pt solid #ddd;
+              padding: 12pt;
+              margin: 12pt 0;
+              white-space: pre-wrap;
+              page-break-inside: avoid;
+            }
+            table {
+              border-collapse: collapse;
+              width: 100%;
+              margin: 12pt 0;
+              page-break-inside: auto;
+            }
+            table, th, td {
+              border: 1pt solid #ddd;
+            }
+            th {
+              background-color: #f2f2f2;
+              font-weight: bold;
+              padding: 8pt;
+              text-align: left;
+            }
+            td {
+              padding: 8pt;
+            }
+            tr:nth-child(even) {
+              background-color: #f9f9f9;
             }
             .header { 
               text-align: center; 
-              margin-bottom: 2em; 
-              border-bottom: 1px solid #bdc3c7; 
-              padding-bottom: 1em;
+              margin-bottom: 24pt; 
+              border-bottom: 2pt solid #1a5490; 
+              padding-bottom: 12pt;
+            }
+            .header h1 {
+              font-size: 24pt;
+              margin-bottom: 12pt;
+            }
+            .header p {
+              text-align: center;
+              margin-bottom: 6pt;
             }
             .metadata { 
-              background-color: #ecf0f1; 
-              padding: 15px; 
-              border-radius: 5px; 
-              margin-bottom: 2em;
-              font-size: 14px;
+              background-color: #f0f4f8; 
+              border: 1pt solid #d0d7de;
+              padding: 12pt; 
+              margin-bottom: 24pt;
+              page-break-inside: avoid;
+            }
+            .metadata p {
+              margin-bottom: 6pt;
+            }
+            .content {
+              margin-top: 24pt;
             }
             .footer {
-              margin-top: 3em;
-              padding-top: 1em;
-              border-top: 1px solid #bdc3c7;
-              font-size: 12px;
-              color: #7f8c8d;
+              margin-top: 36pt;
+              padding-top: 12pt;
+              border-top: 1pt solid #ddd;
               text-align: center;
+              font-size: 10pt;
+              color: #666;
+              page-break-before: avoid;
             }
           </style>
         </head>
         <body>
           <div class="header">
             <h1>Transcript Analysis Report</h1>
-            <p><strong>Company:</strong> ${state.selectedCompany?.ticker} - ${state.selectedCompany?.name}</p>
-            <p><strong>Analysis Type:</strong> ${state.selectedCompanyType?.name}</p>
+            <p><strong>Company:</strong> ${state.selectedCompany?.ticker || 'N/A'} - ${state.selectedCompany?.name || 'N/A'}</p>
+            <p><strong>Analysis Type:</strong> ${state.selectedCompanyType?.name || 'N/A'}</p>
             <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
           </div>
           
-          ${state.analysisMetadata && `
+          ${state.analysisMetadata ? `
             <div class="metadata">
-              <strong>Analysis Details:</strong><br>
-              Provider: ${state.analysisMetadata.provider}<br>
-              Model: ${state.analysisMetadata.model}<br>
-              ${state.analysisMetadata.usage ? `Tokens Used: ${state.analysisMetadata.usage.totalTokens?.toLocaleString() || 'N/A'}` : ''}
+              <p><strong>Analysis Details:</strong></p>
+              <p>Provider: ${state.analysisMetadata.provider}</p>
+              <p>Model: ${state.analysisMetadata.model}</p>
+              ${state.analysisMetadata.usage ? `<p>Tokens Used: ${state.analysisMetadata.usage.totalTokens?.toLocaleString() || 'N/A'}</p>` : ''}
             </div>
-          `}
+          ` : ''}
           
           <div class="content">
             ${markdownHtml}
           </div>
           
           <div class="footer">
-            Generated by LLM Transcript Analyzer
+            <p>Generated by NEaR - Next Earnings Release Analysis Platform</p>
+            <p>${new Date().toLocaleDateString()}</p>
           </div>
         </body>
         </html>
       `
 
-      const blob = new Blob([htmlContent], { 
-        type: 'text/html' 
+      // Convert HTML to Word document blob
+      const docxBlob = htmlDocx.asBlob(htmlContent, {
+        orientation: 'portrait',
+        margins: { top: 1440, right: 1440, bottom: 1440, left: 1440 } // 1 inch margins (1440 twips)
       })
-      const url = URL.createObjectURL(blob)
+      
+      // Create download link
+      const url = URL.createObjectURL(docxBlob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `analysis-${state.selectedCompany?.ticker}-${new Date().toISOString().split('T')[0]}.html`
+      link.download = `analysis-${state.selectedCompany?.ticker || 'report'}-${new Date().toISOString().split('T')[0]}.docx`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
     } catch (error) {
       console.error('Failed to download Word document:', error)
+      // Fallback to HTML download if Word conversion fails
+      try {
+        const markdownHtml = convertMarkdownToHtml(state.result)
+        const htmlBlob = new Blob([markdownHtml], { type: 'text/html' })
+        const url = URL.createObjectURL(htmlBlob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `analysis-${state.selectedCompany?.ticker || 'report'}-${new Date().toISOString().split('T')[0]}.html`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+      } catch (fallbackError) {
+        console.error('Fallback download also failed:', fallbackError)
+      }
     }
   }
 

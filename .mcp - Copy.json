@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "fetch": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp_server_fetch"
+      ]
+    },
+"supabase": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--project-ref=xorjwzniopfuosadwvfu",
+        "--access-token=sbp_8aa001018272bef7a0b76fba0f2c8da6efb12d0f"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "sbp_8aa001018272bef7a0b76fba0f2c8da6efb12d0f"
+      }
+    }
+  }
+}
