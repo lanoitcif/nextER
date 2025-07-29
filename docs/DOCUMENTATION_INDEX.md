@@ -9,6 +9,7 @@ This document serves as the central index for all project documentation.
 -   [**README.md**](../README.md): Project overview, features, and setup instructions
 -   [**GUIDE.md**](GUIDE.md): Comprehensive developer guide covering system architecture, development, deployment, design system, and collaboration framework
 -   [**PROJECT.md**](PROJECT.md): Project management documentation, including status, development history, and strategic roadmap
+-   [**IMPLEMENTATION_PLAN.md**](IMPLEMENTATION_PLAN.md): Detailed, actionable steps for the project's next development phase.
 -   [**API.md**](API.md): Detailed documentation for all API endpoints
 
 ## Specialized Documentation
