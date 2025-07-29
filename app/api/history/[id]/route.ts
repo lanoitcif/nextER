@@ -5,11 +5,14 @@ import { handleError } from '@/lib/api/errors'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   const cookieStore = await cookies()
   const supabase = createClient(cookieStore)
-  const { id } = await params
+  
+  // Handle both Promise and direct params for compatibility
+  const resolvedParams = await Promise.resolve(params)
+  const { id } = resolvedParams
   
   const authHeader = request.headers.get('authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
