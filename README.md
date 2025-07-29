@@ -349,7 +349,7 @@ MIT License - see LICENSE file for details.
 ---
 
 **Status**: Production Ready - Core functionality working, analyst auto-selection implemented
-**Last Updated**: 2025-07-28 (Authentication, session management & UI fixes deployed)
+**Last Updated**: 2025-07-29 (Word export, TypeScript fixes, and build improvements deployed)
 **Production URL**: https://lanoitcif.com
 **Build Status**: ✅ SUCCESSFUL
 
@@ -397,6 +397,9 @@ MIT License - see LICENSE file for details.
 ### Latest Features Added (July 29, 2025)
 - ✅ **Transcript Feedback System**: Users can rate analyses with thumbs up/down buttons
 - ✅ **Analysis History**: Comprehensive history page with search, filtering, and detailed views
+- ✅ **Word Document Export**: Professional .docx export with proper formatting for tables, headings, and lists
+- ✅ **File Parsing Support**: Added PDF and DOCX file parsing capabilities with pdf-parse and mammoth libraries
+- ✅ **Build Optimizations**: Fixed TypeScript errors and improved build process
 - ✅ **View Analysis Modal**: Fixed critical middleware interference - modal now works properly
 - ✅ **Middleware Fix**: Excluded API routes to prevent response corruption
 - ✅ **Performance Optimization**: Database indexes for efficient history queries
