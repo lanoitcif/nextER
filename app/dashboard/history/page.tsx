@@ -43,6 +43,29 @@ interface Analysis {
   has_review: boolean
 }
 
+interface DetailedAnalysis {
+  id: string
+  created_at: string
+  provider: string
+  model: string
+  review_provider?: string
+  review_model?: string
+  feedback: number | null
+  transcript: string
+  analysis_result: string
+  review_result?: string
+  company: {
+    id: string
+    ticker: string
+    name: string
+  }
+  company_type: {
+    id: string
+    name: string
+    description?: string
+  } | null
+}
+
 interface HistoryResponse {
   analyses: Analysis[]
   nextCursor: string | null
@@ -60,7 +83,7 @@ export default function HistoryPage() {
   const [dateFilter, setDateFilter] = useState('')
   const [nextCursor, setNextCursor] = useState<string | null>(null)
   const [hasMore, setHasMore] = useState(false)
-  const [selectedAnalysis, setSelectedAnalysis] = useState<Analysis | null>(null)
+  const [selectedAnalysis, setSelectedAnalysis] = useState<DetailedAnalysis | null>(null)
   const [showModal, setShowModal] = useState(false)
 
   useEffect(() => {
