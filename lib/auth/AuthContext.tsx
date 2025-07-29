@@ -55,10 +55,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isPageVisible, setIsPageVisible] = useState(true)
 
-  const refreshSession = async (showLoading = true) => {
-    // Only show loading if explicitly requested and we don't have a current session
-    if (showLoading && !session) {
+  // Helper function to compare sessions more thoroughly
+  const sessionsAreEqual = (session1: Session | null, session2: Session | null): boolean => {
+    if (!session1 && !session2) return true
+    if (!session1 || !session2) return false
+    
+    return (
+      session1.access_token === session2.access_token &&
+      session1.user?.id === session2.user?.id &&
+      session1.expires_at === session2.expires_at
+    )
+  }
+
+  const refreshSession = async (showLoading = true, skipLoadingOnInvisible = true) => {
+    // Don't show loading if page is not visible and skipLoadingOnInvisible is true
+    const shouldSkipLoading = skipLoadingOnInvisible && !isPageVisible
+    
+    // Only show loading if explicitly requested, we don't have a current session, and page is visible
+    if (showLoading && !session && !shouldSkipLoading) {
       setLoading(true)
     }
     try {
@@ -76,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Only update state if session actually changed
-      if (newSession?.access_token !== session?.access_token) {
+      if (!sessionsAreEqual(newSession, session)) {
         console.log('✅ Session refreshed:', newSession ? 'authenticated' : 'anonymous')
         setSession(newSession)
         setUser(newSession?.user ?? null)
@@ -96,35 +112,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setProfile(null)
     } finally {
-      if (showLoading && loading) {
+      // Only clear loading if we set it or if we're doing initial load
+      if ((showLoading && !shouldSkipLoading) || loading) {
         setLoading(false)
       }
     }
   }
 
   useEffect(() => {
+    // Track page visibility to prevent loading states on alt-tab
+    const handleVisibilityChange = () => {
+      const visible = document.visibilityState === 'visible'
+      setIsPageVisible(visible)
+      console.log('👁️ Page visibility changed:', visible ? 'visible' : 'hidden')
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
     // Get initial session
     refreshSession()
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
-        console.log('🔔 Auth state change:', event)
+        console.log('🔔 Auth state change:', event, 'Page visible:', isPageVisible)
         
-        // Only show loading for significant auth events
-        const shouldShowLoading = ['SIGNED_IN', 'SIGNED_OUT', 'USER_DELETED'].includes(event)
+        // Only show loading for user-initiated auth events, not background refreshes
+        const isUserInitiatedEvent = ['SIGNED_IN', 'SIGNED_OUT', 'USER_DELETED'].includes(event)
+        const isBackgroundEvent = ['TOKEN_REFRESHED', 'USER_UPDATED'].includes(event)
+        
+        // Skip loading for background events or when page is not visible
+        const shouldShowLoading = isUserInitiatedEvent && isPageVisible && !isBackgroundEvent
         
         if (shouldShowLoading) {
           setLoading(true)
         }
         
-        setSession(newSession)
-        setUser(newSession?.user ?? null)
-        
-        if (newSession?.user) {
-          await fetchUserProfile(newSession.user.id)
+        // Only update state if session actually changed
+        if (!sessionsAreEqual(newSession, session)) {
+          setSession(newSession)
+          setUser(newSession?.user ?? null)
+          
+          if (newSession?.user) {
+            await fetchUserProfile(newSession.user.id)
+          } else {
+            setProfile(null)
+          }
         } else {
-          setProfile(null)
+          console.log('✅ Auth event received but session unchanged, skipping state update')
         }
         
         if (shouldShowLoading) {
@@ -133,8 +168,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     )
 
-    return () => subscription.unsubscribe()
-  }, [])
+    return () => {
+      subscription.unsubscribe()
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [session, isPageVisible])
 
   const fetchUserProfile = async (userId: string) => {
     try {
