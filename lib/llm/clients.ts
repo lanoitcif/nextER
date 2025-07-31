@@ -184,7 +184,7 @@ export class GoogleClient extends LLMClient {
   }
   
   getDefaultModel(): string {
-    return 'gemini-2.5-flash' // Updated to latest cost-effective model
+    return 'gemini-2.5-pro' // Updated to latest cost-effective model
   }
   
   async generateResponse(request: LLMRequest): Promise<LLMResponse> {
