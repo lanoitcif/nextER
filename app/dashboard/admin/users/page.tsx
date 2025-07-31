@@ -5,13 +5,16 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Edit } from 'lucide-react'
+import UserSettingsForm from '@/components/admin/UserSettingsForm'
 
 interface UserRow {
   id: string
   email: string
   full_name: string | null
   access_level: 'basic' | 'advanced' | 'admin'
+  default_provider: string | null
+  default_model: string | null
 }
 
 export default function AdminUsersPage() {
@@ -21,6 +24,7 @@ export default function AdminUsersPage() {
   const [updating, setUpdating] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [selectedUser, setSelectedUser] = useState<UserRow | null>(null)
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin(profile))) {
@@ -46,27 +50,11 @@ export default function AdminUsersPage() {
     }
   }
 
-  const handleChange = async (id: string, level: string) => {
-    setUpdating(true)
-    setError('')
-    const token = (await supabase.auth.getSession()).data.session?.access_token
-    const res = await fetch('/api/admin/users', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ userId: id, accessLevel: level })
-    })
-    if (res.ok) {
-      setSuccess('User updated')
-      fetchUsers()
-      setTimeout(() => setSuccess(''), 3000)
-    } else {
-      const r = await res.json()
-      setError(r.error || 'Failed to update')
-    }
-    setUpdating(false)
+  const handleSave = () => {
+    setSelectedUser(null)
+    fetchUsers()
+    setSuccess('User updated successfully')
+    setTimeout(() => setSuccess(''), 3000)
   }
 
   if (!user || loading) {
@@ -102,23 +90,51 @@ export default function AdminUsersPage() {
                   <div>
                     <div className="text-cream-glow">{u.email}</div>
                     <div className="text-cream-glow/70 text-sm">{u.full_name}</div>
+                    <div className="text-xs text-teal-mist mt-1">
+                      LLM: {u.default_provider || 'System'} / {u.default_model || 'Default'}
+                    </div>
                   </div>
-                  <select
-                    value={u.access_level}
-                    onChange={e => handleChange(u.id, e.target.value)}
-                    disabled={updating}
-                    className="bg-charcoal border border-grape-static text-cream-glow p-2 rounded-md"
-                  >
-                    <option value="basic">basic</option>
-                    <option value="advanced">advanced</option>
-                    <option value="admin">admin</option>
-                  </select>
+                  <div className="flex items-center space-x-4">
+                    <select
+                      value={u.access_level}
+                      onChange={e => handleChange(u.id, e.target.value)}
+                      disabled={updating}
+                      className="bg-charcoal border border-grape-static text-cream-glow p-2 rounded-md"
+                    >
+                      <option value="basic">basic</option>
+                      <option value="advanced">advanced</option>
+                      <option value="admin">admin</option>
+                    </select>
+                    <button onClick={() => setSelectedUser(u)} className="btn-secondary">
+                      <Edit className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
       </main>
+
+      {selectedUser && (
+        <UserSettingsForm
+          user={selectedUser}
+          onSave={handleSave}
+          onCancel={() => setSelectedUser(null)}
+        />
+      )}
     </div>
   )
+}
+
+async function handleChange(id: string, level: string) {
+  const token = (await supabase.auth.getSession()).data.session?.access_token
+  await fetch('/api/admin/users', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ userId: id, accessLevel: level })
+  })
 }
