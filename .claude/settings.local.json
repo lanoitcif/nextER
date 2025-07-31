@@ -81,7 +81,10 @@
       "WebFetch(domain:lanoitcif.com)",
       "mcp__supabase__get_advisors",
       "Bash(npm uninstall:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(npm test:*)",
+      "Bash(node:*)",
+      "Bash(DEEPGRAM_API_KEY=24c25432b8aa2abe846c0500baefb8008421976c node test-api-simple.js)"
     ],
     "deny": []
   },

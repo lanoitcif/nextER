@@ -8,6 +8,55 @@ import { handleError } from '@/lib/api/errors'
 
 export const maxDuration = 300;
 
+import { findOrCreateCommenter, insertQACommentary } from '@/lib/db/actions'
+
+async function processAndStoreQA(
+  analysisResult: string,
+  transcriptId: string,
+  companyId: string
+) {
+  const qaRegex = /\|(.*?)\|/g
+  const matches = analysisResult.matchAll(qaRegex)
+
+  // Skip the header row
+  let next = matches.next()
+  if (next.done) return // No matches
+
+  next = matches.next()
+  if (next.done) return // No Q&A data
+
+  for (const match of matches) {
+    const columns = match[1].split('|').map(s => s.trim())
+    if (columns.length < 7) continue
+
+    const [
+      analyst,
+      firm,
+      questionTopic,
+      keyPoints,
+      quantitativeData,
+      managementResponse,
+      commenterName,
+    ] = columns
+
+    if (commenterName) {
+      const commenterId = await findOrCreateCommenter(commenterName, companyId)
+      if (commenterId) {
+        await insertQACommentary(
+          transcriptId,
+          commenterId,
+          analyst,
+          firm,
+          questionTopic,
+          keyPoints,
+          quantitativeData,
+          managementResponse
+        )
+      }
+    }
+  }
+}
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
   const requestId = crypto.randomUUID()
@@ -332,6 +381,8 @@ ${response.content}`
       if (transcriptError) {
         console.error(`[${requestId}] Error saving transcript:`, transcriptError)
         // Don't block the user from seeing the result, but log the error
+      } else if (transcriptRecord) {
+        await processAndStoreQA(response.content, transcriptRecord.id, companyId)
       }
 
       return NextResponse.json({
