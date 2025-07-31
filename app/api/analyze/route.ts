@@ -50,23 +50,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: validation.error.format() }, { status: 400 })
     }
 
-    const { transcript, companyId, companyTypeId, keySource, userApiKeyId, temporaryApiKey, provider, model, reviewAnalysis, reviewProvider, reviewModel } = validation.data
+    const { transcript, companyId, companyTypeId, keySource, userApiKeyId, temporaryApiKey, reviewAnalysis } = validation.data
 
     console.log(`[${requestId}] Request details:`, {
       transcriptLength: transcript?.length || 0,
       companyId,
       companyTypeId,
       keySource,
-      provider,
-      model,
       hasUserApiKeyId: !!userApiKeyId,
       hasTemporaryApiKey: !!temporaryApiKey
     })
 
-    // Get the user's profile to check permissions
+    // Get the user's profile to check permissions and get LLM settings
     const { data: userProfile, error: profileError } = await supabaseAdmin
       .from('user_profiles')
-      .select('*')
+      .select('*, default_provider, default_model')
       .eq('id', user.id)
       .single()
 
@@ -75,6 +73,33 @@ export async function POST(request: NextRequest) {
         { error: 'Failed to fetch user profile' },
         { status: 500 }
       )
+    }
+
+    // Determine LLM provider and model
+    let provider: SupportedProvider
+    let model: string
+
+    if (userProfile.default_provider && userProfile.default_model) {
+      provider = userProfile.default_provider as SupportedProvider
+      model = userProfile.default_model
+      console.log(`[${requestId}] Using user-specific LLM: ${provider} - ${model}`)
+    } else {
+      const { data: defaultSettings, error: settingsError } = await supabaseAdmin
+        .from('system_settings')
+        .select('value')
+        .eq('key', 'default_provider')
+        .single()
+
+      if (settingsError || !defaultSettings) {
+        return NextResponse.json(
+          { error: 'Failed to fetch default LLM settings' },
+          { status: 500 }
+        )
+      }
+      const defaultValue = defaultSettings.value as { provider: SupportedProvider, model: string }
+      provider = defaultValue.provider
+      model = defaultValue.model
+      console.log(`[${requestId}] Using system default LLM: ${provider} - ${model}`)
     }
 
     // Get the company type with its system prompt template
@@ -245,8 +270,8 @@ export async function POST(request: NextRequest) {
         })
 
       let reviewResponse: any
-      if (reviewAnalysis && reviewProvider && reviewModel) {
-        const reviewLlmClient = createLLMClient(reviewProvider, apiKey)
+      if (reviewAnalysis) {
+        const reviewLlmClient = createLLMClient(provider, apiKey)
         const reviewSystemPrompt = `You are a senior financial analyst tasked with reviewing an analysis from a junior analyst.
 The user will provide a transcript and the junior analyst's work.
 Your task is to review the original analysis for accuracy, missing information, and other notable exceptions.
@@ -262,18 +287,18 @@ ${response.content}`
         reviewResponse = await reviewLlmClient.generateResponse({
           systemPrompt: reviewSystemPrompt,
           userMessage: reviewUserMessage,
-          model: reviewModel || reviewLlmClient.getDefaultModel()
+          model: model || reviewLlmClient.getDefaultModel()
         })
 
         await supabaseAdmin
           .from('usage_logs')
           .insert({
             user_id: user.id,
-            provider: reviewProvider,
+            provider: provider,
             model: reviewResponse.model,
             prompt_id: null,
             token_count: reviewResponse.usage?.totalTokens || null,
-            cost_estimate: calculateCostEstimate(reviewProvider, reviewResponse.model, reviewResponse.usage?.totalTokens || 0),
+            cost_estimate: calculateCostEstimate(provider, reviewResponse.model, reviewResponse.usage?.totalTokens || 0),
             used_owner_key: usedOwnerKey
           })
       }
@@ -297,8 +322,8 @@ ${response.content}`
           review_result: reviewResponse ? reviewResponse.content : null,
           provider,
           model: response.model,
-          review_provider: reviewResponse ? reviewResponse.provider : null,
-          review_model: reviewResponse ? reviewResponse.model : null,
+          review_provider: reviewResponse ? provider : null,
+          review_model: reviewResponse ? model : null,
           feedback: 0
         })
         .select('id')
