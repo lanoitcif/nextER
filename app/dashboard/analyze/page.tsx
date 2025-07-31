@@ -1729,7 +1729,7 @@ xmlns="http://www.w3.org/TR/REC-html40">
                         </button>
                         <button
                           onClick={downloadAsWord}
-                          className="btn-primary text-sm px-3 py-1"
+                          className="btn-primary text-sm px-3 py-1 hidden lg:flex"
                           title="Download as Word document"
                         >
                           <Download className="h-4 w-4 mr-1" />
