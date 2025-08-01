@@ -89,6 +89,40 @@ This is the NextER (Next Earnings Release) project directory containing a sophis
 4. **Refactor analyze component** - Split 1845-line file into manageable pieces
 5. **Add comprehensive testing** - Currently only 5 test files exist
 
+## Planned Feature Development
+
+### System Prompt Management Enhancement (August 2025)
+**Status**: Technical specification completed
+**Documentation**: `/docs/SYSTEM_PROMPT_MANAGEMENT_TECHNICAL_SPEC.md`
+
+**Overview**: Complete overhaul of system prompt and placeholder management system to replace current textarea-based editing with sophisticated template management.
+
+**Key Features**:
+- **Template Library**: Hierarchical template system with inheritance (Global → Industry → Company)
+- **Visual Placeholder Builders**: Drag-drop interfaces for complex JSON configurations
+- **Organizational Hierarchy**: Industry-based categorization and bulk operations
+- **Template Analytics**: Usage tracking and performance metrics
+- **Advanced UI**: Modern, intuitive interface replacing current simple textarea editing
+
+**Technical Approach**:
+- Enhanced database schema with template versioning and inheritance
+- React-based visual builders for classification rules, key metrics, and validation rules
+- Template rendering service with caching and performance optimization
+- Comprehensive API with proper TypeScript interfaces and validation
+
+**Implementation Timeline**: 16-week phased approach
+- Phase 1 (Weeks 1-3): Database enhancement and API foundation
+- Phase 2 (Weeks 4-7): Core UI components development
+- Phase 3 (Weeks 8-10): Organizational hierarchy and assignment management
+- Phase 4 (Weeks 11-14): Advanced features and migration system
+- Phase 5 (Weeks 15-16): Testing, optimization, and deployment
+
+**Expected Benefits**:
+- 50% reduction in time to create/modify analyst types
+- 75% fewer analysis failures due to prompt errors
+- Template reusability across similar companies and industries
+- Non-technical admin users can manage complex configurations
+
 ## Architecture Notes
 - **Good Practices Observed**:
   - Consistent use of TypeScript

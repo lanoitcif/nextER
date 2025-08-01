@@ -16,6 +16,7 @@ This document serves as the central index for all project documentation.
 
 -   [**WORKFLOWS.md**](WORKFLOWS.md): Visual diagrams of user and system workflows
 -   [**COMPANY_ADMINISTRATION_WORKFLOW.md**](COMPANY_ADMINISTRATION_WORKFLOW.md): Complete workflow for managing companies, company types, and system prompts
+-   [**SYSTEM_PROMPT_MANAGEMENT_TECHNICAL_SPEC.md**](SYSTEM_PROMPT_MANAGEMENT_TECHNICAL_SPEC.md): Comprehensive technical specification for advanced system prompt and placeholder management system
 -   [**TROUBLESHOOTING.md**](TROUBLESHOOTING.md): A guide to common issues and their solutions
 -   [**LIVE_TRANSCRIPTION.md**](LIVE_TRANSCRIPTION.md): Implementation notes for the live earnings call feature
 -   [**DATABASE_ADMIN.md**](DATABASE_ADMIN.md): Comprehensive database administration using Supabase CLI tools and inspection commands
@@ -57,6 +58,13 @@ This document serves as the central index for all project documentation.
 - **Implemented** full CRUD operations for companies and company types
 - **Added** system prompt management with copy functionality
 - **Enhanced** admin capabilities with proper RLS policies and validation
+
+### Phase 5: Advanced System Prompt Management (August 2025) ✅
+- **Created** `SYSTEM_PROMPT_MANAGEMENT_TECHNICAL_SPEC.md` comprehensive technical specification
+- **Designed** hierarchical template system with inheritance (Global → Industry → Company)
+- **Specified** visual placeholder builders for complex JSON configurations
+- **Planned** 16-week implementation roadmap with detailed phases
+- **Researched** Next.js App Router and Supabase best practices using Context7 MCP
 
 ### Benefits
 - **Human docs** focus on understanding, rationale, and strategic context
