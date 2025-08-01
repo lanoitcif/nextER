@@ -305,36 +305,36 @@ export default function SystemPromptsPage() {
           )}
 
           {editingType && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl">
-                <h2 className="text-2xl font-bold mb-4">Edit {editingType.name}</h2>
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <h2 className="modal-header">Edit {editingType.name}</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Name</label>
+                    <label className="modal-label">Name</label>
                     <input
                       type="text"
                       value={editingType.name}
                       onChange={(e) =>
                         setEditingType({ ...editingType, name: e.target.value })
                       }
-                      className="w-full"
+                      className="modal-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Description</label>
+                    <label className="modal-label">Description</label>
                     <textarea
                       value={editingType.description}
                       onChange={(e) =>
                         setEditingType({ ...editingType, description: e.target.value })
                       }
-                      className="w-full h-24"
+                      className="modal-textarea h-24"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="modal-label">
                       System Prompt Template
                     </label>
-                    <p className="text-xs text-muted-foreground mb-2">
+                    <p className="modal-description mb-2">
                       Use {`{placeholders}`} for dynamic content like {`{role}`}, {`{classification_rules}`}, etc.
                     </p>
                     <textarea
@@ -345,7 +345,7 @@ export default function SystemPromptsPage() {
                           system_prompt_template: e.target.value,
                         })
                       }
-                      className="w-full h-96 font-mono text-sm p-3 border rounded-md"
+                      className="modal-textarea h-96 font-mono text-sm"
                       placeholder="Enter your system prompt template here..."
                     />
                   </div>
@@ -368,10 +368,10 @@ export default function SystemPromptsPage() {
 
           {/* Copy Prompt Modal */}
           {showCopyModal && copySource && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl">
-                <h2 className="text-2xl font-bold mb-4">Copy Prompt</h2>
-                <p className="mb-4">
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <h2 className="modal-header">Copy Prompt</h2>
+                <p className="mb-4 text-foreground">
                   Copy prompt from "{copySource.name}" to:
                 </p>
                 <div className="space-y-4 max-h-96 overflow-y-auto">
@@ -380,11 +380,11 @@ export default function SystemPromptsPage() {
                     .map((type) => (
                       <div
                         key={type.id}
-                        className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                        className="p-4 border border-border rounded-lg hover:bg-muted cursor-pointer"
                         onClick={() => handleApplyCopy(type.id)}
                       >
-                        <h3 className="font-semibold">{type.name}</h3>
-                        <p className="text-sm text-muted-foreground">
+                        <h3 className="font-semibold text-foreground">{type.name}</h3>
+                        <p className="modal-description">
                           {type.description}
                         </p>
                       </div>
@@ -407,12 +407,12 @@ export default function SystemPromptsPage() {
 
           {/* New Company Type Modal */}
           {showNewTypeModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl">
-                <h2 className="text-2xl font-bold mb-4">Create New Company Type</h2>
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <h2 className="modal-header">Create New Company Type</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Name</label>
+                    <label className="modal-label">Name</label>
                     <input
                       type="text"
                       value={newType.name || ''}
@@ -423,36 +423,36 @@ export default function SystemPromptsPage() {
                           id: generateTypeId(e.target.value)
                         })
                       }}
-                      className="w-full"
+                      className="modal-input"
                       placeholder="e.g., Healthcare REIT"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">ID (auto-generated)</label>
+                    <label className="modal-label">ID (auto-generated)</label>
                     <input
                       type="text"
                       value={newType.id || ''}
                       onChange={(e) => setNewType({ ...newType, id: e.target.value })}
-                      className="w-full"
+                      className="modal-input"
                       placeholder="e.g., healthcare_reit"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="modal-description mt-1">
                       Lowercase letters, numbers, and underscores only
                     </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Description</label>
+                    <label className="modal-label">Description</label>
                     <textarea
                       value={newType.description || ''}
                       onChange={(e) =>
                         setNewType({ ...newType, description: e.target.value })
                       }
-                      className="w-full h-24"
+                      className="modal-textarea h-24"
                       placeholder="Brief description of this company type"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="modal-label">
                       Initial Prompt Template (optional)
                     </label>
                     <textarea
@@ -460,7 +460,7 @@ export default function SystemPromptsPage() {
                       onChange={(e) =>
                         setNewType({ ...newType, system_prompt_template: e.target.value })
                       }
-                      className="w-full h-32 font-mono text-sm p-3 border rounded-md"
+                      className="modal-textarea h-32 font-mono text-sm"
                       placeholder="You can add the prompt template now or edit it later..."
                     />
                   </div>

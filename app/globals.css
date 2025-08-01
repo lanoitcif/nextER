@@ -149,4 +149,33 @@
   .scrollbar-retro::-webkit-scrollbar-thumb:hover {
     background: var(--primary);
   }
+  
+  /* Modal styling with proper contrast */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+  }
+  
+  .modal-content {
+    @apply bg-background text-foreground p-8 rounded-lg shadow-xl w-full max-w-2xl border border-border max-h-[90vh] overflow-y-auto;
+  }
+  
+  .modal-header {
+    @apply text-2xl font-bold mb-4 text-foreground;
+  }
+  
+  .modal-label {
+    @apply block text-sm font-medium mb-1 text-foreground;
+  }
+  
+  .modal-input {
+    @apply w-full bg-background text-foreground border border-input rounded-md px-3 py-2;
+  }
+  
+  .modal-textarea {
+    @apply w-full bg-background text-foreground border border-input rounded-md px-3 py-2 resize-y;
+  }
+  
+  .modal-description {
+    @apply text-sm text-muted-foreground;
+  }
 }

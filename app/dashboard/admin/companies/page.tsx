@@ -285,40 +285,40 @@ export default function CompaniesPage() {
 
           {/* Edit Company Modal */}
           {editingCompany && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl">
-                <h2 className="text-2xl font-bold mb-4">Edit Company</h2>
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <h2 className="modal-header">Edit Company</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Ticker</label>
+                    <label className="modal-label">Ticker</label>
                     <input
                       type="text"
                       value={editingCompany.ticker}
                       onChange={(e) =>
                         setEditingCompany({ ...editingCompany, ticker: e.target.value.toUpperCase() })
                       }
-                      className="w-full"
+                      className="modal-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Company Name</label>
+                    <label className="modal-label">Company Name</label>
                     <input
                       type="text"
                       value={editingCompany.name}
                       onChange={(e) =>
                         setEditingCompany({ ...editingCompany, name: e.target.value })
                       }
-                      className="w-full"
+                      className="modal-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Primary Analysis Type</label>
+                    <label className="modal-label">Primary Analysis Type</label>
                     <select
                       value={editingCompany.primary_company_type_id}
                       onChange={(e) =>
                         setEditingCompany({ ...editingCompany, primary_company_type_id: e.target.value })
                       }
-                      className="w-full"
+                      className="modal-input"
                     >
                       {companyTypes.map((type) => (
                         <option key={type.id} value={type.id}>
@@ -328,13 +328,13 @@ export default function CompaniesPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Status</label>
+                    <label className="modal-label">Status</label>
                     <select
                       value={editingCompany.is_active ? 'active' : 'inactive'}
                       onChange={(e) =>
                         setEditingCompany({ ...editingCompany, is_active: e.target.value === 'active' })
                       }
-                      className="w-full"
+                      className="modal-input"
                     >
                       <option value="active">Active</option>
                       <option value="inactive">Inactive</option>
@@ -359,42 +359,42 @@ export default function CompaniesPage() {
 
           {/* New Company Modal */}
           {showNewCompanyModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl">
-                <h2 className="text-2xl font-bold mb-4">Add New Company</h2>
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <h2 className="modal-header">Add New Company</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Ticker *</label>
+                    <label className="modal-label">Ticker *</label>
                     <input
                       type="text"
                       value={newCompany.ticker || ''}
                       onChange={(e) =>
                         setNewCompany({ ...newCompany, ticker: e.target.value.toUpperCase() })
                       }
-                      className="w-full"
+                      className="modal-input"
                       placeholder="e.g., AAPL"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Company Name *</label>
+                    <label className="modal-label">Company Name *</label>
                     <input
                       type="text"
                       value={newCompany.name || ''}
                       onChange={(e) =>
                         setNewCompany({ ...newCompany, name: e.target.value })
                       }
-                      className="w-full"
+                      className="modal-input"
                       placeholder="e.g., Apple Inc."
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Primary Analysis Type *</label>
+                    <label className="modal-label">Primary Analysis Type *</label>
                     <select
                       value={newCompany.primary_company_type_id || ''}
                       onChange={(e) =>
                         setNewCompany({ ...newCompany, primary_company_type_id: e.target.value })
                       }
-                      className="w-full"
+                      className="modal-input"
                     >
                       <option value="">-- Select Type --</option>
                       {companyTypes.map((type) => (
