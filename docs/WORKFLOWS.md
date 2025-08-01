@@ -140,6 +140,10 @@ flowchart TD
     Remove --> DELAssign[DELETE /api/admin/assign-api-key]
 ```
 
+## Company Administration Workflow
+
+For detailed company, company type, and system prompt management workflows, see [COMPANY_ADMINISTRATION_WORKFLOW.md](./COMPANY_ADMINISTRATION_WORKFLOW.md).
+
 ## Supabase Connection Workflow (Updated July 2025)
 
 This diagram maps how the application communicates with Supabase, including the new file upload endpoint and simplified architecture.

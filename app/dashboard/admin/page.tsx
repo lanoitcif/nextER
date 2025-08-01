@@ -4,7 +4,7 @@ import { useAuth, isAdmin } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
-import { Users, Key, BarChart3, Settings, ArrowLeft } from 'lucide-react'
+import { Users, Key, BarChart3, Settings, ArrowLeft, Building2 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -312,6 +312,22 @@ export default function AdminPage() {
                     <h3 className="text-lg font-semibold">System Prompts</h3>
                     <p className="text-sm text-muted-foreground mt-1">
                       Manage system prompts for different company types
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            <Link href="/dashboard/admin/companies" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
+              <div className="card-content p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-blue-500/20 p-3 rounded-lg">
+                    <Building2 className="h-8 w-8 text-blue-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Company Management</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Manage companies, tickers, and analysis types
                     </p>
                   </div>
                 </div>

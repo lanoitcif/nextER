@@ -1,6 +1,6 @@
 # NEaR Project Documentation Index
 
-**Last Updated**: July 20, 2025
+**Last Updated**: August 1, 2025
 
 This document serves as the central index for all project documentation.
 
@@ -15,9 +15,8 @@ This document serves as the central index for all project documentation.
 ## Specialized Documentation
 
 -   [**WORKFLOWS.md**](WORKFLOWS.md): Visual diagrams of user and system workflows
--   [**DESIGN.md**](DESIGN.md): The project's design system, including color palette, typography, and component styles
+-   [**COMPANY_ADMINISTRATION_WORKFLOW.md**](COMPANY_ADMINISTRATION_WORKFLOW.md): Complete workflow for managing companies, company types, and system prompts
 -   [**TROUBLESHOOTING.md**](TROUBLESHOOTING.md): A guide to common issues and their solutions
--   [**COLLABORATION.md**](COLLABORATION.md): The multi-AI collaboration framework used in this project
 -   [**LIVE_TRANSCRIPTION.md**](LIVE_TRANSCRIPTION.md): Implementation notes for the live earnings call feature
 -   [**DATABASE_ADMIN.md**](DATABASE_ADMIN.md): Comprehensive database administration using Supabase CLI tools and inspection commands
 
@@ -29,9 +28,9 @@ This document serves as the central index for all project documentation.
 ## AI Agent Documentation
 
 -   [**AI_KNOWLEDGE_GRAPH.yaml**](../AI_KNOWLEDGE_GRAPH.yaml): Structured operational knowledge for AI agents and knowledge graphs
--   [**AI_KNOWLEDGE_STRUCTURE.md**](../AI_KNOWLEDGE_STRUCTURE.md): Visual Mermaid chart showing YAML organization and navigation guide
+-   [**AI_KNOWLEDGE_STRUCTURE.md**](AI_KNOWLEDGE_STRUCTURE.md): Visual Mermaid chart showing YAML organization and navigation guide
+-   [**DOCUMENTATION_STRATEGY.md**](DOCUMENTATION_STRATEGY.md): Human vs AI documentation architecture and guidelines
 -   [**CLAUDE_WAKEUP.md**](../CLAUDE_WAKEUP.md): Context and memory for AI agent sessions
--   [**DOCUMENTATION_STRATEGY.md**](../DOCUMENTATION_STRATEGY.md): Human vs AI documentation architecture and guidelines
 
 ## Documentation Evolution (January 2025)
 
@@ -52,6 +51,12 @@ This document serves as the central index for all project documentation.
 - **Updated** `WORKFLOWS.md` Mermaid diagrams to reflect Analysis Type removal and file upload
 - **Enhanced** `AI_KNOWLEDGE_GRAPH.yaml` with UX simplification patterns and lessons learned
 - **Integrated** file upload architecture and implementation details
+
+### Phase 4: Company Administration System (August 2025) ✅
+- **Created** `COMPANY_ADMINISTRATION_WORKFLOW.md` with comprehensive admin workflows
+- **Implemented** full CRUD operations for companies and company types
+- **Added** system prompt management with copy functionality
+- **Enhanced** admin capabilities with proper RLS policies and validation
 
 ### Benefits
 - **Human docs** focus on understanding, rationale, and strategic context
