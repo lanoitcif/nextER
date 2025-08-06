@@ -225,6 +225,24 @@ export default function DashboardPage() {
               </Link>
             )}
 
+            {isAdmin(profile) && (
+              <Link href="/dashboard/templates" className="card hover:shadow-xl transition-all duration-200 hover:scale-105">
+                <div className="card-content">
+                  <div className="flex items-center space-x-4">
+                    <div className="bg-destructive/20 p-3 rounded-lg">
+                      <Settings className="h-8 w-8 text-destructive" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold">Analysis Templates</h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Configure prompts and output formats
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            )}
+
             {/* Recent Activity */}
             <div className="md:col-span-2 lg:col-span-3 card">
               <div className="card-header">
