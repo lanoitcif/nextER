@@ -16,7 +16,7 @@
     --secondary: 158 51% 58%;      /* Pacific Teal Mist */
     --secondary-foreground: 240 10% 3.9%; /* Dark Gray */
     --muted: 240 5% 90%;            /* Lighter Gray */
-    --muted-foreground: 240 5% 65%;  /* Medium Gray */
+    --muted-foreground: 240 5% 45%;  /* Darker Medium Gray for better contrast */
     --accent: 242 59% 69%;          /* Cool Grape Static */
     --accent-foreground: 240 10% 3.9%; /* Dark Gray */
     --destructive: 358 85% 72%;    /* Sunbleached Coral */
@@ -40,13 +40,13 @@
     --secondary: 158 51% 58%;        /* Pacific Teal Mist */
     --secondary-foreground: 240 6% 10%; /* Near Black */
     --muted: 240 6% 13%;             /* Darker Charcoal */
-    --muted-foreground: 44 50% 80%;  /* Lighter Cream */
+    --muted-foreground: 44 50% 70%;  /* Better contrast for dark theme */
     --accent: 242 59% 69%;          /* Cool Grape Static */
     --accent-foreground: 240 6% 10%; /* Near Black */
     --destructive: 358 85% 72%;      /* Sunbleached Coral */
     --destructive-foreground: 240 6% 10%; /* Near Black */
-    --border: 240 6% 20%;            /* Charcoal Border */
-    --input: 240 6% 20%;             /* Charcoal Border */
+    --border: 240 6% 25%;            /* Lighter Charcoal Border for visibility */
+    --input: 240 6% 25%;             /* Lighter Charcoal Border for visibility */
     --ring: 358 85% 72%;             /* Sunbleached Coral */
   }
 }
@@ -177,5 +177,39 @@
   
   .modal-description {
     @apply text-sm text-muted-foreground;
+  }
+  
+  /* Utility classes for better text contrast */
+  .text-subtle {
+    @apply text-muted-foreground;
+  }
+  
+  .text-prominent {
+    @apply text-foreground font-medium;
+  }
+  
+  /* Fix for hardcoded gray classes in components */
+  .dark .text-gray-400 {
+    color: hsl(var(--muted-foreground));
+  }
+  
+  .dark .text-gray-300 {
+    color: hsl(var(--foreground) / 0.8);
+  }
+  
+  .dark .text-gray-600 {
+    color: hsl(var(--muted-foreground));
+  }
+  
+  .text-gray-400 {
+    color: hsl(var(--muted-foreground));
+  }
+  
+  .text-gray-300 {
+    color: hsl(var(--foreground) / 0.7);
+  }
+  
+  .text-gray-600 {
+    color: hsl(var(--muted-foreground));
   }
 }
