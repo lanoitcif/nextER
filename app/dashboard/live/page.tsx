@@ -193,6 +193,8 @@ export default function LiveTranscriptionPage() {
         body: audioStream,
         signal: abortControllerRef.current.signal,
         headers: { 'Content-Type': 'application/octet-stream' },
+        // @ts-ignore - duplex is needed for streaming bodies
+        duplex: 'half'
       })
 
       if (!response.ok || !response.body) {
