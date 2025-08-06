@@ -42,20 +42,23 @@ This is the NextER (Next Earnings Release) project directory containing a sophis
    - Limited test coverage (only 5 test files)
    - Good overall architecture and TypeScript usage
 
-## Critical Issues Identified
-1. **Android File Upload**: Still broken on Chrome mobile - endless loading state
-2. **Security Settings**: 
+## Critical Issues Being Addressed
+1. **RLS Performance**: Jules working on refactoring in feature branch
+2. **Component Refactoring**: Jules addressing analyze/page.tsx (1845 lines)
+3. **Security Settings**: 
    - OTP expiry too long (604800 seconds = 7 days)
    - Leaked password protection disabled
-3. **RLS Performance**: Circular dependencies in policies causing inefficiencies
-4. **Mobile Word Export**: iPhone compatibility issues with .doc files
-5. **UI/UX Issue**: Font color legibility problem reported (needs investigation)
+4. **Test Coverage**: Only 5 test files - TDD approach now documented
 
 ## Technical Debt
-- **analyze/page.tsx**: 1845 lines - needs splitting into smaller components
-- **Test Coverage**: Only 5 test files - needs comprehensive testing
+- **Test Coverage**: Comprehensive TDD specification created
 - **Hardcoded Values**: LLM model lists should be configuration-driven
-- **Missing Documentation**: No API documentation for endpoints
+- **Deepgram Integration**: Fixed fetch error in streaming endpoint
+
+## Archived Issues
+- **Android File Upload**: Deprioritized - multiple versions old, to be retested later
+- **Mobile Word Export**: iPhone compatibility - needs retesting after updates
+- **UI/UX Font Color**: Resolved in previous updates
 
 ## Development Standards
 - TypeScript strict mode required
@@ -103,11 +106,11 @@ This is the NextER (Next Earnings Release) project directory containing a sophis
 - **Documentation**: Consolidated into DEVELOPMENT_STATUS.md for easier maintenance
 
 ## Immediate Priorities (In Order)
-1. **Fix Android file upload** - Critical user-facing issue
-2. **Update Supabase security settings** - OTP expiry and password protection
-3. **Fix RLS circular dependencies** - Performance and scalability issue
-4. **Refactor analyze component** - Split 1845-line file into manageable pieces
-5. **Add comprehensive testing** - Currently only 5 test files exist
+1. **Test-Driven Development Implementation** - Following TEST_DRIVEN_DEVELOPMENT.md
+2. **Template Library UI** - Core feature for business value
+3. **Visual Placeholder Builders** - Enable non-technical users
+4. **Database Migration Deployment** - Enhanced template system to production
+5. **Review Jules' Work** - RLS refactoring and component splitting branches
 
 ## Planned Feature Development
 
