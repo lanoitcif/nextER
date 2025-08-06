@@ -170,15 +170,38 @@ export default function LiveTranscriptionPage() {
         start(controller) {
           const recorder = new MediaRecorder(mediaStream, { mimeType })
           mediaRecorderRef.current = recorder
+          let streamClosed = false
 
           recorder.ondataavailable = (event) => {
-            if (event.data.size > 0) {
-              controller.enqueue(event.data)
+            if (event.data.size > 0 && !streamClosed) {
+              try {
+                controller.enqueue(event.data)
+              } catch (error) {
+                console.error('Failed to enqueue data:', error)
+                streamClosed = true
+              }
             }
           }
           
           recorder.onstop = () => {
-            controller.close()
+            if (!streamClosed) {
+              try {
+                controller.close()
+              } catch (error) {
+                console.error('Failed to close controller:', error)
+              }
+              streamClosed = true
+            }
+          }
+
+          recorder.onerror = (event) => {
+            console.error('MediaRecorder error:', event)
+            streamClosed = true
+            try {
+              controller.error(new Error('MediaRecorder error'))
+            } catch (error) {
+              console.error('Failed to signal error:', error)
+            }
           }
 
           recorder.start(250) // Send chunks every 250ms
@@ -264,34 +287,56 @@ export default function LiveTranscriptionPage() {
   }
 
   return (
-    <div className="p-4 container mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Live Transcription</h1>
-      <p className="mb-4 text-gray-600 dark:text-gray-400">
-        Click "Start Recording" to transcribe audio from your microphone or browser tab. Live transcription will appear below.
-      </p>
-      <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-        <p className="text-sm text-blue-800 dark:text-blue-200">
-          <strong>Note:</strong> This feature works best in Chrome or Firefox on desktop. 
-          Grant microphone permission when prompted, or select a browser tab with audio.
-        </p>
-      </div>
-      <div className="mb-4 flex items-center gap-4">
-        <button
-          className={`px-6 py-3 text-white font-bold rounded-lg transition-colors ${
-            isRecording ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'
-          }`}
-          onClick={startRecording}
-        >
-          {isRecording ? 'Stop Recording' : 'Start Recording'}
-        </button>
-        <span className="text-lg font-medium">{status}</span>
-      </div>
-      <div className="border p-6 h-[50vh] overflow-y-auto bg-gray-50 dark:bg-gray-800 rounded-lg shadow-inner">
-        <p className="whitespace-pre-wrap text-lg">
-          {finalTranscript}
-          <span className="text-gray-500">{interimTranscript}</span>
-        </p>
-      </div>
+    <div className="min-h-screen">
+      {/* Header */}
+      <header className="shadow-lg border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <div className="flex items-center space-x-3">
+              <h1 className="text-2xl font-bold">Live Transcription</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <a
+                href="/dashboard"
+                className="btn-ghost flex items-center space-x-2"
+              >
+                <span>← Back to Dashboard</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="px-4 py-6 sm:px-0">
+          <p className="mb-4 text-gray-600 dark:text-gray-400">
+            Click "Start Recording" to transcribe audio from your microphone or browser tab. Live transcription will appear below.
+          </p>
+          <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              <strong>Note:</strong> This feature works best in Chrome or Firefox on desktop. 
+              Grant microphone permission when prompted, or select a browser tab with audio.
+            </p>
+          </div>
+          <div className="mb-4 flex items-center gap-4">
+            <button
+              className={`px-6 py-3 text-white font-bold rounded-lg transition-colors ${
+                isRecording ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'
+              }`}
+              onClick={startRecording}
+            >
+              {isRecording ? 'Stop Recording' : 'Start Recording'}
+            </button>
+            <span className="text-lg font-medium">{status}</span>
+          </div>
+          <div className="border p-6 h-[50vh] overflow-y-auto bg-gray-50 dark:bg-gray-800 rounded-lg shadow-inner">
+            <p className="whitespace-pre-wrap text-lg">
+              {finalTranscript}
+              <span className="text-gray-500">{interimTranscript}</span>
+            </p>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }
