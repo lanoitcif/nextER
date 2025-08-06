@@ -44,10 +44,19 @@ async function makeRequest(url, options = {}) {
       let data = '';
       res.on('data', (chunk) => data += chunk);
       res.on('end', () => {
+        let parsedData = null;
+        if (data) {
+          try {
+            parsedData = JSON.parse(data);
+          } catch (e) {
+            // If JSON parsing fails, return raw data
+            parsedData = data;
+          }
+        }
         resolve({
           status: res.statusCode,
           headers: res.headers,
-          data: data ? JSON.parse(data) : null
+          data: parsedData
         });
       });
     });
