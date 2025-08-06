@@ -1,6 +1,6 @@
-# NEaR Project Documentation Index
+# NextER Documentation Index
 
-**Last Updated**: August 1, 2025
+**Last Updated**: August 6, 2025
 
 This document serves as the central index for all project documentation.
 

@@ -1,6 +1,6 @@
-# NextER (NEaR) - Next Earnings Release
+# NextER - Next Earnings Release
 
-A sophisticated SaaS platform for AI-powered earnings call transcript analysis with real-time transcription and visual template management.
+> AI-powered earnings call transcript analysis platform with real-time transcription and enterprise template management
 
 ## 🎯 Project Status
 
