@@ -91,21 +91,61 @@ export default function LiveTranscriptionPage() {
     }
 
     try {
+      // Check browser compatibility first
+      if (!navigator.mediaDevices || !window.MediaRecorder) {
+        throw new Error('Your browser does not support audio recording. Please use Chrome, Firefox, or Edge.')
+      }
+
       setStatus('Requesting media access...')
-      const mediaStream = await navigator.mediaDevices.getDisplayMedia({
-        audio: {
-          // Recommended settings for Deepgram
-          sampleRate: 16000,
-          channelCount: 1,
-        },
-        video: false,
-      })
+      
+      let mediaStream: MediaStream
+      
+      // Try microphone first (more widely supported)
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            sampleRate: 16000,
+            channelCount: 1,
+            echoCancellation: true,
+            noiseSuppression: true,
+          },
+        })
+        setStatus('Microphone connected')
+      } catch (micError: any) {
+        console.log('Microphone access failed:', micError.message)
+        
+        // Fallback to display media (tab/screen audio)
+        try {
+          mediaStream = await navigator.mediaDevices.getDisplayMedia({
+            audio: {
+              sampleRate: 16000,
+              channelCount: 1,
+            },
+            video: false,
+          })
+          setStatus('Tab/screen audio connected')
+        } catch (displayError: any) {
+          console.error('Display media failed:', displayError.message)
+          
+          // Provide specific error messages
+          if (micError.name === 'NotAllowedError' || displayError.name === 'NotAllowedError') {
+            throw new Error('Microphone access denied. Please grant permission in your browser settings and reload the page.')
+          } else if (micError.name === 'NotFoundError') {
+            throw new Error('No microphone found. Please connect a microphone and try again.')
+          } else if (micError.name === 'NotSupportedError' || displayError.name === 'NotSupportedError') {
+            throw new Error('Audio recording is not supported in this browser or context. Please try Chrome or Firefox on desktop.')
+          } else {
+            throw new Error('Could not access microphone or tab audio. Please check your browser settings.')
+          }
+        }
+      }
+      
       mediaStreamRef.current = mediaStream
       setFinalTranscript('')
       setInterimTranscript('')
 
       mediaStream.getTracks()[0].onended = () => {
-        setStatus('Screen share stopped.')
+        setStatus('Audio stopped.')
         stopRecording()
       }
 
@@ -114,9 +154,21 @@ export default function LiveTranscriptionPage() {
 
       abortControllerRef.current = new AbortController()
 
+      // Determine supported MIME type
+      let mimeType = 'audio/webm'
+      if (MediaRecorder.isTypeSupported) {
+        if (MediaRecorder.isTypeSupported('audio/webm')) {
+          mimeType = 'audio/webm'
+        } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+          mimeType = 'audio/mp4'
+        } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
+          mimeType = 'audio/ogg'
+        }
+      }
+
       const audioStream = new ReadableStream({
         start(controller) {
-          const recorder = new MediaRecorder(mediaStream)
+          const recorder = new MediaRecorder(mediaStream, { mimeType })
           mediaRecorderRef.current = recorder
 
           recorder.ondataavailable = (event) => {
@@ -157,6 +209,7 @@ export default function LiveTranscriptionPage() {
         console.error('Error starting recording:', error)
         setStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`)
       }
+      setIsRecording(false)
       stopRecording()
     }
   }
@@ -212,8 +265,14 @@ export default function LiveTranscriptionPage() {
     <div className="p-4 container mx-auto">
       <h1 className="text-2xl font-bold mb-4">Live Transcription</h1>
       <p className="mb-4 text-gray-600 dark:text-gray-400">
-        Click "Start Recording", select the browser tab with your webcast audio, and see the live transcription below.
+        Click "Start Recording" to transcribe audio from your microphone or browser tab. Live transcription will appear below.
       </p>
+      <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+        <p className="text-sm text-blue-800 dark:text-blue-200">
+          <strong>Note:</strong> This feature works best in Chrome or Firefox on desktop. 
+          Grant microphone permission when prompted, or select a browser tab with audio.
+        </p>
+      </div>
       <div className="mb-4 flex items-center gap-4">
         <button
           className={`px-6 py-3 text-white font-bold rounded-lg transition-colors ${
