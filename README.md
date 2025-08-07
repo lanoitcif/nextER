@@ -10,9 +10,6 @@
 
 ## 📋 Quick Start
 
-### For Investors & Stakeholders
-- **[Investor Overview](INVESTOR_OVERVIEW.md)** - Business case and market opportunity
-- **[Demo Guide](FUNDING_DEMO_GUIDE.md)** - 10-minute investor demo walkthrough
 - **[Technical Architecture](TECHNICAL_ARCHITECTURE.md)** - System design and scalability
 
 ### For Developers
