@@ -7,31 +7,12 @@ import { supabase } from '@/lib/supabase/client'
 import { 
   Plus, Edit2, Trash2, Save, X, FileText, Settings, 
   ChevronDown, ChevronRight, Info, Copy, Check,
-  Building2, Hash, Type, FileJson, List, BarChart
+  Building2, Hash, Type, FileJson, List, BarChart,
+  Grid3x3, Table
 } from 'lucide-react'
 import Link from 'next/link'
-
-interface Template {
-  id: string
-  name: string
-  description: string | null
-  system_prompt_template: string
-  classification_rules: any
-  key_metrics: any
-  output_format: any
-  validation_rules: string[] | null
-  special_considerations: any
-  llm_settings?: {
-    temperature?: number
-    top_p?: number
-    max_tokens?: number
-    frequency_penalty?: number
-    presence_penalty?: number
-  }
-  is_active: boolean
-  created_at: string
-  updated_at: string
-}
+import TemplateLibrary from '@/components/templates/TemplateLibrary'
+import { Template } from '@/types/template'
 
 interface JsonFieldProps {
   label: string
@@ -185,6 +166,7 @@ export default function EnhancedTemplatesPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [activeTab, setActiveTab] = useState<'prompt' | 'classification' | 'metrics' | 'output' | 'llm'>('prompt')
+  const [viewMode, setViewMode] = useState<'library' | 'table'>('library')
 
   useEffect(() => {
     if (loading) return
@@ -892,15 +874,40 @@ MANDATORY FORMAT:
               Analysis Templates
             </h1>
           </div>
-          {!newTemplate && !editingId && (
-            <button
-              onClick={handleNewTemplate}
-              className="btn-primary flex items-center gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              New Template
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {/* View Mode Toggle */}
+            {!newTemplate && !editingId && (
+              <div className="flex rounded-lg border border-border">
+                <button
+                  onClick={() => setViewMode('library')}
+                  className={`px-3 py-1.5 flex items-center gap-1.5 text-sm ${
+                    viewMode === 'library' ? 'bg-primary text-primary-foreground' : ''
+                  }`}
+                >
+                  <Grid3x3 className="w-4 h-4" />
+                  Library
+                </button>
+                <button
+                  onClick={() => setViewMode('table')}
+                  className={`px-3 py-1.5 flex items-center gap-1.5 text-sm ${
+                    viewMode === 'table' ? 'bg-primary text-primary-foreground' : ''
+                  }`}
+                >
+                  <Table className="w-4 h-4" />
+                  Table
+                </button>
+              </div>
+            )}
+            {!newTemplate && !editingId && viewMode === 'table' && (
+              <button
+                onClick={handleNewTemplate}
+                className="btn-primary flex items-center gap-2"
+              >
+                <Plus className="w-5 h-5" />
+                New Template
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Messages */}
@@ -921,7 +928,19 @@ MANDATORY FORMAT:
         )}
 
         {/* Templates List */}
-        {!newTemplate && !editingId && (
+        {!newTemplate && !editingId && viewMode === 'library' && (
+          <TemplateLibrary
+            templates={templates}
+            onSelectTemplate={(template) => setEditingId(template.id)}
+            onEditTemplate={(template) => setEditingId(template.id)}
+            onDeleteTemplate={handleDelete}
+            onCreateTemplate={handleNewTemplate}
+            isAdmin={true}
+          />
+        )}
+        
+        {/* Table View */}
+        {!newTemplate && !editingId && viewMode === 'table' && (
           <div className="grid gap-4">
             {templates.map((template) => (
               <div key={template.id} className="card hover:shadow-lg transition-shadow">
