@@ -11,7 +11,6 @@
 ## 📋 Quick Start
 
 - **[API Documentation](docs/API_DOCUMENTATION.md)** - Comprehensive REST API reference
-- **[Development Handoff](DEVELOPMENT_HANDOFF_AUGUST_2025.md)** - Complete development context
 - **[Claude Instructions](CLAUDE.md)** - AI assistant configuration
 
 ## 🚀 Key Features
