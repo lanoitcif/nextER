@@ -124,18 +124,40 @@ export default function AdminApiKeysPage() {
   const fetchUserApiKeys = async () => {
     try {
       setLoadingKeys(true)
-      const { data, error } = await supabase
+      // First get the API keys
+      const { data: keysData, error: keysError } = await supabase
         .from('user_api_keys')
-        .select(`
-          *,
-          user_profiles!user_api_keys_user_id_fkey(email, full_name),
-          admin_profiles:user_profiles!user_api_keys_admin_assigned_by_fkey(email, full_name)
-        `)
+        .select('*')
         .eq('assigned_by_admin', true)
         .order('created_at', { ascending: false })
 
-      if (error) throw error
-      setUserApiKeys(data || [])
+      if (keysError) throw keysError
+
+      // Then get the user profiles for each key
+      if (keysData && keysData.length > 0) {
+        const userIds = [...new Set(keysData.map(k => k.user_id))]
+        const adminIds = [...new Set(keysData.filter(k => k.admin_assigned_by).map(k => k.admin_assigned_by))]
+        
+        const { data: userProfiles } = await supabase
+          .from('user_profiles')
+          .select('id, email, full_name')
+          .in('id', [...userIds, ...adminIds])
+
+        // Map profiles to keys
+        const keysWithProfiles = keysData.map(key => {
+          const userProfile = userProfiles?.find(p => p.id === key.user_id)
+          const adminProfile = userProfiles?.find(p => p.id === key.admin_assigned_by)
+          return {
+            ...key,
+            user_profiles: userProfile,
+            admin_profiles: adminProfile
+          }
+        })
+        
+        setUserApiKeys(keysWithProfiles)
+      } else {
+        setUserApiKeys([])
+      }
     } catch (error: any) {
       console.error('Error fetching user API keys:', error)
       setError('Failed to load API keys')
