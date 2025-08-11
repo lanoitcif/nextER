@@ -1,53 +1,64 @@
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom'
+import { TextEncoder, TextDecoder } from 'util'
 
-// Mock Next.js Request/Response objects
-global.Request = global.Request || class Request {
-  constructor(url, init = {}) {
-    this.url = url;
-    this.method = init.method || 'GET';
-    this.headers = new Map(Object.entries(init.headers || {}));
-    this.body = init.body;
-  }
-  
-  async json() {
-    return JSON.parse(this.body);
-  }
-  
-  async text() {
-    return this.body;
-  }
-};
+// Polyfills for Node.js environment
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder
 
-global.Response = global.Response || class Response {
-  constructor(body, init = {}) {
-    this.body = body;
-    this.status = init.status || 200;
-    this.statusText = init.statusText || 'OK';
-    this.headers = new Map(Object.entries(init.headers || {}));
+// Mock environment variables
+process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key'
+process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key'
+
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(), // deprecated
+    removeListener: jest.fn(), // deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+})
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+  takeRecords() {
+    return []
   }
-  
-  async json() {
-    return typeof this.body === 'string' ? JSON.parse(this.body) : this.body;
+}
+
+// Mock fetch for tests
+global.fetch = jest.fn()
+
+// Suppress console errors during tests (optional)
+const originalError = console.error
+beforeAll(() => {
+  console.error = (...args) => {
+    if (
+      typeof args[0] === 'string' &&
+      args[0].includes('Warning: ReactDOM.render')
+    ) {
+      return
+    }
+    originalError.call(console, ...args)
   }
-  
-  async text() {
-    return typeof this.body === 'string' ? this.body : JSON.stringify(this.body);
-  }
-};
+})
 
-// Provide required env vars for tests
-process.env.USER_API_KEY_ENCRYPTION_SECRET =
-  process.env.USER_API_KEY_ENCRYPTION_SECRET ||
-  '12345678901234567890123456789012';
+afterAll(() => {
+  console.error = originalError
+})
 
-process.env.NEXT_PUBLIC_SUPABASE_URL = 
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 
-  'https://example.supabase.co';
-
-process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4YW1wbGUiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYyNzIwODU0MiwiZXhwIjoxOTc0MzYzNzQyfQ.M8HTlNqVQA8FgAdWro9xLVrKaRcqWYwqktNMmkTGWZg';
-
-process.env.SUPABASE_SERVICE_ROLE_KEY =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4YW1wbGUiLCJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjI3MjA4NTQyLCJleHAiOjE5NzQzNjM3NDJ9.5kPVbLRnQa3DJV-Y0S8rXnB0Vvkt-ywGmqrZmYL0H4k';
+// Clean up after each test
+afterEach(() => {
+  jest.clearAllMocks()
+  jest.restoreAllMocks()
+})

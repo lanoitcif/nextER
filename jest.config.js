@@ -5,22 +5,74 @@ const createJestConfig = nextJest({
   dir: './',
 })
 
-// Add any custom config to be passed to Jest
-const customJestConfig = {
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testEnvironment: 'jsdom',
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/$1'
-  },
-  testEnvironmentOptions: {
-    customExportConditions: [''],
-  },
-  testPathIgnorePatterns: [
-    '<rootDir>/.next/',
-    '<rootDir>/node_modules/'
+const config = {
+  // Coverage configuration
+  coverageProvider: 'v8',
+  collectCoverageFrom: [
+    'app/**/*.{js,jsx,ts,tsx}',
+    'components/**/*.{js,jsx,ts,tsx}',
+    'lib/**/*.{js,jsx,ts,tsx}',
+    '!**/*.d.ts',
+    '!**/node_modules/**',
+    '!**/.next/**',
+    '!**/coverage/**',
+    '!**/dist/**',
+    '!**/build/**',
+    '!**/*.config.{js,ts}',
   ],
-  moduleDirectories: ['node_modules', '<rootDir>']
+  coverageThreshold: {
+    global: {
+      branches: 40, // Start with achievable goals
+      functions: 40,
+      lines: 40,
+      statements: 40,
+    },
+  },
+  coverageReporters: ['text', 'lcov', 'html'],
+
+  // Test environment
+  testEnvironment: 'jest-environment-jsdom',
+  
+  // Setup files
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  
+  // Module paths
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/$1',
+    '^.+\\.(css|sass|scss)$': 'identity-obj-proxy',
+    '^.+\\.(jpg|jpeg|png|gif|webp|svg)$': '<rootDir>/__mocks__/fileMock.js',
+  },
+  
+  // Test patterns
+  testMatch: [
+    '**/__tests__/**/*.{js,jsx,ts,tsx}',
+    '**/*.{spec,test}.{js,jsx,ts,tsx}',
+  ],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/.next/',
+    '/coverage/',
+    '/dist/',
+    '/build/',
+    '/e2e/', // E2E tests run separately with Playwright
+  ],
+  
+  // Transform files
+  transform: {
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }],
+  },
+  
+  // Clear mocks between tests
+  clearMocks: true,
+  
+  // Restore mocks between tests
+  restoreMocks: true,
+  
+  // Verbose output
+  verbose: true,
+  
+  // Max workers for parallel testing
+  maxWorkers: '50%',
 }
 
-// createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
-module.exports = createJestConfig(customJestConfig)
+module.exports = createJestConfig(config)
