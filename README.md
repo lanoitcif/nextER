@@ -4,7 +4,7 @@
 
 ## 🎯 Project Status
 
-**Production Ready** - Deployed at [lanoitcif.com](https://lanoitcif.com)  
+**Production Ready** - Deployed at [nextearningsrelease.com](https://nextearningsrelease.com)  
 **Last Updated**: August 6, 2025  
 **Current Phase**: Enterprise feature development and funding preparation
 

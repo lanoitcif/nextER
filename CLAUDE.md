@@ -3,7 +3,7 @@
 This is the NextER (Next Earnings Release) project directory containing a sophisticated SaaS platform for AI-powered earnings call transcript analysis.
 
 ## Current Project Status (August 6, 2025 - Active Development)
-- **Production**: Deployed on Vercel at lanoitcif.com
+- **Production**: Deployed on Vercel at nextearningsrelease.com (formerly lanoitcif.com)
 - **Build Status**: ✅ SUCCESSFUL  
 - **Code Quality**: Improving - TDD approach established, refactoring planned
 - **Database**: Supabase project xorjwzniopfuosadwvfu with RLS performance improvements applied
