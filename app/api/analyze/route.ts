@@ -233,7 +233,57 @@ export async function POST(request: NextRequest) {
         break
 
       case 'user_saved':
+        // New logic: Check for organization key first
+        const { data: orgMembers, error: orgMemberError } = await supabaseAdmin
+          .from('organization_members')
+          .select('organization_id')
+          .eq('user_id', user.id)
+          .limit(1)
+
+        let orgApiKeyFound = false;
+        if (orgMembers && orgMembers.length > 0) {
+          const organization_id = orgMembers[0].organization_id
+          const { data: orgApiKey, error: orgKeyError } = await supabaseAdmin
+            .from('organization_api_keys')
+            .select('*')
+            .eq('organization_id', organization_id)
+            .eq('provider', provider)
+            .maybeSingle()
+
+          if (orgApiKey) {
+            try {
+              apiKey = decryptFromStorage(orgApiKey.encrypted_api_key, orgApiKey.encryption_iv)
+              orgApiKeyFound = true;
+              console.log(`[${requestId}] Using API key from organization: ${organization_id}`)
+            } catch (decryptError) {
+              // Log the error but fall through to user key
+              console.error(`[${requestId}] Failed to decrypt organization API key`, decryptError)
+            }
+          }
+        }
+
+        if (orgApiKeyFound) {
+          break;
+        }
+
+        // Fallback to user's personal key if no organization key is found/valid
         if (!userApiKeyId) {
+          // If no org key, and no user key id, we can't proceed.
+          // But if there's no org key, the user might not expect to need a personal key selected.
+          // For now, we'll return an error if no key can be found.
+           const { data: orgMembersCheck } = await supabaseAdmin
+            .from('organization_members')
+            .select('organization_id')
+            .eq('user_id', user.id)
+            .limit(1)
+
+          if(orgMembersCheck && orgMembersCheck.length > 0) {
+            return NextResponse.json(
+              { error: `Your organization does not have an API key configured for ${provider}. Please contact your administrator.` },
+              { status: 404 }
+            )
+          }
+
           return NextResponse.json(
             { error: 'User API key ID required for saved key' },
             { status: 400 }
